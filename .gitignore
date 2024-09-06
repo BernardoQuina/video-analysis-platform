@@ -1,0 +1,22 @@
+# dependencies
+**/node_modules
+
+#prod
+build
+dist
+
+# next
+apps/frontend/.next
+
+apps/frontend/next-env.d.ts
+
+# local env
+**/.env
+**/.env.*
+!**/.env.example
+
+# IDE
+.vscode
+
+# turbo
+.turbo
