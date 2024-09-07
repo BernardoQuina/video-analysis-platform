@@ -7,14 +7,5 @@ export default function Home() {
     return <div>Loading...</div>;
   }
 
-  console.log('hello');
-
-  return (
-    <div>
-      <head>
-        <title>this is the title</title>
-      </head>
-      {data.message}
-    </div>
-  );
+  return <div>{data.message}</div>;
 }
