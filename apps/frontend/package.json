@@ -6,8 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "tsc --noEmit || eslint .",
-    "lint:fix": "tsc --noEmit || eslint . --fix",
+    "lint": "tsc --noEmit && eslint .",
+    "lint:fix": "tsc --noEmit && eslint . --fix",
     "format": "prettier --check ."
   },
   "dependencies": {

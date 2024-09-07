@@ -2,6 +2,7 @@
   "extends": [
     "../../.eslintrc.json",
     "next/typescript",
+    "next/core-web-vitals",
     "plugin:react/recommended"
   ],
   "plugins": ["react", "react-hooks", "jsx-a11y"],

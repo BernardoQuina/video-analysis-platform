@@ -7,6 +7,8 @@ export default function Home() {
     return <div>Loading...</div>;
   }
 
+  console.log('hello');
+
   return (
     <div>
       <head>

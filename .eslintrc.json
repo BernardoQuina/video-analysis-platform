@@ -22,7 +22,8 @@
       }
     ],
     "no-unused-vars": "error",
-    "no-multiple-empty-lines": ["error", { "max": 1 }]
+    "no-multiple-empty-lines": ["error", { "max": 1 }],
+    "no-console": ["warn", { "allow": ["warn", "error"] }]
   },
   "ignorePatterns": ["node_modules/", "dist/", "build/"],
   "overrides": [
