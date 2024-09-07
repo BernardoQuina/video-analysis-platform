@@ -7,8 +7,8 @@ dist
 
 # next
 apps/frontend/.next
-
 apps/frontend/next-env.d.ts
+apps/frontend/tsconfig.tsbuildinfo
 
 # local env
 **/.env
