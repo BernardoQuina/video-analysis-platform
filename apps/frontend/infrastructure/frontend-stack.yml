@@ -1,0 +1,88 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Frontend deployment stack for S3 and CloudFront
+
+Parameters:
+  BucketName:
+    Type: String
+    Description: Name of the S3 bucket to create
+
+Resources:
+  # S3 bucket (static website hosting)
+  FrontendBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref BucketName
+      # This block ensures the bucket is not publicly accessible
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      # Enables server-side encryption for the bucket
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+
+  # CloudFront Origin Access Identity (OAI)
+  # This is used to allow CloudFront to access the private S3 bucket
+  CloudFrontOriginAccessIdentity:
+    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment: !Sub 'OAI for ${BucketName}'
+
+  # Bucket policy that allows the CloudFront OAI to read from the bucket
+  BucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref FrontendBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: !Sub 'arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity ${CloudFrontOriginAccessIdentity}'
+            Action: 's3:GetObject'
+            Resource: !Sub '${FrontendBucket.Arn}/*'
+
+  # CloudFront distribution
+  CloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        DefaultRootObject: index.html # Sets the default page
+        Enabled: true
+        HttpVersion: http2 # Uses HTTP/2 for better performance
+        DefaultCacheBehavior:
+          AllowedMethods: # Specifies which HTTP methods CloudFront processes and forwards
+            - GET
+            - HEAD
+            - OPTIONS
+          Compress: true # Enables CloudFront compression
+          DefaultTTL: 86400 # Default time-to-live for files in seconds (24 hours)
+          ForwardedValues:
+            QueryString: false # Doesn't forward query strings to origin
+          MaxTTL: 31536000 # Maximum time-to-live for files in seconds (1 year)
+          MinTTL: 0 # Minimum time-to-live for files in seconds
+          TargetOriginId: S3Origin
+          ViewerProtocolPolicy: redirect-to-https # Redirects HTTP to HTTPS
+        Origins:
+          - DomainName: !GetAtt FrontendBucket.RegionalDomainName
+            Id: S3Origin
+            S3OriginConfig:
+              OriginAccessIdentity: !Sub 'origin-access-identity/cloudfront/${CloudFrontOriginAccessIdentity}'
+        PriceClass: PriceClass_100 # Uses only US, Canada, Europe, & Israel edges (cheapest option)
+        ViewerCertificate:
+          CloudFrontDefaultCertificate: true # Uses the default CloudFront certificate
+
+Outputs:
+  BucketName:
+    Description: Name of S3 bucket to hold website content
+    Value: !Ref FrontendBucket
+  CloudFrontDistributionId:
+    Description: ID of CloudFront distribution
+    Value: !Ref CloudFrontDistribution
+  CloudFrontDomainName:
+    Description: Domain name of CloudFront distribution
+    Value: !GetAtt CloudFrontDistribution.DomainName
