@@ -7,6 +7,7 @@ dist
 
 # next
 apps/frontend/.next
+apps/frontend/out
 apps/frontend/next-env.d.ts
 apps/frontend/tsconfig.tsbuildinfo
 

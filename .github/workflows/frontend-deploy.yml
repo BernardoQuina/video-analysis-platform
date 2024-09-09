@@ -43,7 +43,7 @@ jobs:
       # Syncs the built files to the S3 bucket
       - name: Deploy to S3
         run: |
-          aws s3 sync apps/frontend/.next/static s3://${{ secrets.FRONTEND_S3_BUCKET_NAME }}/static --delete
+          aws s3 sync apps/frontend/out s3://${{ secrets.FRONTEND_S3_BUCKET_NAME }}/ --delete
           aws s3 sync apps/frontend/public s3://${{ secrets.FRONTEND_S3_BUCKET_NAME }} --delete
         # The --delete flag removes files in the bucket that don't exist in the local copy
 
