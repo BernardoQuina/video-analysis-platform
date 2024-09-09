@@ -7,6 +7,10 @@ on:
     paths:
       - 'apps/frontend/**' # Only run when files in the frontend app directory change
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
