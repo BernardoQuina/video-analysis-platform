@@ -6,7 +6,7 @@ export default function Home() {
   if (!data) {
     return (
       <div>
-        <p> Loading....</p>
+        <p> Loading...</p>
       </div>
     );
   }
