@@ -12,7 +12,8 @@
     "lint": "turbo run lint",
     "lint:fix": "turbo run lint:fix",
     "format": "turbo run format",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "deploy-stack": "turbo run deploy-stack"
   },
   "keywords": [],
   "author": "",

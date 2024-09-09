@@ -25,6 +25,10 @@
     "format": {
       "outputs": [],
       "cache": false
+    },
+    "deploy-stack": {
+      "outputs": [],
+      "cache": false
     }
   }
 }

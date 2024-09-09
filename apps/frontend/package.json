@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "tsc --noEmit && eslint .",
     "lint:fix": "tsc --noEmit && eslint . --fix",
-    "format": "prettier --check ."
+    "format": "prettier --check .",
+    "deploy-stack": "./infrastructure/frontend-stack-deploy.sh"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.54.1",
