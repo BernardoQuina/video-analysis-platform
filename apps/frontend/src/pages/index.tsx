@@ -6,7 +6,7 @@ export default function Home() {
   if (!data) {
     return (
       <div>
-        <p>hello cloudfront</p>
+        <p>hello cloudfront - test change</p>
         <p> Loading...</p>
       </div>
     );
