@@ -23,6 +23,10 @@ Resources:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
               SSEAlgorithm: AES256
+      # Static website config
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: 404.html
 
   # CloudFront Origin Access Identity (OAI)
   # This is used to allow CloudFront to access the private S3 bucket
