@@ -68,8 +68,8 @@ jobs:
           # Get current EC2 instance count
           current_instances=$(aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names $ASG_NAME --query "AutoScalingGroups[0].Instances[].InstanceId" --output text | wc -w)
 
-          # Calculate new capacity (add 1 to current count to ensure extra capacity)
-          new_capacity=$((current_instances + 1))
+          # Calculate new capacity (double capacity temporarly to ensure replacement tasks can be placed)
+          new_capacity=$((current_instances * 2))
 
           echo "Current instances: $current_instances, scaling to: $new_capacity"
 

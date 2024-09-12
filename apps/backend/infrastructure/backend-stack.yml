@@ -18,7 +18,7 @@ Parameters:
     Description: EC2 instance type
   DesiredCapacity:
     Type: Number
-    Default: 2
+    Default: 4
     Description: Desired number of EC2 instances in the Auto Scaling Group
   MaxSize:
     Type: Number
@@ -26,7 +26,7 @@ Parameters:
     Description: Maximum number of EC2 instances in the Auto Scaling Group
   MinSize:
     Type: Number
-    Default: 2
+    Default: 4
     Description: Minimum number of EC2 instances in the Auto Scaling Group
 
 Resources:
