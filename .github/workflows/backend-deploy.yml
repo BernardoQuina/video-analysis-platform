@@ -65,16 +65,21 @@ jobs:
           IMAGE_URI: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY_NAME }}:${{ github.sha }}
           ASG_NAME: ${{ secrets.ECS_ASG_NAME }}
         run: |
-          # Get current EC2 instance count
+          # Get current EC2 instance count and Auto Scaling group settings
           current_instances=$(aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names $ASG_NAME --query "AutoScalingGroups[0].Instances[].InstanceId" --output text | wc -w)
+          current_max=$(aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names $ASG_NAME --query "AutoScalingGroups[0].MaxSize" --output text)
 
-          # Calculate new capacity (double capacity temporarly to ensure replacement tasks can be placed)
+          # Calculate new capacity (double capacity temporarily to ensure replacement tasks can be placed)
           new_capacity=$((current_instances * 2))
 
-          echo "Current instances: $current_instances, scaling to: $new_capacity"
+          # Calculate new max capacity (ensure it's at least the new_capacity)
+          new_max=$((new_capacity > current_max ? new_capacity : current_max))
 
-          # Scale up EC2 instances
-          aws autoscaling set-desired-capacity --auto-scaling-group-name $ASG_NAME --desired-capacity $new_capacity
+          echo "Current instances: $current_instances, current max: $current_max"
+          echo "Scaling to: $new_capacity, new max: $new_max"
+
+          # Update Auto Scaling group with new max capacity and desired capacity
+          aws autoscaling update-auto-scaling-group --auto-scaling-group-name $ASG_NAME --max-size $new_max --desired-capacity $new_capacity
 
           # Wait for new instances to be in service
           while true; do
@@ -93,5 +98,5 @@ jobs:
           # Wait for the new deployment to be stable
           aws ecs wait services-stable --cluster $CLUSTER_NAME --services $SERVICE_NAME
 
-          # Scale down to original capacity
-          aws autoscaling set-desired-capacity --auto-scaling-group-name $ASG_NAME --desired-capacity $current_instances
+          # Scale down to original capacity and reset max size
+          aws autoscaling update-auto-scaling-group --auto-scaling-group-name $ASG_NAME --max-size $current_max --desired-capacity $current_instances
