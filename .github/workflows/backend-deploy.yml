@@ -94,7 +94,7 @@ jobs:
               break
             fi
             echo "Waiting for instances to be in service: $in_service/$new_capacity"
-            sleep 10
+            sleep 300
           done
 
           # Update ECS service with new image
