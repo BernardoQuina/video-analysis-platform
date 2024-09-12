@@ -10,7 +10,7 @@ Parameters:
     Description: Tag of the Docker image to deploy
   ECSAMI:
     Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
-    Default: /aws/service/ecs/optimized-ami/amazon-linux/recommended/image_id
+    Default: /aws/service/ecs/optimized-ami/amazon-linux-2/recommended/image_id
     Description: The AMI ID used for the cluster, leave it as the default value to get the latest AMI
   InstanceType:
     Type: String

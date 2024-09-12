@@ -19,7 +19,7 @@ export const appRouter = router({
       workerId: cluster.worker?.id,
       instanceId,
       instanceIp,
-      message: 'Deployment test message #2',
+      message: 'Deployment test message #3',
     };
   }),
 });
