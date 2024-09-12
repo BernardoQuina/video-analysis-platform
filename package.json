@@ -13,7 +13,8 @@
     "lint:fix": "turbo run lint:fix",
     "format": "turbo run format",
     "prepare": "husky install",
-    "deploy-stack": "turbo run deploy-stack"
+    "deploy-stack": "turbo run deploy-stack",
+    "build-image": "turbo run build-image"
   },
   "keywords": [],
   "author": "",

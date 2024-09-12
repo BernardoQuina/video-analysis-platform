@@ -29,6 +29,10 @@
     "deploy-stack": {
       "outputs": [],
       "cache": false
+    },
+    "build-image": {
+      "outputs": [],
+      "cache": false
     }
   }
 }

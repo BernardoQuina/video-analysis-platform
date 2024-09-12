@@ -7,7 +7,7 @@ on:
     paths:
       - 'apps/frontend/**' # Only run when files in the frontend app directory change
 
-permissions:
+permissions: # necessary for the GitHub OIDC provider to authenticate with AWS
   id-token: write
   contents: read
 
@@ -32,7 +32,7 @@ jobs:
       - name: Build frontend
         run: npm run build --filter=frontend # Uses Turborepo to build only the frontend
 
-      # Configures AWS credentials for the workflow
+      # Configures AWS credentials using OIDC
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:

@@ -1,3 +1,8 @@
+/* eslint-disable no-console */
+
+import cluster from 'node:cluster';
+import os from 'node:os';
+
 import express from 'express';
 import cors from 'cors';
 import * as trpcExpress from '@trpc/server/adapters/express';
@@ -6,20 +11,41 @@ import { appRouter } from './routes';
 
 const PORT = 4000;
 
-// Create context for each request
-const createContext = ({
-  req,
-  res,
-}: trpcExpress.CreateExpressContextOptions) => ({ req, res });
+if (cluster.isPrimary) {
+  console.log(`Primary process ${process.pid} is running`);
 
-const app = express();
+  const coreCount = os.availableParallelism();
 
-app.use(cors());
+  for (let i = 0; i < coreCount; i++) {
+    cluster.fork();
+  }
 
-app.use(
-  '/trpc',
-  trpcExpress.createExpressMiddleware({ router: appRouter, createContext }),
-);
+  cluster.on('exit', (worker, code, signal) => {
+    console.log(
+      `Worker ${worker.process.pid} died with code ${code}: ${signal}`,
+    );
 
-// eslint-disable-next-line no-console
-app.listen(PORT, () => console.log(`Listening on port ${PORT}`));
+    // Restart the worker
+    console.log('Starting a new worker...');
+    cluster.fork();
+  });
+} else {
+  // Create context for each request
+  const createContext = ({
+    req,
+    res,
+  }: trpcExpress.CreateExpressContextOptions) => ({ req, res });
+
+  const app = express();
+
+  app.use(cors());
+
+  app.use(
+    '/trpc',
+    trpcExpress.createExpressMiddleware({ router: appRouter, createContext }),
+  );
+
+  app.get('/health', (req, res) => res.status(200).send('healthy!'));
+
+  app.listen(PORT, () => console.log(`Listening on port ${PORT}`));
+}

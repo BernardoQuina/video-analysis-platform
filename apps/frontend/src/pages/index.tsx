@@ -6,11 +6,20 @@ export default function Home() {
   if (!data) {
     return (
       <div>
-        <p>hello cloudfront - test change</p>
+        <p>hello from cloudfront</p>
+        <br />
         <p> Loading...</p>
       </div>
     );
   }
 
-  return <div>{data.message}</div>;
+  return (
+    <div>
+      <p>hello from cloudfront</p>
+      <br />
+      <p>Fetched data from:</p>
+      <p>Ec2 instance w/ id: {data.instanceId}</p>
+      <p>Node.js worker with id: {data.workerId}</p>
+    </div>
+  );
 }
