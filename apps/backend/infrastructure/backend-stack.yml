@@ -255,6 +255,7 @@ Resources:
   ECSAutoScalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
     Properties:
+      AutoScalingGroupName: ECSInstances
       VPCZoneIdentifier:
         - !Ref PublicSubnet3 # set to private subnets in production
         - !Ref PublicSubnet4 # using public to avoid vpc endpoint costs (for ecs service)
@@ -264,7 +265,7 @@ Resources:
       DesiredCapacity: !Ref DesiredCapacity
       Tags:
         - Key: Name
-          Value: ECS Instance
+          Value: ECSInstances
           PropagateAtLaunch: true
     UpdatePolicy:
       AutoScalingRollingUpdate:
