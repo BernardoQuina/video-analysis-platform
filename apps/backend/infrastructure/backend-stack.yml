@@ -263,6 +263,8 @@ Resources:
       MinSize: !Ref MinSize
       MaxSize: !Ref MaxSize
       DesiredCapacity: !Ref DesiredCapacity
+      HealthCheckType: ELB
+      HealthCheckGracePeriod: 300
       Tags:
         - Key: Name
           Value: ECSInstances
@@ -290,6 +292,7 @@ Resources:
           echo ECS_CLUSTER=${ECSCluster} >> /etc/ecs/ecs.config
           echo ECS_AVAILABLE_LOGGING_DRIVERS='["json-file","awslogs"]' >> /etc/ecs/ecs.config
           yum install -y aws-cfn-bootstrap
+          /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource ECSAutoScalingGroup --region ${AWS::Region}
           /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource ECSAutoScalingGroup --region ${AWS::Region}
 
   ECSSecurityGroup:
