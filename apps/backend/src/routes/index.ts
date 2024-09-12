@@ -4,7 +4,7 @@ import { publicProcedure, router } from './trpc';
 
 export const appRouter = router({
   test: publicProcedure.query(async () => {
-    // Fetch EC2 instance id and private ip address
+    // Fetch EC2 instance id and private ip
     const instanceIdResponse = await fetch(
       'http://169.254.169.254/latest/meta-data/instance-id',
     );
