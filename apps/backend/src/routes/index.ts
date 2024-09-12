@@ -15,7 +15,12 @@ export const appRouter = router({
     const instanceId = await instanceIdResponse.text();
     const instanceIp = await instanceIpResponse.text();
 
-    return { workerId: cluster.worker?.id, instanceId, instanceIp };
+    return {
+      workerId: cluster.worker?.id,
+      instanceId,
+      instanceIp,
+      message: 'Deployment test message #1',
+    };
   }),
 });
 
