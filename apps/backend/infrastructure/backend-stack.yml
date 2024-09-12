@@ -203,7 +203,7 @@ Resources:
       NetworkMode: awsvpc
       RequiresCompatibilities:
         - EC2
-      Cpu: '1024'
+      Cpu: '1792' # 87.5% of the 2 vCPUs available in t3.micro
       Memory: '700'
       ContainerDefinitions:
         - Name: backend-container
@@ -211,7 +211,7 @@ Resources:
           PortMappings:
             - ContainerPort: 4000
           MemoryReservation: 600
-          Cpu: 1024
+          Cpu: 1792
           LogConfiguration:
             LogDriver: awslogs
             Options:
