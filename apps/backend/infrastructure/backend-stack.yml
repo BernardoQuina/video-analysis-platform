@@ -18,15 +18,15 @@ Parameters:
     Description: EC2 instance type
   DesiredCapacity:
     Type: Number
-    Default: 4
+    Default: 1
     Description: Desired number of EC2 instances in the Auto Scaling Group
   MaxSize:
     Type: Number
-    Default: 4
+    Default: 2
     Description: Maximum number of EC2 instances in the Auto Scaling Group
   MinSize:
     Type: Number
-    Default: 4
+    Default: 1
     Description: Minimum number of EC2 instances in the Auto Scaling Group
 
 Resources:
@@ -276,7 +276,7 @@ Resources:
         PauseTime: PT15M
         WaitOnResourceSignals: true
         SuspendProcesses:
-        - ScheduledActions
+          - ScheduledActions
 
   ECSLaunchConfiguration:
     Type: AWS::AutoScaling::LaunchConfiguration
@@ -419,43 +419,90 @@ Resources:
           - MetricIntervalUpperBound: 0
             ScalingAdjustment: -1
 
-  ECSServiceCPUScaleOutAlarm:
+  ECSServiceCPUMemoryScaleOutAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
-      AlarmName: ECSServiceCPUScaleOutAlarm
-      ComparisonOperator: GreaterThanThreshold
+      AlarmName: ECSServiceCPUMemoryScaleOutAlarm
+      ComparisonOperator: GreaterThanOrEqualToThreshold
       EvaluationPeriods: 2
-      MetricName: CPUUtilization
-      Namespace: AWS/ECS
-      Period: 60
-      Statistic: Average
-      Threshold: 70
+      Metrics:
+        - Id: cpu
+          MetricStat:
+            Metric:
+              Namespace: AWS/ECS
+              MetricName: CPUUtilization
+              Dimensions:
+                - Name: ClusterName
+                  Value: !Ref ECSCluster
+                - Name: ServiceName
+                  Value: !GetAtt ECSService.Name
+            Period: 60
+            Stat: Average
+          ReturnData: false
+        - Id: memory
+          MetricStat:
+            Metric:
+              Namespace: AWS/ECS
+              MetricName: MemoryUtilization
+              Dimensions:
+                - Name: ClusterName
+                  Value: !Ref ECSCluster
+                - Name: ServiceName
+                  Value: !GetAtt ECSService.Name
+            Period: 60
+            Stat: Average
+          ReturnData: false
+        - Id: maxUtilization
+          Expression: 'MAX([cpu, memory])'
+          Label: Max of CPU and Memory Utilization
+          ReturnData: true
+      Threshold: 5
+      AlarmDescription: Alarm when either CPU or Memory utilization is high
       AlarmActions:
         - !Ref ECSServiceScaleOutPolicy
-      Dimensions:
-        - Name: ClusterName
-          Value: !Ref ECSCluster
-        - Name: ServiceName
-          Value: !GetAtt ECSService.Name
 
-  ECSServiceCPUScaleInAlarm:
+  ECSServiceCPUMemoryScaleInAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
-      AlarmName: ECSServiceCPUScaleInAlarm
-      ComparisonOperator: LessThanThreshold
+      AlarmName: ECSServiceCPUMemoryScaleInAlarm
+      ComparisonOperator: LessThanOrEqualToThreshold
       EvaluationPeriods: 2
-      MetricName: CPUUtilization
-      Namespace: AWS/ECS
-      Period: 60
-      Statistic: Average
-      Threshold: 30
+      Metrics:
+        - Id: cpu
+          MetricStat:
+            Metric:
+              Namespace: AWS/ECS
+              MetricName: CPUUtilization
+              Dimensions:
+                - Name: ClusterName
+                  Value: !Ref ECSCluster
+                - Name: ServiceName
+                  Value: !GetAtt ECSService.Name
+            Period: 60
+            Stat: Average
+          ReturnData: false
+        - Id: memory
+          MetricStat:
+            Metric:
+              Namespace: AWS/ECS
+              MetricName: MemoryUtilization
+              Dimensions:
+                - Name: ClusterName
+                  Value: !Ref ECSCluster
+                - Name: ServiceName
+                  Value: !GetAtt ECSService.Name
+            Period: 60
+            Stat: Average
+          ReturnData: false
+
+        - Id: minUtilization
+          Expression: 'MAX([cpu, memory])'
+          Label: Max of CPU and Memory Utilization
+          ReturnData: true
+      Threshold: 1
+      AlarmDescription: Alarm when both CPU and Memory utilization are low
       AlarmActions:
         - !Ref ECSServiceScaleInPolicy
-      Dimensions:
-        - Name: ClusterName
-          Value: !Ref ECSCluster
-        - Name: ServiceName
-          Value: !GetAtt ECSService.Name
 
 Outputs:
   VPC:
