@@ -456,7 +456,7 @@ Resources:
           Expression: 'MAX([cpu, memory])'
           Label: Max of CPU and Memory Utilization
           ReturnData: true
-      Threshold: 5
+      Threshold: 20
       AlarmDescription: Alarm when either CPU or Memory utilization is high
       AlarmActions:
         - !Ref ECSServiceScaleOutPolicy
