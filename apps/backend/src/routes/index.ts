@@ -33,13 +33,13 @@ function stressTest(durationInSeconds: number) {
 export const appRouter = router({
   test: publicProcedure.query(async () => {
     // Start stress test for 5 minutes (without blocking)
-    stressTest(180);
+    stressTest(300);
 
     return {
       workerId: cluster.worker?.id,
       instanceId: '',
       instanceIp: '',
-      message: 'Deployment test message #17 (performing stress test)',
+      message: 'Deployment test message #18 (performing stress test)',
     };
 
     // Fetch EC2 instance id and private ip
