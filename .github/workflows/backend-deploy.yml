@@ -52,51 +52,57 @@ jobs:
           IMAGE_TAG: ${{ github.sha }}
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest apps/backend
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG[0,7]
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
 
       # Temporarily scale up the number of EC2 instances to perform the rolling update
       # of the ECS service with the new image
-      - name: Dynamic scaling and ECS service update 
+      - name: Dynamic scaling and ECS service update
         env:
           CLUSTER_NAME: ${{ secrets.ECS_CLUSTER_NAME }}
           SERVICE_NAME: ${{ secrets.ECS_SERVICE_NAME }}
-          CONTAINER_NAME: ${{ secrets.ECS_CONTAINER_NAME }}
-          IMAGE_URI: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY_NAME }}:${{ github.sha }}
-          ASG_NAME: ${{ secrets.ECS_ASG_NAME }}
         run: |
-          # Get current EC2 instance count and Auto Scaling group settings
-          current_instances=$(aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names $ASG_NAME --query "AutoScalingGroups[0].Instances[].InstanceId" --output text | wc -w)
-          current_max=$(aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names $ASG_NAME --query "AutoScalingGroups[0].MaxSize" --output text)
-
-          # Calculate new capacity (double capacity temporarily to ensure replacement tasks can be placed)
-          new_capacity=$((current_instances * 2))
-
-          # Calculate new max capacity (ensure it's at least the new_capacity)
-          new_max=$((new_capacity > current_max ? new_capacity : current_max))
-
-          echo "Current instances: $current_instances, current max: $current_max"
-          echo "Scaling to: $new_capacity, new max: $new_max"
-
-          # Update Auto Scaling group with new max capacity and desired capacity
-          aws autoscaling update-auto-scaling-group --auto-scaling-group-name $ASG_NAME --max-size $new_max --desired-capacity $new_capacity
-
-          # Wait for new instances to be in service
-          while true; do
-            in_service=$(aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names $ASG_NAME --query "AutoScalingGroups[0].Instances[?LifecycleState=='InService' && HealthStatus=='Healthy'].InstanceId" --output text | wc -w)
-            if [ "$in_service" -ge "$new_capacity" ]; then
-              break
-            fi
-            echo "Waiting for instances to be in service: $in_service/$new_capacity"
-            sleep 30
-          done
-
           # Update ECS service with new image
           aws ecs update-service --cluster $CLUSTER_NAME --service $SERVICE_NAME --force-new-deployment \
           --task-definition $(aws ecs describe-task-definition --task-definition $(aws ecs describe-services --cluster $CLUSTER_NAME --services $SERVICE_NAME --query "services[0].taskDefinition" --output text) --query "taskDefinition.taskDefinitionArn" --output text)
 
-          # Wait for the new deployment to be stable
-          aws ecs wait services-stable --cluster $CLUSTER_NAME --services $SERVICE_NAME
+      # # Temporarily scale up the number of EC2 instances to perform the rolling update
+      # # of the ECS service with the new image
+      # - name: Dynamic scaling and ECS service update
+      #   env:
+      #   run: |
+      #     # Get current EC2 instance count and Auto Scaling group settings
+      #     current_instances=$(aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names $ASG_NAME --query "AutoScalingGroups[0].Instances[].InstanceId" --output text | wc -w)
+      #     current_max=$(aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names $ASG_NAME --query "AutoScalingGroups[0].MaxSize" --output text)
 
-          # Scale down to original capacity and reset max size
-          aws autoscaling update-auto-scaling-group --auto-scaling-group-name $ASG_NAME --max-size $current_max --desired-capacity $current_instances
+      #     # Calculate new capacity (double capacity temporarily to ensure replacement tasks can be placed)
+      #     new_capacity=$((current_instances * 2))
+
+      #     # Calculate new max capacity (ensure it's at least the new_capacity)
+      #     new_max=$((new_capacity > current_max ? new_capacity : current_max))
+
+      #     echo "Current instances: $current_instances, current max: $current_max"
+      #     echo "Scaling to: $new_capacity, new max: $new_max"
+
+      #     # Update Auto Scaling group with new max capacity and desired capacity
+      #     aws autoscaling update-auto-scaling-group --auto-scaling-group-name $ASG_NAME --max-size $new_max --desired-capacity $new_capacity
+
+      #     # Wait for new instances to be in service
+      #     while true; do
+      #       in_service=$(aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names $ASG_NAME --query "AutoScalingGroups[0].Instances[?LifecycleState=='InService' && HealthStatus=='Healthy'].InstanceId" --output text | wc -w)
+      #       if [ "$in_service" -ge "$new_capacity" ]; then
+      #         break
+      #       fi
+      #       echo "Waiting for instances to be in service: $in_service/$new_capacity"
+      #       sleep 30
+      #     done
+
+      #     # Update ECS service with new image
+      #     aws ecs update-service --cluster $CLUSTER_NAME --service $SERVICE_NAME --force-new-deployment \
+      #     --task-definition $(aws ecs describe-task-definition --task-definition $(aws ecs describe-services --cluster $CLUSTER_NAME --services $SERVICE_NAME --query "services[0].taskDefinition" --output text) --query "taskDefinition.taskDefinitionArn" --output text)
+
+      #     # Wait for the new deployment to be stable
+      #     aws ecs wait services-stable --cluster $CLUSTER_NAME --services $SERVICE_NAME
+
+      #     # Scale down to original capacity and reset max size
+      #     aws autoscaling update-auto-scaling-group --auto-scaling-group-name $ASG_NAME --max-size $current_max --desired-capacity $current_instances
