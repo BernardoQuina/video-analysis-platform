@@ -51,7 +51,7 @@ jobs:
           ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY_NAME }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest apps/backend
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG[0,7] -t $ECR_REGISTRY/$ECR_REPOSITORY:latest apps/backend
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG[0,7]
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
 

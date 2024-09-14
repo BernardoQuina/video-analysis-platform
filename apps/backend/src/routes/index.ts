@@ -39,7 +39,7 @@ export const appRouter = router({
       workerId: cluster.worker?.id,
       instanceId: '',
       instanceIp: '',
-      message: 'Deployment test message #16 (performing stress test)',
+      message: 'Deployment test message #17 (performing stress test)',
     };
 
     // Fetch EC2 instance id and private ip
