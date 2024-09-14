@@ -77,7 +77,7 @@ Resources:
 
   # Instead of public subnet 3 and 4 use the private subnets commented out below.
   # Using public subnets for the ec2 instances for this demo so I stay within the free tier
-  # because if they were in private subnets I'd need a vpc endpoint interface so the
+  # because if they were in private subnets I'd need a vpc endpoint interface or a NAT so the
   # instances could communicate with the ecs service
   PublicSubnet3:
     Type: AWS::EC2::Subnet
@@ -221,9 +221,6 @@ Resources:
         Version: !GetAtt ECSLaunchTemplate.LatestVersionNumber
       MinSize: !Ref MinSize
       MaxSize: !Ref MaxSize
-      # DesiredCapacity: !Ref DesiredCapacity
-      # HealthCheckType: ELB
-      # HealthCheckGracePeriod: 300
       NewInstancesProtectedFromScaleIn: false
       Tags:
         - Key: Name
@@ -307,7 +304,7 @@ Resources:
           SourceSecurityGroupId: !Ref ALBSecurityGroup
 
   # Role for the EC2 hosts. This allows the ECS agent on the EC2 hosts
-  # to communciate with the ECS control plane, as well as download the docker
+  # to communicate with the ECS control plane, as well as download the docker
   # images from ECR to run on your host.
   EC2Role:
     Type: AWS::IAM::Role
@@ -375,38 +372,6 @@ Resources:
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
 
-  # This launches a very basic container which is only used to verify that an EC2
-  # host is capable of launching tasks. The existence of this task is used as an
-  # EC2 host sanity check. If the EC2 host is incapable of launching this task it will
-  # fail to signal CloudFormation, and CloudFormation will rollback.
-  HealthinessDaemonDefinition:
-    Type: AWS::ECS::TaskDefinition
-    Properties:
-      Family: 'healthiness-daemon'
-      Memory: 10
-      RequiresCompatibilities:
-        - EC2
-      ExecutionRoleArn: !GetAtt ECSTaskExecutionRole.Arn
-      ContainerDefinitions:
-        - Name: 'healthcheck-pause'
-          Image: public.ecr.aws/docker/library/busybox:latest
-          EntryPoint:
-            - /bin/sh
-            - -c
-          Command:
-            - while :; do sleep 2073600; done
-
-  # This launches one copy of the healthiness daemon onto each host
-  # in the cluster.
-  HealthinessDaemon:
-    Type: AWS::ECS::Service
-    Properties:
-      ServiceName: 'healthiness-daemon'
-      Cluster: !Ref ECSCluster
-      LaunchType: EC2
-      SchedulingStrategy: DAEMON
-      TaskDefinition: !Ref HealthinessDaemonDefinition
-
   ECSTaskDefinition:
     Type: AWS::ECS::TaskDefinition
     Properties:
@@ -435,6 +400,9 @@ Resources:
     Properties:
       LogGroupName: /ecs/backend
       RetentionInDays: 14
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Retain 
+
 
   ECSService:
     Type: AWS::ECS::Service
@@ -453,9 +421,6 @@ Resources:
         - Base: !Ref DesiredCapacity
           CapacityProvider: !Ref CapacityProvider
           Weight: 1
-      # PlacementConstraints:
-      #   - Type: distinctInstance # 1 task per instance
-      # LaunchType: EC2
       DeploymentConfiguration:
         MaximumPercent: 200
         MinimumHealthyPercent: 100
@@ -472,15 +437,6 @@ Resources:
           ContainerPort: 4000
           TargetGroupArn: !Ref ALBTargetGroup
 
-  # Because we are launching tasks in AWS VPC networking mode
-  # the tasks themselves also have an extra security group that is unique
-  # to them. This is a unique security group just for this service,
-  # to control which things it can talk to, and who can talk to it
-  ServiceSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription: !Sub Access to service ${ECSService}
-      VpcId: !Ref VPC
   ECSServiceAutoScalingRole:
     Type: AWS::IAM::Role
     Properties:
@@ -492,6 +448,143 @@ Resources:
             Action: sts:AssumeRole
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceAutoscaleRole
+
+  ECSServiceScalableTarget:
+    Type: AWS::ApplicationAutoScaling::ScalableTarget
+    Properties:
+      MaxCapacity: !Ref MaxSize # Correlate to ec2 max
+      MinCapacity: !Ref MinSize # Correlate to ec2 min
+      ResourceId: !Join
+        - /
+        - - service
+          - !Ref ECSCluster
+          - !GetAtt ECSService.Name
+      RoleARN: !GetAtt ECSServiceAutoScalingRole.Arn
+      ScalableDimension: ecs:service:DesiredCount
+      ServiceNamespace: ecs
+
+  ECSServiceScaleOutPolicy:
+    Type: AWS::ApplicationAutoScaling::ScalingPolicy
+    Properties:
+      PolicyName: ECSServiceScaleOutPolicy
+      PolicyType: StepScaling
+      ScalingTargetId: !Ref ECSServiceScalableTarget
+      StepScalingPolicyConfiguration:
+        AdjustmentType: ChangeInCapacity
+        Cooldown: 60
+        MetricAggregationType: Average
+        StepAdjustments:
+          - MetricIntervalLowerBound: 0
+            ScalingAdjustment: 1
+
+  ECSServiceScaleInPolicy:
+    Type: AWS::ApplicationAutoScaling::ScalingPolicy
+    Properties:
+      PolicyName: ECSServiceScaleInPolicy
+      PolicyType: StepScaling
+      ScalingTargetId: !Ref ECSServiceScalableTarget
+      StepScalingPolicyConfiguration:
+        AdjustmentType: ChangeInCapacity
+        Cooldown: 60
+        MetricAggregationType: Average
+        StepAdjustments:
+          - MetricIntervalUpperBound: 0
+            ScalingAdjustment: -1
+
+  ECSServiceCPUMemoryScaleOutAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: ECSServiceCPUMemoryScaleOutAlarm
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      EvaluationPeriods: 2
+      Metrics:
+        - Id: cpu
+          MetricStat:
+            Metric:
+              Namespace: AWS/ECS
+              MetricName: CPUUtilization
+              Dimensions:
+                - Name: ClusterName
+                  Value: !Ref ECSCluster
+                - Name: ServiceName
+                  Value: !GetAtt ECSService.Name
+            Period: 60
+            Stat: Average
+          ReturnData: false
+        - Id: memory
+          MetricStat:
+            Metric:
+              Namespace: AWS/ECS
+              MetricName: MemoryUtilization
+              Dimensions:
+                - Name: ClusterName
+                  Value: !Ref ECSCluster
+                - Name: ServiceName
+                  Value: !GetAtt ECSService.Name
+            Period: 60
+            Stat: Average
+          ReturnData: false
+        - Id: maxUtilization
+          Expression: 'MAX([cpu, memory])'
+          Label: Max of CPU and Memory Utilization
+          ReturnData: true
+      Threshold: 70
+      AlarmDescription: Alarm when either CPU or Memory utilization is high
+      AlarmActions:
+        - !Ref ECSServiceScaleOutPolicy
+
+  ECSServiceCPUMemoryScaleInAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: ECSServiceCPUMemoryScaleInAlarm
+      ComparisonOperator: LessThanOrEqualToThreshold
+      EvaluationPeriods: 2
+      Metrics:
+        - Id: cpu
+          MetricStat:
+            Metric:
+              Namespace: AWS/ECS
+              MetricName: CPUUtilization
+              Dimensions:
+                - Name: ClusterName
+                  Value: !Ref ECSCluster
+                - Name: ServiceName
+                  Value: !GetAtt ECSService.Name
+            Period: 300
+            Stat: Average
+          ReturnData: false
+        - Id: memory
+          MetricStat:
+            Metric:
+              Namespace: AWS/ECS
+              MetricName: MemoryUtilization
+              Dimensions:
+                - Name: ClusterName
+                  Value: !Ref ECSCluster
+                - Name: ServiceName
+                  Value: !GetAtt ECSService.Name
+            Period: 300
+            Stat: Average
+          ReturnData: false
+
+        - Id: minUtilization
+          Expression: 'MAX([cpu, memory])'
+          Label: Max of CPU and Memory Utilization
+          ReturnData: true
+      Threshold: 30
+      AlarmDescription: Alarm when both CPU and Memory utilization are low
+      AlarmActions:
+        - !Ref ECSServiceScaleInPolicy
+
+  # Because we are launching tasks in AWS VPC networking mode
+  # the tasks themselves also have an extra security group that is unique
+  # to them. This is a unique security group just for this service,
+  # to control which things it can talk to, and who can talk to it
+  ServiceSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: !Sub Access to service ${ECSService}
+      VpcId: !Ref VPC
 
   ALB:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer

@@ -30,7 +30,7 @@ jobs:
 
       # Builds the frontend project
       - name: Build frontend
-        run: npm run build --filter=frontend # Uses Turborepo to build only the frontend
+        run: npm run build --filter=./apps/frontend # Uses Turborepo to build only the frontend
 
       # Configures AWS credentials using OIDC
       - name: Configure AWS credentials

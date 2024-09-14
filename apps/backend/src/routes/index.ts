@@ -3,7 +3,7 @@ import cluster from 'node:cluster';
 import { publicProcedure, router } from './trpc';
 
 // Function to simulate CPU load (without blocking)
-function stressTest(durationInSeconds: number) {
+function _stressTest(durationInSeconds: number) {
   const end = Date.now() + durationInSeconds * 1000;
 
   function performStress() {
@@ -32,16 +32,6 @@ function stressTest(durationInSeconds: number) {
 
 export const appRouter = router({
   test: publicProcedure.query(async () => {
-    // Start stress test for 5 minutes (without blocking)
-    stressTest(300);
-
-    return {
-      workerId: cluster.worker?.id,
-      instanceId: '',
-      instanceIp: '',
-      message: 'Deployment test message #18 (performing stress test)',
-    };
-
     // Fetch EC2 instance id and private ip
     const instanceIdResponse = await fetch(
       'http://169.254.169.254/latest/meta-data/instance-id',
@@ -57,7 +47,7 @@ export const appRouter = router({
       workerId: cluster.worker?.id,
       instanceId,
       instanceIp,
-      message: 'Deployment test message #14',
+      message: 'Deployment test message #19',
     };
   }),
 });
