@@ -29,7 +29,7 @@ jobs:
 
       # Builds the backend project
       - name: Build backend
-        run: npm run build --filter=./apps/backend # Uses Turborepo to build only the backend
+        run: npm run build -- --filter=backend # Uses Turborepo to build only the backend
 
       # Configures AWS credentials using OIDC
       - name: Configure AWS credentials
