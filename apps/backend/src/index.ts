@@ -3,6 +3,7 @@
 import cluster from 'node:cluster';
 import os from 'node:os';
 
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import * as trpcExpress from '@trpc/server/adapters/express';
@@ -30,15 +31,15 @@ if (cluster.isPrimary) {
     cluster.fork();
   });
 } else {
+  const app = express();
+
+  app.use(cors({ origin: process.env.FRONTEND_URL }));
+
   // Create context for each request
   const createContext = ({
     req,
     res,
   }: trpcExpress.CreateExpressContextOptions) => ({ req, res });
-
-  const app = express();
-
-  app.use(cors());
 
   app.use(
     '/trpc',

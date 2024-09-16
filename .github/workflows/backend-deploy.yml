@@ -50,6 +50,8 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY_NAME }}
           SHA: ${{ github.sha }}
+          NODE_ENV: ${{ vars.NODE_ENV }}
+          FRONTEND_URL: ${{ vars.FRONTEND_URL }}
         run: |
           # Extract first 7 characters of the SHA
           SHORT_SHA=${SHA:0:7}

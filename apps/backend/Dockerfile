@@ -18,6 +18,14 @@ RUN npm run build
 # Remove devDependencies after build
 RUN npm prune --production
 
+# Declare build arguments
+ARG NODE_ENV
+ARG FRONTEND_URL
+
+# Set environment variables
+ENV NODE_ENV=$NODE_ENV
+ENV FRONTEND_URL=$FRONTEND_URL
+
 # Expose the port the app runs on
 EXPOSE 4000
 

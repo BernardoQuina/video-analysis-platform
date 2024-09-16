@@ -25,6 +25,8 @@ if stack_exists; then
     --template-body file://"$TEMPLATE_FILE" \
     --parameters ParameterKey=ECRRepositoryName,ParameterValue="$ECR_REPOSITORY_NAME" \
     ParameterKey=ImageTag,ParameterValue="$IMAGE_TAG" \
+    ParameterKey=DomainName,ParameterValue="$DOMAIN_NAME" \
+    ParameterKey=HostedZoneId,ParameterValue="$HOSTED_ZONE_ID" \
     --capabilities CAPABILITY_IAM 2>&1)
 
   if [[ $UPDATE_OUTPUT == *"No updates are to be performed"* ]]; then
@@ -42,6 +44,8 @@ else
     --template-body file://"$TEMPLATE_FILE" \
     --parameters ParameterKey=ECRRepositoryName,ParameterValue="$ECR_REPOSITORY_NAME" \
     ParameterKey=ImageTag,ParameterValue="$IMAGE_TAG" \
+    ParameterKey=DomainName,ParameterValue="$DOMAIN_NAME" \
+    ParameterKey=HostedZoneId,ParameterValue="$HOSTED_ZONE_ID" \
     --capabilities CAPABILITY_IAM 2>&1)
 
   if [[ $? -eq 0 ]]; then

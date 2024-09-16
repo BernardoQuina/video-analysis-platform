@@ -30,6 +30,8 @@ jobs:
 
       # Builds the frontend project
       - name: Build frontend
+        env:
+          NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL }}
         run: npm run build -- --filter=frontend # Uses Turborepo to build only the frontend
 
       # Configures AWS credentials using OIDC

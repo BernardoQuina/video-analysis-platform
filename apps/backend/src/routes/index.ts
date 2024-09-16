@@ -32,23 +32,37 @@ function _stressTest(durationInSeconds: number) {
 
 export const appRouter = router({
   test: publicProcedure.query(async () => {
-    // Fetch EC2 instance id and private ip
-    const instanceIdResponse = await fetch(
-      'http://169.254.169.254/latest/meta-data/instance-id',
-    );
-    const instanceIpResponse = await fetch(
-      'http://169.254.169.254/latest/meta-data/local-ipv4',
-    );
+    try {
+      // Fetch EC2 instance id and private ip
+      const instanceIdResponse = await fetch(
+        'http://169.254.169.254/latest/meta-data/instance-id',
+      );
+      const instanceIpResponse = await fetch(
+        'http://169.254.169.254/latest/meta-data/local-ipv4',
+      );
 
-    const instanceId = await instanceIdResponse.text();
-    const instanceIp = await instanceIpResponse.text();
+      const instanceId = await instanceIdResponse.text();
+      const instanceIp = await instanceIpResponse.text();
 
-    return {
-      workerId: cluster.worker?.id,
-      instanceId,
-      instanceIp,
-      message: 'Deployment test message #20',
-    };
+      return {
+        workerId: cluster.worker?.id,
+        instanceId,
+        instanceIp,
+        message: 'Deployment test message #20',
+      };
+    } catch (error) {
+      console.error(error);
+      console.log(process.env.NODE_ENV);
+
+      if (process.env.NODE_ENV === 'development') {
+        return {
+          workerId: cluster.worker?.id,
+          instanceId: 'none (local)',
+          instanceIp: 'none (local)',
+          message: 'Cannot return instance info on local environment.',
+        };
+      }
+    }
   }),
 });
 
