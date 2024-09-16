@@ -57,7 +57,11 @@ jobs:
           SHORT_SHA=${SHA:0:7}
 
           # Build the Docker image
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$SHORT_SHA -t $ECR_REGISTRY/$ECR_REPOSITORY:latest apps/backend
+          docker build \
+          --build-arg NODE_ENV=$NODE_ENV \
+          --build-arg FRONTEND_URL=$FRONTEND_URL \
+           -t $ECR_REGISTRY/$ECR_REPOSITORY:$SHORT_SHA \
+           -t $ECR_REGISTRY/$ECR_REPOSITORY:latest apps/backend
 
           # Push the Docker image
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$SHORT_SHA

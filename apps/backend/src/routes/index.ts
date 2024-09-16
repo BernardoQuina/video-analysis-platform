@@ -58,7 +58,7 @@ export const appRouter = router({
           workerId: cluster.worker?.id,
           instanceId: 'none (local)',
           instanceIp: 'none (local)',
-          message: 'Cannot return instance info on local environment.',
+          message: 'Cannot return instance info on local environment',
         };
       }
     }
