@@ -24,9 +24,9 @@ if stack_exists; then
     --stack-name "$STACK_NAME" \
     --template-body file://"$TEMPLATE_FILE" \
     --parameters ParameterKey=ECRRepositoryName,ParameterValue="$ECR_REPOSITORY_NAME" \
-                 ParameterKey=ImageTag,ParameterValue="$IMAGE_TAG" \
+    ParameterKey=ImageTag,ParameterValue="$IMAGE_TAG" \
     --capabilities CAPABILITY_IAM 2>&1)
-  
+
   if [[ $UPDATE_OUTPUT == *"No updates are to be performed"* ]]; then
     echo "No updates are to be performed."
   elif [[ $? -eq 0 ]]; then
@@ -41,9 +41,9 @@ else
     --stack-name "$STACK_NAME" \
     --template-body file://"$TEMPLATE_FILE" \
     --parameters ParameterKey=ECRRepositoryName,ParameterValue="$ECR_REPOSITORY_NAME" \
-                 ParameterKey=ImageTag,ParameterValue="$IMAGE_TAG" \
+    ParameterKey=ImageTag,ParameterValue="$IMAGE_TAG" \
     --capabilities CAPABILITY_IAM 2>&1)
-  
+
   if [[ $? -eq 0 ]]; then
     echo "Stack creation initiated. Check AWS Console for progress."
   else

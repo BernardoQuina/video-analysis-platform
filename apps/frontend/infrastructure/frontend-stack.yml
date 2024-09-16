@@ -5,6 +5,16 @@ Parameters:
   BucketName:
     Type: String
     Description: Name of the S3 bucket to create
+  DomainName:
+    Type: String
+    Default: video-analysis.bernardoquina.com
+    Description: Domain name for the CloudFront distribution
+  HostedZoneId:
+    Type: AWS::Route53::HostedZone::Id
+    Description: The ID of the hosted zone in Route 53
+  CertificateArn:
+    Type: String
+    Description: ARN of the manually created ACM certificate (must be in us-east-1 for CloudFront)
 
 Resources:
   # S3 bucket (static website hosting)
@@ -55,6 +65,8 @@ Resources:
     Type: AWS::CloudFront::Distribution
     Properties:
       DistributionConfig:
+        Aliases:
+          - !Ref DomainName
         DefaultRootObject: index.html # Sets the default page
         Enabled: true
         HttpVersion: http2 # Uses HTTP/2 for better performance
@@ -78,7 +90,19 @@ Resources:
               OriginAccessIdentity: !Sub 'origin-access-identity/cloudfront/${CloudFrontOriginAccessIdentity}'
         PriceClass: PriceClass_100 # Uses only US, Canada, Europe, & Israel edges (cheapest option)
         ViewerCertificate:
-          CloudFrontDefaultCertificate: true # Uses the default CloudFront certificate
+          AcmCertificateArn: !Ref CertificateArn
+          SslSupportMethod: sni-only
+          MinimumProtocolVersion: TLSv1.2_2021
+
+  DNSRecord:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneId: !Ref HostedZoneId
+      Name: !Ref DomainName
+      Type: A
+      AliasTarget:
+        DNSName: !GetAtt CloudFrontDistribution.DomainName
+        HostedZoneId: Z2FDTNDATAQYW2 # This is a fixed value for CloudFront distributions
 
 Outputs:
   BucketName:
@@ -90,3 +114,8 @@ Outputs:
   CloudFrontDomainName:
     Description: Domain name of CloudFront distribution
     Value: !GetAtt CloudFrontDistribution.DomainName
+  WebsiteURL:
+    Description: URL of the website
+    Value: !Sub https://${DomainName}
+    Export:
+      Name: !Sub ${AWS::StackName}-WebsiteURL
