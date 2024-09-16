@@ -48,11 +48,10 @@ export const appRouter = router({
         workerId: cluster.worker?.id,
         instanceId,
         instanceIp,
-        message: 'Deployment test message #20',
+        message: 'Deployment test message',
       };
     } catch (error) {
       console.error(error);
-      console.log(process.env.NODE_ENV);
 
       if (process.env.NODE_ENV === 'development') {
         return {

@@ -18,8 +18,8 @@ export default function Home() {
       <p>hello from cloudfront</p>
       <br />
       <p>Fetched data from:</p>
-      <p>Ec2 instance w/ id: {data.instanceId}</p>
-      <p>Node.js worker with id: {data.workerId}</p>
+      <p>Ec2 instance id: {data.instanceId}</p>
+      <p>Node worker id: {data.workerId}</p>
     </div>
   );
 }
