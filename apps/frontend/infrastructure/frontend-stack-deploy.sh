@@ -24,6 +24,7 @@ if stack_exists; then
     --stack-name "$STACK_NAME" \
     --template-body file://"$TEMPLATE_FILE" \
     --parameters ParameterKey=BucketName,ParameterValue="$FRONTEND_S3_BUCKET_NAME" \
+    ParameterKey=DomainName,ParameterValue="$DOMAIN_NAME" \
     ParameterKey=HostedZoneId,ParameterValue="$HOSTED_ZONE_ID" \
     ParameterKey=CertificateArn,ParameterValue="$CERTIFICATE_ARN" 2>&1)
 

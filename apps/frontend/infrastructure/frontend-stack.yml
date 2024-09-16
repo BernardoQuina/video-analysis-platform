@@ -7,7 +7,6 @@ Parameters:
     Description: Name of the S3 bucket to create
   DomainName:
     Type: String
-    Default: video-analysis.bernardoquina.com
     Description: Domain name for the CloudFront distribution
   HostedZoneId:
     Type: AWS::Route53::HostedZone::Id
