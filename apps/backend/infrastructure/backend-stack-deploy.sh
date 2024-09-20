@@ -9,7 +9,7 @@ source "$SCRIPT_DIR/../.env"
 set +o allexport
 
 STACK_NAME="backend-deployment"
-TEMPLATE_FILE="$SCRIPT_DIR/backend-stack.yml"
+TEMPLATE_FILE="$SCRIPT_DIR/main.yml"
 
 # Function to check if stack exists
 stack_exists() {
@@ -23,7 +23,8 @@ if stack_exists; then
   UPDATE_OUTPUT=$(aws cloudformation update-stack \
     --stack-name "$STACK_NAME" \
     --template-body file://"$TEMPLATE_FILE" \
-    --parameters ParameterKey=ECRRepositoryName,ParameterValue="$ECR_REPOSITORY_NAME" \
+    --parameters ParameterKey=StackTemplatesS3BucketName,ParameterValue="$STACK_TEMPLATES_S3_BUCKET_NAME" \
+    ParameterKey=ECRRepositoryName,ParameterValue="$ECR_REPOSITORY_NAME" \
     ParameterKey=ImageTag,ParameterValue="$IMAGE_TAG" \
     ParameterKey=DomainName,ParameterValue="$DOMAIN_NAME" \
     ParameterKey=HostedZoneId,ParameterValue="$HOSTED_ZONE_ID" \
@@ -42,7 +43,8 @@ else
   CREATE_OUTPUT=$(aws cloudformation create-stack \
     --stack-name "$STACK_NAME" \
     --template-body file://"$TEMPLATE_FILE" \
-    --parameters ParameterKey=ECRRepositoryName,ParameterValue="$ECR_REPOSITORY_NAME" \
+    --parameters ParameterKey=StackTemplatesS3BucketName,ParameterValue="$STACK_TEMPLATES_S3_BUCKET_NAME" \
+    ParameterKey=ECRRepositoryName,ParameterValue="$ECR_REPOSITORY_NAME" \
     ParameterKey=ImageTag,ParameterValue="$IMAGE_TAG" \
     ParameterKey=DomainName,ParameterValue="$DOMAIN_NAME" \
     ParameterKey=HostedZoneId,ParameterValue="$HOSTED_ZONE_ID" \

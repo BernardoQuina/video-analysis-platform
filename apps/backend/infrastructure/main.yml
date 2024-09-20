@@ -1,0 +1,128 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Parent stack for VPC, API Cluster with Auto Scaling EC2 Instances and ALB'
+
+Parameters:
+  StackTemplatesS3BucketName:
+    Type: String
+    Description: Name of the S3 bucket containing nested stack templates
+  ECRRepositoryName:
+    Type: String
+    Description: Name of the ECR repository
+  ImageTag:
+    Type: String
+    Description: Tag of the Docker image to deploy
+  ECSAMI:
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
+    Default: /aws/service/ecs/optimized-ami/amazon-linux-2/recommended/image_id
+    Description: The AMI ID used for the cluster, leave it as the default value to get the latest AMI
+  InstanceType:
+    Type: String
+    Default: t3.micro
+    Description: EC2 instance type
+  DesiredCapacity:
+    Type: Number
+    Default: 1
+    Description: Desired number of EC2 instances in the Auto Scaling Group
+  MaxSize:
+    Type: Number
+    Default: 2
+    Description: Maximum number of EC2 instances in the Auto Scaling Group
+  MinSize:
+    Type: Number
+    Default: 1
+    Description: Minimum number of EC2 instances in the Auto Scaling Group
+  DomainName:
+    Type: String
+    Description: Domain name for the ALB
+  HostedZoneId:
+    Type: String
+    Description: The ID of the hosted zone in Route 53
+
+Resources:
+  # VPC Stack
+  VPCStack:
+    Type: AWS::CloudFormation::Stack
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
+    Properties:
+      TemplateURL: !Sub https://${StackTemplatesS3BucketName}.s3.amazonaws.com/vpc.yml
+      Parameters:
+        StackName: !Ref AWS::StackName
+
+  # ALB Stack
+  ALBStack:
+    Type: AWS::CloudFormation::Stack
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
+    Properties:
+      TemplateURL: !Sub https://${StackTemplatesS3BucketName}.s3.amazonaws.com/alb.yml
+      Parameters:
+        VPCId: !GetAtt VPCStack.Outputs.VPC
+        PublicSubnet1: !GetAtt VPCStack.Outputs.PublicSubnet1
+        PublicSubnet2: !GetAtt VPCStack.Outputs.PublicSubnet2
+        DomainName: !Ref DomainName
+        HostedZoneId: !Ref HostedZoneId
+        StackName: !Ref AWS::StackName
+
+  # API Cluster (and service) Stack
+  APIClusterStack:
+    Type: AWS::CloudFormation::Stack
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
+    Properties:
+      TemplateURL: !Sub https://${StackTemplatesS3BucketName}.s3.amazonaws.com/api-cluster.yml
+      Parameters:
+        VPCId: !GetAtt VPCStack.Outputs.VPC
+        PublicSubnet3: !GetAtt VPCStack.Outputs.PublicSubnet3
+        PublicSubnet4: !GetAtt VPCStack.Outputs.PublicSubnet4
+        ECSAMI: !Ref ECSAMI
+        InstanceType: !Ref InstanceType
+        MinSize: !Ref MinSize
+        MaxSize: !Ref MaxSize
+        DesiredCapacity: !Ref DesiredCapacity
+        ECRRepositoryName: !Ref ECRRepositoryName
+        ImageTag: !Ref ImageTag
+        ALBTargetGroupArn: !GetAtt ALBStack.Outputs.ALBTargetGroupArn
+        ALBTargetGroupId: !GetAtt ALBStack.Outputs.ALBTargetGroupId
+        StackName: !Ref AWS::StackName
+
+Outputs:
+  VPC:
+    Description: A reference to the created VPC
+    Value: !GetAtt VPCStack.Outputs.VPC
+    Export:
+      Name: !Sub ${AWS::StackName}-VPCID
+
+  PublicSubnets:
+    Description: A list of the public subnets
+    Value: !GetAtt VPCStack.Outputs.PublicSubnets
+    Export:
+      Name: !Sub ${AWS::StackName}-PublicSubnets
+
+  APICluster:
+    Description: A reference to the API cluster
+    Value: !GetAtt APIClusterStack.Outputs.Cluster
+    Export:
+      Name: !Sub ${AWS::StackName}-APICluster
+
+  APIServiceName:
+    Description: Name of the API Service
+    Value: !GetAtt APIClusterStack.Outputs.ServiceName
+    Export:
+      Name: !Sub ${AWS::StackName}-APIServiceName
+
+  APICapacityProvider:
+    Description: The cluster capacity provider that the service should use to request capacity when it wants to start up a task
+    Value: !GetAtt APIClusterStack.Outputs.CapacityProvider
+
+  APITaskDefinitionArn:
+    Description: ARN of the Task Definition
+    Value: !GetAtt APIClusterStack.Outputs.TaskDefinitionArn
+    Export:
+      Name: !Sub ${AWS::StackName}-TaskDefinitionArn
+
+  ALBDNSName:
+    Description: DNS name of the Application Load Balancer
+    Value: !GetAtt ALBStack.Outputs.ALBDNSName
+    Export:
+      Name: !Sub ${AWS::StackName}-ALBDNS
