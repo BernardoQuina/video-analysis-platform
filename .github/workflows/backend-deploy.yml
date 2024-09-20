@@ -39,6 +39,13 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           role-session-name: GitHubActionsDeployment
 
+      # Add this step to upload CloudFormation templates to S3
+      - name: Upload CloudFormation templates to S3
+        env:
+          S3_BUCKET: ${{ secrets.STACK_TEMPLATES_S3_BUCKET_NAME }}
+        run: |
+          aws s3 sync apps/backend/infrastructure/stacks s3://$S3_BUCKET/ --delete
+
       # Logs into Amazon ECR (Elastic Container Registry) to allow pushing Docker images
       - name: Login to Amazon ECR
         id: login-ecr
@@ -77,10 +84,3 @@ jobs:
           # Update ECS service with latest image
           aws ecs update-service --cluster $CLUSTER_NAME --service $SERVICE_NAME --force-new-deployment \
           --task-definition $(aws ecs describe-task-definition --task-definition $(aws ecs describe-services --cluster $CLUSTER_NAME --services $SERVICE_NAME --query "services[0].taskDefinition" --output text) --query "taskDefinition.taskDefinitionArn" --output text)
-
-      # Add this step to upload CloudFormation templates to S3
-      - name: Upload CloudFormation templates to S3
-        env:
-          S3_BUCKET: ${{ secrets.STACK_TEMPLATES_S3_BUCKET_NAME }}
-        run: |
-          aws s3 sync apps/backend/infrastructure/stacks s3://$S3_BUCKET/ --delete
