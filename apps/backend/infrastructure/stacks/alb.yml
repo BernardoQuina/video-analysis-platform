@@ -91,12 +91,12 @@ Outputs:
     Export:
       Name: !Sub ${StackName}-ALBDNS
   ALBTargetGroupArn:
-    Description: Target Group of the Application Load Balancer
+    Description: Target Group Arn of the Application Load Balancer
     Value: !GetAtt ALBTargetGroup.TargetGroupArn
     Export:
-      Name: !Sub ${StackName}-ALBTargetGroup
+      Name: !Sub ${StackName}-ALBTargetGroupArn
   ALBSecurityGroupId:
-    Description: Security Group of the Application Load Balancer
+    Description: Security Group Id of the Application Load Balancer
     Value: !GetAtt ALBSecurityGroup.GroupId
     Export:
-      Name: !Sub ${StackName}-ALBTargetGroup
+      Name: !Sub ${StackName}-ALBSecurityGroup
