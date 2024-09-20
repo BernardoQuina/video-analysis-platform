@@ -83,5 +83,5 @@ Resources:
         ECRRepositoryName: !Ref ECRRepositoryName
         ImageTag: !Ref ImageTag
         ALBTargetGroupArn: !GetAtt ALBStack.Outputs.ALBTargetGroupArn
-        ALBTargetGroupId: !GetAtt ALBStack.Outputs.ALBTargetGroupId
+        ALBSecurityGroupId: !GetAtt ALBStack.Outputs.ALBSecurityGroupId
         StackName: !Ref AWS::StackName
