@@ -12,7 +12,7 @@ Parameters:
     Type: AWS::EC2::Subnet::Id
     Description: Public Subnet 4 ID
   ECSAMI:
-    Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
+    Type: String # AWS::SSM::Parameter::Value<AWS::EC2::Image::Id> (string bc nested stack)
     Description: ECS-optimized AMI ID
   InstanceType:
     Type: String
