@@ -42,7 +42,7 @@ Resources:
       Port: 443
       Protocol: HTTPS
       Certificates:
-      - CertificateArn: !Ref ACMCertificate
+        - CertificateArn: !Ref ACMCertificate
 
   ALBTargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
@@ -64,7 +64,7 @@ Resources:
           FromPort: 443
           ToPort: 443
           CidrIp: 0.0.0.0/0
-  
+
   ACMCertificate:
     Type: AWS::CertificateManager::Certificate
     Properties:

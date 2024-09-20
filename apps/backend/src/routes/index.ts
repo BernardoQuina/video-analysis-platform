@@ -48,7 +48,7 @@ export const appRouter = router({
         workerId: cluster.worker?.id,
         instanceId,
         instanceIp,
-        message: 'Deployment test message.',
+        message: 'Deployment test message',
       };
     } catch (error) {
       console.error(error);
