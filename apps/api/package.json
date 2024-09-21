@@ -1,5 +1,5 @@
 {
-  "name": "backend",
+  "name": "api",
   "version": "1.0.0",
   "private": true,
   "main": "dist/src/index.js",
@@ -10,8 +10,7 @@
     "lint": "tsc --noEmit && eslint .",
     "lint:fix": "tsc --noEmit && eslint . --fix",
     "format": "prettier --check .",
-    "build-image": "./infrastructure/build-image.sh",
-    "deploy-stack": "./infrastructure/backend-stack-deploy.sh"
+    "build-image": "./infrastructure/build-image.sh"
   },
   "keywords": [],
   "author": "",

@@ -24,11 +24,15 @@
       "outputs": [],
       "cache": false
     },
-    "deploy-stack": {
+    "deploy-frontend": {
       "outputs": [],
       "cache": false
     },
-    "build-image": {
+    "deploy-main": {
+      "outputs": [],
+      "cache": false
+    },
+    "build-images": {
       "outputs": [],
       "cache": false
     }

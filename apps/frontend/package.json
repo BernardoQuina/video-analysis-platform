@@ -9,7 +9,7 @@
     "lint": "tsc --noEmit && eslint .",
     "lint:fix": "tsc --noEmit && eslint . --fix",
     "format": "prettier --check .",
-    "deploy-stack": "./infrastructure/frontend-stack-deploy.sh"
+    "deploy-frontend": "./infrastructure/frontend-stack-deploy.sh"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.54.1",

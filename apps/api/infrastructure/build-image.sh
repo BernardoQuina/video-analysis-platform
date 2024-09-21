@@ -4,7 +4,7 @@
 GIT_SHA=$(git rev-parse --short HEAD)
 
 # Define the image name
-IMAGE_NAME="backend/node-express"
+IMAGE_NAME="api/node-express"
 
 # Build the Docker image with the Git commit SHA as the tag
 docker build -t $IMAGE_NAME:$GIT_SHA .

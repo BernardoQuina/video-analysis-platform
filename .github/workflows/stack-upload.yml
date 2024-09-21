@@ -1,0 +1,41 @@
+name: Stack upload
+on:
+  push:
+    branches:
+      - main
+    paths:
+      # Only run when files in infrastructure directories change
+      - 'apps/api/infrastructure/**.yml'
+      - 'infrstructure/**.yml'
+
+permissions: # necessary for the GitHub OIDC provider to authenticate with AWS
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # Checks out the repository code
+      - uses: actions/checkout@v4
+
+      # Configures AWS credentials using OIDC
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: eu-south-2
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          role-session-name: GitHubActionsDeployment
+
+      # Upload API CloudFormation templates to S3
+      - name: Upload API CloudFormation templates to S3
+        env:
+          S3_BUCKET: ${{ secrets.STACK_TEMPLATES_S3_BUCKET_NAME }}
+        run: |
+          # Sync .yml files to /api path
+          aws s3 sync apps/api/infrastructure s3://$S3_BUCKET/api/ \
+          --delete --exclude "*" --include "*.yml"
+
+          # Sync .yml files to /main path
+          aws s3 sync infrastructure/stacks s3://$S3_BUCKET/main/ \
+          --delete --exclude "*" --include "*.yml"

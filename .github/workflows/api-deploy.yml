@@ -1,10 +1,10 @@
-name: Backend Deployment
+name: API Deployment
 on:
   push:
     branches:
       - main
     paths:
-      - 'apps/backend/**' # Only run when files in the backend app directory change
+      - 'apps/api/**' # Only run when files in the api app directory change
 
 permissions: # necessary for the GitHub OIDC provider to authenticate with AWS
   id-token: write
@@ -27,9 +27,9 @@ jobs:
       - name: Install dependencies
         run: npm ci # Uses clean install to ensure consistent builds (npm i alternative)
 
-      # Builds the backend project
-      - name: Build backend
-        run: npm run build -- --filter=backend # Uses Turborepo to build only the backend
+      # Builds the api project
+      - name: Build api
+        run: npm run build -- --filter=api # Uses Turborepo to build only the api
 
       # Configures AWS credentials using OIDC
       - name: Configure AWS credentials
@@ -38,13 +38,6 @@ jobs:
           aws-region: eu-south-2
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           role-session-name: GitHubActionsDeployment
-
-      # Add this step to upload CloudFormation templates to S3
-      - name: Upload CloudFormation templates to S3
-        env:
-          S3_BUCKET: ${{ secrets.STACK_TEMPLATES_S3_BUCKET_NAME }}
-        run: |
-          aws s3 sync apps/backend/infrastructure/stacks s3://$S3_BUCKET/ --delete
 
       # Logs into Amazon ECR (Elastic Container Registry) to allow pushing Docker images
       - name: Login to Amazon ECR
@@ -68,15 +61,14 @@ jobs:
           --build-arg NODE_ENV=$NODE_ENV \
           --build-arg FRONTEND_URL=$FRONTEND_URL \
            -t $ECR_REGISTRY/$ECR_REPOSITORY:$SHORT_SHA \
-           -t $ECR_REGISTRY/$ECR_REPOSITORY:latest apps/backend
+           -t $ECR_REGISTRY/$ECR_REPOSITORY:latest apps/api
 
           # Push the Docker image
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$SHORT_SHA
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
 
-      # Temporarily scale up the number of EC2 instances to perform the rolling update
-      # of the ECS service with the new image
-      - name: Dynamic scaling and ECS service update
+      # ECS service rolling update with the new image
+      - name: ECS service update
         env:
           CLUSTER_NAME: ${{ secrets.ECS_CLUSTER_NAME }}
           SERVICE_NAME: ${{ secrets.ECS_SERVICE_NAME }}

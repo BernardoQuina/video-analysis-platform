@@ -13,8 +13,9 @@
     "lint:fix": "turbo run lint:fix",
     "format": "turbo run format",
     "prepare": "husky install",
-    "deploy-stack": "turbo run deploy-stack",
-    "build-image": "turbo run build-image"
+    "deploy-frontend": "turbo run deploy-frontend",
+    "deploy-main": "./infrastructure/stack-deploy.sh",
+    "build-images": "turbo run build-image"
   },
   "keywords": [],
   "author": "",

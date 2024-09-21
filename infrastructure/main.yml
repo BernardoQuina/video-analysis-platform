@@ -45,7 +45,7 @@ Resources:
     DeletionPolicy: Delete
     UpdateReplacePolicy: Delete
     Properties:
-      TemplateURL: !Sub https://${StackTemplatesS3BucketName}.s3.amazonaws.com/vpc.yml
+      TemplateURL: !Sub https://${StackTemplatesS3BucketName}.s3.amazonaws.com/main/vpc.yml
       Parameters:
         StackName: !Ref AWS::StackName
 
@@ -55,7 +55,7 @@ Resources:
     DeletionPolicy: Delete
     UpdateReplacePolicy: Delete
     Properties:
-      TemplateURL: !Sub https://${StackTemplatesS3BucketName}.s3.amazonaws.com/alb.yml
+      TemplateURL: !Sub https://${StackTemplatesS3BucketName}.s3.amazonaws.com/main/alb.yml
       Parameters:
         VPCId: !GetAtt VPCStack.Outputs.VPC
         PublicSubnet1: !GetAtt VPCStack.Outputs.PublicSubnet1
@@ -70,7 +70,7 @@ Resources:
     DeletionPolicy: Delete
     UpdateReplacePolicy: Delete
     Properties:
-      TemplateURL: !Sub https://${StackTemplatesS3BucketName}.s3.amazonaws.com/api-cluster.yml
+      TemplateURL: !Sub https://${StackTemplatesS3BucketName}.s3.amazonaws.com/api/api-cluster.yml
       Parameters:
         VPCId: !GetAtt VPCStack.Outputs.VPC
         PublicSubnet3: !GetAtt VPCStack.Outputs.PublicSubnet3
