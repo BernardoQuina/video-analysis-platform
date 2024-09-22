@@ -1,0 +1,16 @@
+{
+  "extends": [
+    "../../.eslintrc.json",
+    "plugin:node/recommended",
+    "plugin:@typescript-eslint/recommended"
+  ],
+  "plugins": ["node"],
+  "rules": {
+    "node/no-unsupported-features/es-syntax": "off"
+  },
+  "settings": {
+    "node": {
+      "tryExtensions": [".js", ".json", ".node", ".ts", ".d.ts"]
+    }
+  }
+}

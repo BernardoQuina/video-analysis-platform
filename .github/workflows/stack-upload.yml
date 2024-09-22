@@ -1,4 +1,4 @@
-name: Stack upload
+name: Stack Upload
 on:
   push:
     branches:

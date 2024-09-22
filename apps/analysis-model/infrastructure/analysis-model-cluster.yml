@@ -1,0 +1,461 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'ECS Cluster with Auto Scaling EC2 Instances'
+
+Parameters:
+  VPCId:
+    Type: AWS::EC2::VPC::Id
+    Description: VPC ID
+  PublicSubnet3:
+    Type: AWS::EC2::Subnet::Id
+    Description: Public Subnet 3 ID
+  PublicSubnet4:
+    Type: AWS::EC2::Subnet::Id
+    Description: Public Subnet 4 ID
+  ECSAMI:
+    Type: String # AWS::SSM::Parameter::Value<AWS::EC2::Image::Id> (string bc nested stack)
+    Description: ECS-optimized AMI ID
+  InstanceType:
+    Type: String
+    Description: EC2 instance type
+  MinSize:
+    Type: Number
+    Description: Minimum number of EC2 instances in the Auto Scaling Group
+  MaxSize:
+    Type: Number
+    Description: Maximum number of EC2 instances in the Auto Scaling Group
+  DesiredCapacity:
+    Type: Number
+    Description: Desired number of EC2 instances in the Auto Scaling Group
+  ECRRepositoryName:
+    Type: String
+    Description: Name of the ECR repository
+  ImageTag:
+    Type: String
+    Description: Tag of the Docker image to deploy
+  ALBTargetGroupArn:
+    Type: String
+    Description: Load Balancer Target Group ARN
+  ALBSecurityGroupId:
+    Type: String
+    Description: Load Balancer Security Group ID
+  StackName:
+    Type: String
+    Description: Name of the parent stack
+
+Resources:
+  APICluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName: APICluster
+      ClusterSettings:
+        - Name: containerInsights
+          Value: enabled
+
+  APIAutoScalingGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    DependsOn:
+      - APICluster
+      - APIEC2Role
+    UpdatePolicy:
+      AutoScalingRollingUpdate:
+        MinInstancesInService: 1
+        MaxBatchSize: 2
+        PauseTime: PT2M
+        WaitOnResourceSignals: true
+        MinSuccessfulInstancesPercent: 100
+    Properties:
+      AutoScalingGroupName: ECSInstances
+      VPCZoneIdentifier:
+        - !Ref PublicSubnet3 # set to private subnets in production
+        - !Ref PublicSubnet4 # using public to additional costs
+      LaunchTemplate:
+        LaunchTemplateId: !Ref APILaunchTemplate
+        Version: !GetAtt APILaunchTemplate.LatestVersionNumber
+      MinSize: !Ref MinSize
+      MaxSize: !Ref MaxSize
+      NewInstancesProtectedFromScaleIn: false
+      Tags:
+        - Key: Name
+          Value: ECSInstances
+          PropagateAtLaunch: true
+
+  APILaunchTemplate:
+    Type: AWS::EC2::LaunchTemplate
+    Metadata:
+      AWS::CloudFormation::Init:
+        configSets:
+          full_install: [install_deps, verify_instance_health, signal_cfn]
+        # Install dependencies
+        install_deps:
+          commands:
+            InstallDependencies:
+              command: |
+                yum install -y awscli jq
+        # Check the ECS API to see if this instance is available as capacity
+        # inside of the ECS cluster, and wait for it to run the healthiness daemon
+        verify_instance_health:
+          commands:
+            ECSHealthCheck:
+              command: |
+                echo "Introspecting ECS agent status"
+                find_container_instance_arn() {
+                  CONTAINER_INSTANCE_ARN=$(curl --connect-timeout 1 --max-time 1 -s http://localhost:51678/v1/metadata | jq -r '.ContainerInstanceArn')
+                }
+                find_container_instance_arn
+                while [ "$CONTAINER_INSTANCE_ARN" == "" ]; do sleep 2; find_container_instance_arn; done
+                echo "Container Instance ARN: $CONTAINER_INSTANCE_ARN"
+
+                echo "Waiting for at least one running task"
+                count_instance_tasks() {
+                  NUMBER_OF_TASKS=$(curl -s http://localhost:51678/v1/tasks | jq '.Tasks | length')
+                }
+                count_instance_tasks
+                while [ $NUMBER_OF_TASKS -lt 1 ]; do sleep 2; count_instance_tasks; done
+
+                echo "Instance $CONTAINER_INSTANCE_ARN is now hosting $NUMBER_OF_TASKS task(s)"
+        # This signals back to CloudFormation once the instance has become healthy in ECS
+        # and has started hosting at least one task
+        signal_cfn:
+          commands:
+            SignalCloudFormation:
+              command: !Sub |
+                /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackId} --resource ECSAutoScalingGroup --region ${AWS::Region}
+    Properties:
+      LaunchTemplateData:
+        ImageId: !Ref ECSAMI
+        InstanceType: !Ref InstanceType
+        SecurityGroupIds:
+          - !GetAtt APIEC2SecurityGroup.GroupId
+        IamInstanceProfile:
+          Arn: !GetAtt APIEC2InstanceProfile.Arn
+        UserData:
+          Fn::Base64: !Sub |
+            #!/bin/bash -xe
+            echo ECS_CLUSTER=${APICluster} >> /etc/ecs/ecs.config
+            echo ECS_AVAILABLE_LOGGING_DRIVERS='["json-file","awslogs"]' >> /etc/ecs/ecs.config
+            yum install -y aws-cfn-bootstrap
+            /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource APIAutoScalingGroup --region ${AWS::Region}
+            /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource APIAutoScalingGroup --region ${AWS::Region}
+
+  APIEC2InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: /
+      Roles:
+        - !Ref APIEC2Role
+
+  APIEC2SecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for ECS instances
+      VpcId: !Ref VPCId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 0
+          ToPort: 65535
+          SourceSecurityGroupId: !Ref ALBSecurityGroupId
+
+  # Role for the EC2 hosts. This allows the ECS agent on the EC2 hosts
+  # to communicate with the ECS control plane, as well as download the docker
+  # images from ECR to run on your host.
+  APIEC2Role:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          # Allow the EC2 instances to assume this role
+          - Effect: Allow
+            Principal:
+              Service: [ec2.amazonaws.com]
+            Action: ['sts:AssumeRole']
+      Path: /
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role
+
+  # Create an ECS capacity provider to attach the ASG to the API cluster
+  # so that it auto scales as we launch more containers
+  APICapacityProvider:
+    Type: AWS::ECS::CapacityProvider
+    Properties:
+      AutoScalingGroupProvider:
+        AutoScalingGroupArn: !Ref APIAutoScalingGroup
+        ManagedScaling:
+          InstanceWarmupPeriod: 60
+          MinimumScalingStepSize: 1
+          MaximumScalingStepSize: 2
+          Status: ENABLED
+          # Percentage of cluster reservation to try to maintain
+          TargetCapacity: 100
+        ManagedTerminationProtection: DISABLED
+        ManagedDraining: ENABLED
+
+  # Create a cluster capacity provider association so that the cluster
+  # will use the capacity provider
+  APICapacityProviderAssociation:
+    Type: AWS::ECS::ClusterCapacityProviderAssociations
+    Properties:
+      CapacityProviders:
+        - !Ref APICapacityProvider
+      Cluster: !Ref APICluster
+      DefaultCapacityProviderStrategy:
+        - Base: 0
+          CapacityProvider: !Ref APICapacityProvider
+          Weight: 1
+
+  # This is a role which is used within Fargate to allow the Fargate agent
+  # to download images, and upload logs.
+  APITaskExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: [ecs-tasks.amazonaws.com]
+            Action: ['sts:AssumeRole']
+            Condition:
+              ArnLike:
+                aws:SourceArn: !Sub arn:aws:ecs:${AWS::Region}:${AWS::AccountId}:*
+              StringEquals:
+                aws:SourceAccount: !Ref AWS::AccountId
+      Path: /
+
+      # This role enables basic features of ECS. See reference:
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+
+  APITaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: api-task
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        - EC2
+      Cpu: '1792' # 87.5% of the 2 vCPUs available in t3.micro
+      Memory: '700'
+      ContainerDefinitions:
+        - Name: api-container
+          Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ECRRepositoryName}:${ImageTag}
+          PortMappings:
+            - ContainerPort: 4000
+          MemoryReservation: 600
+          Cpu: 1792
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Ref CloudWatchLogsGroup
+              awslogs-region: !Ref AWS::Region
+              awslogs-stream-prefix: ecs
+
+  CloudWatchLogsGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: /ecs/api
+      RetentionInDays: 14
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Retain
+
+  APIService:
+    Type: AWS::ECS::Service
+    Properties:
+      ServiceName: APIService
+      Cluster: !Ref APICluster
+      TaskDefinition: !Ref APITaskDefinition
+      DesiredCount: !Ref DesiredCapacity # same as EC2 instances (1-1 relationship)
+      PlacementStrategies:
+        - Type: spread
+          Field: attribute:ecs.availability-zone
+        - Type: binpack
+          Field: cpu
+      CapacityProviderStrategy:
+        - Base: !Ref DesiredCapacity
+          CapacityProvider: !Ref APICapacityProvider
+          Weight: 1
+      DeploymentConfiguration:
+        MaximumPercent: 200
+        MinimumHealthyPercent: 100
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: DISABLED
+          Subnets:
+            - !Ref PublicSubnet3 # set to private subnets in production
+            - !Ref PublicSubnet4 # using public to avoid vpc endpoint costs (for ecs service)
+          SecurityGroups:
+            - !Ref APIEC2SecurityGroup
+      LoadBalancers:
+        - ContainerName: api-container
+          ContainerPort: 4000
+          TargetGroupArn: !Ref ALBTargetGroupArn
+
+  APIServiceAutoScalingRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: application-autoscaling.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceAutoscaleRole
+
+  APIServiceScalableTarget:
+    Type: AWS::ApplicationAutoScaling::ScalableTarget
+    Properties:
+      MaxCapacity: !Ref MaxSize # Correlate to ec2 max
+      MinCapacity: !Ref MinSize # Correlate to ec2 min
+      ResourceId: !Join
+        - /
+        - - service
+          - !Ref APICluster
+          - !GetAtt APIService.Name
+      RoleARN: !GetAtt APIServiceAutoScalingRole.Arn
+      ScalableDimension: ecs:service:DesiredCount
+      ServiceNamespace: ecs
+
+  APIServiceScaleOutPolicy:
+    Type: AWS::ApplicationAutoScaling::ScalingPolicy
+    Properties:
+      PolicyName: APIServiceScaleOutPolicy
+      PolicyType: StepScaling
+      ScalingTargetId: !Ref APIServiceScalableTarget
+      StepScalingPolicyConfiguration:
+        AdjustmentType: ChangeInCapacity
+        Cooldown: 60
+        MetricAggregationType: Average
+        StepAdjustments:
+          - MetricIntervalLowerBound: 0
+            ScalingAdjustment: 1
+
+  APIServiceScaleInPolicy:
+    Type: AWS::ApplicationAutoScaling::ScalingPolicy
+    Properties:
+      PolicyName: APIServiceScaleInPolicy
+      PolicyType: StepScaling
+      ScalingTargetId: !Ref APIServiceScalableTarget
+      StepScalingPolicyConfiguration:
+        AdjustmentType: ChangeInCapacity
+        Cooldown: 60
+        MetricAggregationType: Average
+        StepAdjustments:
+          - MetricIntervalUpperBound: 0
+            ScalingAdjustment: -1
+
+  APIServiceCPUMemoryScaleOutAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: APIServiceCPUMemoryScaleOutAlarm
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      EvaluationPeriods: 2
+      Metrics:
+        - Id: cpu
+          MetricStat:
+            Metric:
+              Namespace: AWS/ECS
+              MetricName: CPUUtilization
+              Dimensions:
+                - Name: ClusterName
+                  Value: !Ref APICluster
+                - Name: ServiceName
+                  Value: !GetAtt APIService.Name
+            Period: 60
+            Stat: Average
+          ReturnData: false
+        - Id: memory
+          MetricStat:
+            Metric:
+              Namespace: AWS/ECS
+              MetricName: MemoryUtilization
+              Dimensions:
+                - Name: ClusterName
+                  Value: !Ref APICluster
+                - Name: ServiceName
+                  Value: !GetAtt APIService.Name
+            Period: 60
+            Stat: Average
+          ReturnData: false
+        - Id: maxUtilization
+          Expression: 'MAX([cpu, memory])'
+          Label: Max of CPU and Memory Utilization
+          ReturnData: true
+      Threshold: 70
+      AlarmDescription: Alarm when either CPU or Memory utilization is high
+      AlarmActions:
+        - !Ref APIServiceScaleOutPolicy
+
+  APIServiceCPUMemoryScaleInAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: APIServiceCPUMemoryScaleInAlarm
+      ComparisonOperator: LessThanOrEqualToThreshold
+      EvaluationPeriods: 2
+      Metrics:
+        - Id: cpu
+          MetricStat:
+            Metric:
+              Namespace: AWS/ECS
+              MetricName: CPUUtilization
+              Dimensions:
+                - Name: ClusterName
+                  Value: !Ref APICluster
+                - Name: ServiceName
+                  Value: !GetAtt APIService.Name
+            Period: 300
+            Stat: Average
+          ReturnData: false
+        - Id: memory
+          MetricStat:
+            Metric:
+              Namespace: AWS/ECS
+              MetricName: MemoryUtilization
+              Dimensions:
+                - Name: ClusterName
+                  Value: !Ref APICluster
+                - Name: ServiceName
+                  Value: !GetAtt APIService.Name
+            Period: 300
+            Stat: Average
+          ReturnData: false
+
+        - Id: minUtilization
+          Expression: 'MAX([cpu, memory])'
+          Label: Max of CPU and Memory Utilization
+          ReturnData: true
+      Threshold: 30
+      AlarmDescription: Alarm when both CPU and Memory utilization are low
+      AlarmActions:
+        - !Ref APIServiceScaleInPolicy
+
+  # Because we are launching tasks in AWS VPC networking mode
+  # the tasks themselves also have an extra security group that is unique
+  # to them. This is a unique security group just for this service,
+  # to control which things it can talk to, and who can talk to it
+  APIServiceSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: !Sub Access to service ${APIService}
+      VpcId: !Ref VPCId
+
+Outputs:
+  APICluster:
+    Description: A reference to the API ECS cluster
+    Value: !Ref APICluster
+    Export:
+      Name: !Sub ${StackName}-ECSCluster
+
+  APIServiceName:
+    Description: Name of the API ECS Service
+    Value: !GetAtt APIService.Name
+    Export:
+      Name: !Sub ${StackName}-APIServiceName
+
+  APICapacityProvider:
+    Description: The API cluster capacity provider that the service should use
+      to request capacity when it wants to start up a task
+    Value: !Sub ${StackName}-APICapacityProvider
+
+  APITaskDefinitionArn:
+    Description: ARN of the API Task Definition
+    Value: !Ref APITaskDefinition
+    Export:
+      Name: !Sub ${StackName}-TaskDefinitionArn
