@@ -24,8 +24,9 @@ if stack_exists; then
     --stack-name "$STACK_NAME" \
     --template-body file://"$TEMPLATE_FILE" \
     --parameters ParameterKey=StackTemplatesS3BucketName,ParameterValue="$STACK_TEMPLATES_S3_BUCKET_NAME" \
-    ParameterKey=ECRRepositoryName,ParameterValue="$ECR_REPOSITORY_NAME" \
-    ParameterKey=ImageTag,ParameterValue="$IMAGE_TAG" \
+    ParameterKey=APIECRRepositoryName,ParameterValue="$API_ECR_REPOSITORY_NAME" \
+    ParameterKey=PollerECRRepositoryName,ParameterValue="$POLLER_ECR_REPOSITORY_NAME" \
+    ParameterKey=AnalysisModelECRRepositoryName,ParameterValue="$ANALYSIS_MODEL_ECR_REPOSITORY_NAME" \
     ParameterKey=DomainName,ParameterValue="$DOMAIN_NAME" \
     ParameterKey=HostedZoneId,ParameterValue="$HOSTED_ZONE_ID" \
     --capabilities CAPABILITY_IAM 2>&1)
@@ -44,8 +45,9 @@ else
     --stack-name "$STACK_NAME" \
     --template-body file://"$TEMPLATE_FILE" \
     --parameters ParameterKey=StackTemplatesS3BucketName,ParameterValue="$STACK_TEMPLATES_S3_BUCKET_NAME" \
-    ParameterKey=ECRRepositoryName,ParameterValue="$ECR_REPOSITORY_NAME" \
-    ParameterKey=ImageTag,ParameterValue="$IMAGE_TAG" \
+    ParameterKey=APIECRRepositoryName,ParameterValue="$API_ECR_REPOSITORY_NAME" \
+    ParameterKey=PollerECRRepositoryName,ParameterValue="$POLLER_ECR_REPOSITORY_NAME" \
+    ParameterKey=AnalysisModelECRRepositoryName,ParameterValue="$ANALYSIS_MODEL_ECR_REPOSITORY_NAME" \
     ParameterKey=DomainName,ParameterValue="$DOMAIN_NAME" \
     ParameterKey=HostedZoneId,ParameterValue="$HOSTED_ZONE_ID" \
     --capabilities CAPABILITY_IAM 2>&1)

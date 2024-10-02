@@ -5,12 +5,12 @@ Parameters:
   VPCId:
     Type: AWS::EC2::VPC::Id
     Description: VPC ID
-  PublicSubnet3:
+  PublicSubnet5:
     Type: AWS::EC2::Subnet::Id
-    Description: Public Subnet 3 ID
-  PublicSubnet4:
+    Description: Public Subnet 5 ID
+  PublicSubnet6:
     Type: AWS::EC2::Subnet::Id
-    Description: Public Subnet 4 ID
+    Description: Public Subnet 6 ID
   ECSAMI:
     Type: String # AWS::SSM::Parameter::Value<AWS::EC2::Image::Id> (string bc nested stack)
     Description: ECS-optimized AMI ID
@@ -26,60 +26,50 @@ Parameters:
   DesiredCapacity:
     Type: Number
     Description: Desired number of EC2 instances in the Auto Scaling Group
-  ECRRepositoryName:
+  TargetBacklogPerTask:
+    Type: Number
+    Description: This is the ideal number of messages in backlog to be processed per task and it should be calculated by dividing the acceptable latency for a job completion by the average processing time of that job. For example if it is acceptable to wait 300 seconds for a job completion and it usually takes 10 seconds to complete the job than the target backlog per task = 300 / 10 = 30. This means that if we have 30 messages we want 1 task running, 60 messages we want 2 tasks running and so on. The lower the acceptable latency the fewer messages will be needed to trigger a scale out event and vice versa.
+  ScaleInThreshold:
+    Type: Number
+    Default: 0 # Scales down to zero when there are no more messages
+    Description: Number of messages which to scale in to zero tasks
+  PollerECRRepositoryName:
     Type: String
-    Description: Name of the ECR repository
-  ImageTag:
+    Description: Name of the poller app ECR repository
+  PollerImageTag:
     Type: String
-    Description: Tag of the Docker image to deploy
-  ALBTargetGroupArn:
+    Description: Tag of the poller app Docker image to deploy
+  AnalysisModelECRRepositoryName:
     Type: String
-    Description: Load Balancer Target Group ARN
-  ALBSecurityGroupId:
+    Description: Name of the analysis model ECR repository
+  AnalysisModelImageTag:
     Type: String
-    Description: Load Balancer Security Group ID
+    Description: Tag of the analysis model Docker image to deploy
   StackName:
     Type: String
     Description: Name of the parent stack
 
 Resources:
-  APICluster:
+  AnalysisSQSQueue:
+    Type: AWS::SQS::Queue
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Retain
+    Properties:
+      QueueName: analysis-sqs-queue
+      VisibilityTimeout: 900 # 15 minutes
+      ReceiveMessageWaitTimeSeconds: 20 # Long polling
+      MessageRetentionPeriod: 604800 # 1 week
+      FifoQueue: false
+
+  AnalysisModelCluster:
     Type: AWS::ECS::Cluster
     Properties:
-      ClusterName: APICluster
+      ClusterName: AnalysisModelCluster
       ClusterSettings:
         - Name: containerInsights
           Value: enabled
 
-  APIAutoScalingGroup:
-    Type: AWS::AutoScaling::AutoScalingGroup
-    DependsOn:
-      - APICluster
-      - APIEC2Role
-    UpdatePolicy:
-      AutoScalingRollingUpdate:
-        MinInstancesInService: 1
-        MaxBatchSize: 2
-        PauseTime: PT2M
-        WaitOnResourceSignals: true
-        MinSuccessfulInstancesPercent: 100
-    Properties:
-      AutoScalingGroupName: ECSInstances
-      VPCZoneIdentifier:
-        - !Ref PublicSubnet3 # set to private subnets in production
-        - !Ref PublicSubnet4 # using public to additional costs
-      LaunchTemplate:
-        LaunchTemplateId: !Ref APILaunchTemplate
-        Version: !GetAtt APILaunchTemplate.LatestVersionNumber
-      MinSize: !Ref MinSize
-      MaxSize: !Ref MaxSize
-      NewInstancesProtectedFromScaleIn: false
-      Tags:
-        - Key: Name
-          Value: ECSInstances
-          PropagateAtLaunch: true
-
-  APILaunchTemplate:
+  AnalysisModelLaunchTemplate:
     Type: AWS::EC2::LaunchTemplate
     Metadata:
       AWS::CloudFormation::Init:
@@ -125,40 +115,40 @@ Resources:
         ImageId: !Ref ECSAMI
         InstanceType: !Ref InstanceType
         SecurityGroupIds:
-          - !GetAtt APIEC2SecurityGroup.GroupId
+          - !GetAtt AnalysisModelEC2SecurityGroup.GroupId
         IamInstanceProfile:
-          Arn: !GetAtt APIEC2InstanceProfile.Arn
+          Arn: !GetAtt AnalysisModelEC2InstanceProfile.Arn
         UserData:
           Fn::Base64: !Sub |
             #!/bin/bash -xe
-            echo ECS_CLUSTER=${APICluster} >> /etc/ecs/ecs.config
+            echo ECS_CLUSTER=${AnalysisModelCluster} >> /etc/ecs/ecs.config
             echo ECS_AVAILABLE_LOGGING_DRIVERS='["json-file","awslogs"]' >> /etc/ecs/ecs.config
             yum install -y aws-cfn-bootstrap
-            /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource APIAutoScalingGroup --region ${AWS::Region}
-            /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource APIAutoScalingGroup --region ${AWS::Region}
+            /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource AnalysisModelAutoScalingGroup --region ${AWS::Region}
+            /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource AnalysisModelAutoScalingGroup --region ${AWS::Region}
 
-  APIEC2InstanceProfile:
+  AnalysisModelEC2InstanceProfile:
     Type: AWS::IAM::InstanceProfile
     Properties:
       Path: /
       Roles:
-        - !Ref APIEC2Role
+        - !Ref AnalysisModelEC2Role
 
-  APIEC2SecurityGroup:
+  AnalysisModelEC2SecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Security group for ECS instances
       VpcId: !Ref VPCId
-      SecurityGroupIngress:
+      SecurityGroupEgress:
         - IpProtocol: tcp
-          FromPort: 0
-          ToPort: 65535
-          SourceSecurityGroupId: !Ref ALBSecurityGroupId
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
 
   # Role for the EC2 hosts. This allows the ECS agent on the EC2 hosts
   # to communicate with the ECS control plane, as well as download the docker
   # images from ECR to run on your host.
-  APIEC2Role:
+  AnalysisModelEC2Role:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -171,40 +161,21 @@ Resources:
       Path: /
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role
-
-  # Create an ECS capacity provider to attach the ASG to the API cluster
-  # so that it auto scales as we launch more containers
-  APICapacityProvider:
-    Type: AWS::ECS::CapacityProvider
-    Properties:
-      AutoScalingGroupProvider:
-        AutoScalingGroupArn: !Ref APIAutoScalingGroup
-        ManagedScaling:
-          InstanceWarmupPeriod: 60
-          MinimumScalingStepSize: 1
-          MaximumScalingStepSize: 2
-          Status: ENABLED
-          # Percentage of cluster reservation to try to maintain
-          TargetCapacity: 100
-        ManagedTerminationProtection: DISABLED
-        ManagedDraining: ENABLED
-
-  # Create a cluster capacity provider association so that the cluster
-  # will use the capacity provider
-  APICapacityProviderAssociation:
-    Type: AWS::ECS::ClusterCapacityProviderAssociations
-    Properties:
-      CapacityProviders:
-        - !Ref APICapacityProvider
-      Cluster: !Ref APICluster
-      DefaultCapacityProviderStrategy:
-        - Base: 0
-          CapacityProvider: !Ref APICapacityProvider
-          Weight: 1
+      Policies:
+        - PolicyName: SQSAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'sqs:ReceiveMessage'
+                  - 'sqs:DeleteMessage'
+                  - 'sqs:GetQueueAttributes'
+                Resource: !Ref AnalysisSQSQueue
 
   # This is a role which is used within Fargate to allow the Fargate agent
   # to download images, and upload logs.
-  APITaskExecutionRole:
+  AnalysisModelTaskExecutionRole:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -224,43 +195,66 @@ Resources:
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
 
-  APITaskDefinition:
+  AnalysisModelTaskDefinition:
     Type: AWS::ECS::TaskDefinition
     Properties:
-      Family: api-task
+      Family: analysis-model-and-poller-task
       NetworkMode: awsvpc
       RequiresCompatibilities:
         - EC2
-      Cpu: '1792' # 87.5% of the 2 vCPUs available in t3.micro
-      Memory: '700'
+      Cpu: '3686' # 90% of the 4 vCPUs available in g4dn.xlarge
+      Memory: '14745' # 90% of the 16GB available in g4dn.xlarge
       ContainerDefinitions:
-        - Name: api-container
-          Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ECRRepositoryName}:${ImageTag}
+        - Name: poller-container
+          Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${PollerECRRepositoryName}:${PollerImageTag}
           PortMappings:
             - ContainerPort: 4000
-          MemoryReservation: 600
-          Cpu: 1792
+          MemoryReservation: 512
+          Cpu: 256
+          Environment:
+            - Name: SQS_QUEUE_URL
+              Value: !GetAtt AnalysisSQSQueue.QueueUrl
           LogConfiguration:
             LogDriver: awslogs
             Options:
-              awslogs-group: !Ref CloudWatchLogsGroup
+              awslogs-group: !Ref PollerCloudWatchLogsGroup
+              awslogs-region: !Ref AWS::Region
+              awslogs-stream-prefix: ecs
+        - Name: analysis-model-container
+          Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${AnalysisModelECRRepositoryName}:${AnalysisModelImageTag}
+          PortMappings:
+            - ContainerPort: 5000
+          MemoryReservation: 14200
+          Cpu: 3430
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Ref AnalysisModelCloudWatchLogsGroup
               awslogs-region: !Ref AWS::Region
               awslogs-stream-prefix: ecs
 
-  CloudWatchLogsGroup:
+  PollerCloudWatchLogsGroup:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: /ecs/api
+      LogGroupName: /ecs/poller
       RetentionInDays: 14
     DeletionPolicy: Delete
     UpdateReplacePolicy: Retain
 
-  APIService:
+  AnalysisModelCloudWatchLogsGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: /ecs/analysis-model
+      RetentionInDays: 14
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Retain
+
+  AnalysisModelService:
     Type: AWS::ECS::Service
     Properties:
-      ServiceName: APIService
-      Cluster: !Ref APICluster
-      TaskDefinition: !Ref APITaskDefinition
+      ServiceName: AnalysisModelService
+      Cluster: !Ref AnalysisModelCluster
+      TaskDefinition: !Ref AnalysisModelTaskDefinition
       DesiredCount: !Ref DesiredCapacity # same as EC2 instances (1-1 relationship)
       PlacementStrategies:
         - Type: spread
@@ -269,7 +263,7 @@ Resources:
           Field: cpu
       CapacityProviderStrategy:
         - Base: !Ref DesiredCapacity
-          CapacityProvider: !Ref APICapacityProvider
+          CapacityProvider: !Ref AnalysisModelCapacityProvider
           Weight: 1
       DeploymentConfiguration:
         MaximumPercent: 200
@@ -278,16 +272,70 @@ Resources:
         AwsvpcConfiguration:
           AssignPublicIp: DISABLED
           Subnets:
-            - !Ref PublicSubnet3 # set to private subnets in production
-            - !Ref PublicSubnet4 # using public to avoid vpc endpoint costs (for ecs service)
+            - !Ref PublicSubnet5 # set to private subnets in production
+            - !Ref PublicSubnet6 # using public to avoid vpc endpoint costs (for ecs service)
           SecurityGroups:
-            - !Ref APIEC2SecurityGroup
-      LoadBalancers:
-        - ContainerName: api-container
-          ContainerPort: 4000
-          TargetGroupArn: !Ref ALBTargetGroupArn
+            - !Ref AnalysisModelEC2SecurityGroup
 
-  APIServiceAutoScalingRole:
+  # Create an ECS capacity provider to attach the ASG to the Analysis Model cluster
+  # so that it auto scales as we launch more tasks
+  AnalysisModelCapacityProvider:
+    Type: AWS::ECS::CapacityProvider
+    Properties:
+      AutoScalingGroupProvider:
+        AutoScalingGroupArn: !Ref AnalysisModelAutoScalingGroup
+        ManagedScaling:
+          InstanceWarmupPeriod: 60
+          MinimumScalingStepSize: 1
+          MaximumScalingStepSize: 2
+          Status: ENABLED
+          # Percentage of cluster reservation to try to maintain
+          TargetCapacity: 100
+        ManagedTerminationProtection: DISABLED
+        ManagedDraining: ENABLED
+
+  # Create a cluster capacity provider association so that the cluster
+  # will use the capacity provider
+  AnalysisModelCapacityProviderAssociation:
+    Type: AWS::ECS::ClusterCapacityProviderAssociations
+    Properties:
+      CapacityProviders:
+        - !Ref AnalysisModelCapacityProvider
+      Cluster: !Ref AnalysisModelCluster
+      DefaultCapacityProviderStrategy:
+        - Base: 0
+          CapacityProvider: !Ref AnalysisModelCapacityProvider
+          Weight: 1
+
+  AnalysisModelAutoScalingGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    DependsOn:
+      - AnalysisModelCluster
+      - AnalysisModelEC2Role
+    UpdatePolicy:
+      AutoScalingRollingUpdate:
+        MinInstancesInService: 1
+        MaxBatchSize: 2
+        PauseTime: PT2M
+        WaitOnResourceSignals: true
+        MinSuccessfulInstancesPercent: 100
+    Properties:
+      AutoScalingGroupName: ECSInstances
+      VPCZoneIdentifier:
+        - !Ref PublicSubnet5 # set to private subnets in production
+        - !Ref PublicSubnet6 # using public to additional costs
+      LaunchTemplate:
+        LaunchTemplateId: !Ref AnalysisModelLaunchTemplate
+        Version: !GetAtt AnalysisModelLaunchTemplate.LatestVersionNumber
+      MinSize: !Ref MinSize
+      MaxSize: !Ref MaxSize
+      NewInstancesProtectedFromScaleIn: false
+      Tags:
+        - Key: Name
+          Value: ECSInstances
+          PropagateAtLaunch: true
+
+  AnalysisModelServiceAutoScalingRole:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -299,7 +347,7 @@ Resources:
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceAutoscaleRole
 
-  APIServiceScalableTarget:
+  AnalysisModelServiceScalableTarget:
     Type: AWS::ApplicationAutoScaling::ScalableTarget
     Properties:
       MaxCapacity: !Ref MaxSize # Correlate to ec2 max
@@ -307,155 +355,231 @@ Resources:
       ResourceId: !Join
         - /
         - - service
-          - !Ref APICluster
-          - !GetAtt APIService.Name
-      RoleARN: !GetAtt APIServiceAutoScalingRole.Arn
+          - !Ref AnalysisModelCluster
+          - !GetAtt AnalysisModelService.Name
+      RoleARN: !GetAtt AnalysisModelServiceAutoScalingRole.Arn
       ScalableDimension: ecs:service:DesiredCount
       ServiceNamespace: ecs
 
-  APIServiceScaleOutPolicy:
+  #
+  # SQS-based auto scaling: Backlog per task custom metric
+  #
+
+  # The custom Lambda function extracts key metrics, such as the number of messages
+  # in the SQS queue and the current tasks in the ECS service, then calculates the
+  # current backlog per task. This function runs at regular intervals to provide
+  # real-time data for scaling decisions.
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: EcsSqsMetricsPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - sqs:GetQueueAttributes
+                  - ecs:DescribeServices
+                  - cloudwatch:PutMetricData
+                  - application-autoscaling:RegisterScalableTarget
+                  - application-autoscaling:DescribeScalableTargets
+                  - application-autoscaling:DeregisterScalableTarget
+                Resource: '*'
+
+  MetricsLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Handler: index.lambda_handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Code:
+        ZipFile: |
+          import os
+          import boto3
+
+          def lambda_handler(event, context):
+              sqs = boto3.client('sqs')
+              ecs = boto3.client('ecs')
+              cloudwatch = boto3.client('cloudwatch')
+              autoscaling = boto3.client('application-autoscaling')
+              
+              queue_url = os.environ['QUEUE_URL']
+              cluster_name = os.environ['ECS_CLUSTER_NAME']
+              service_name = os.environ['ECS_SERVICE_NAME']
+              scale_in_threshold = int(os.environ['SCALE_IN_THRESHOLD'])
+              
+              # Get SQS queue attributes
+              queue_attrs = sqs.get_queue_attributes(
+                  QueueUrl=queue_url,
+                  AttributeNames=['ApproximateNumberOfMessages']
+              )
+              approx_messages = int(queue_attrs['Attributes']['ApproximateNumberOfMessages'])
+              
+              # Get number of active tasks in ECS service
+              service_desc = ecs.describe_services(
+                  cluster=cluster_name,
+                  services=[service_name]
+              )
+              active_tasks = service_desc['services'][0]['runningCount']
+              
+              # Calculate backlog per task
+              if active_tasks > 0:
+                  backlog_per_task = approx_messages / active_tasks
+              elif approx_messages > 0:
+                  backlog_per_task = approx_messages  # When scaling from zero
+              else:
+                  backlog_per_task = 0  # No messages and no tasks
+              
+              # Put custom metric data
+              cloudwatch.put_metric_data(
+                  Namespace='CustomDemo/ECS/SQS',
+                  MetricData=[
+                      {
+                          'MetricName': 'backlogPerTask',
+                          'Dimensions': [
+                              {'Name': 'ECSClusterName', 'Value': cluster_name},
+                              {'Name': 'ECSServiceName', 'Value': service_name}
+                          ],
+                          'Value': backlog_per_task,
+                          'Unit': 'Count'
+                      }
+                  ]
+              )
+              
+              # Handle scaling to/from zero
+              resource_id = f"service/{cluster_name}/{service_name}"
+              scalable_targets = autoscaling.describe_scalable_targets(
+                  ServiceNamespace='ecs',
+                  ResourceIds=[resource_id]
+              )['ScalableTargets']
+              
+              if scalable_targets:
+                  current_min_capacity = scalable_targets[0]['MinCapacity']
+                  
+                  if approx_messages <= scale_in_threshold and current_min_capacity > 0:
+                      # Scale in to zero
+                      autoscaling.register_scalable_target(
+                          ServiceNamespace='ecs',
+                          ResourceId=resource_id,
+                          ScalableDimension='ecs:service:DesiredCount',
+                          MinCapacity=0,
+                          MaxCapacity=scalable_targets[0]['MaxCapacity']
+                      )
+                  elif approx_messages > scale_in_threshold and current_min_capacity == 0:
+                      # Scale out from zero
+                      autoscaling.register_scalable_target(
+                          ServiceNamespace='ecs',
+                          ResourceId=resource_id,
+                          ScalableDimension='ecs:service:DesiredCount',
+                          MinCapacity=1,
+                          MaxCapacity=scalable_targets[0]['MaxCapacity']
+                      )
+              
+              print(f"Approximate messages: {approx_messages}")
+              print(f"Active tasks: {active_tasks}")
+              print(f"Backlog per task: {backlog_per_task}")
+              
+              return {
+                  'statusCode': 200,
+                  'body': 'Metrics updated successfully'
+              }
+      Runtime: python3.8
+      Timeout: 30
+      Environment:
+        Variables:
+          QUEUE_URL: !GetAtt AnalysisSQSQueue.QueueUrl
+          ECS_CLUSTER_NAME: AnalysisModelCluster
+          ECS_SERVICE_NAME: !GetAtt AnalysisModelService.Name
+          SCALE_IN_THRESHOLD: !Ref ScaleInThreshold
+
+  MetricsLambdaPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref MetricsLambdaFunction
+      Action: 'lambda:InvokeFunction'
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt MetricsScheduleRule.Arn
+
+  MetricsScheduleRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: 'Schedule for invoking the Metrics Lambda function'
+      ScheduleExpression: 'rate(1 minute)'
+      State: 'ENABLED'
+      Targets:
+        - Arn: !GetAtt MetricsLambdaFunction.Arn
+          Id: 'MetricsLambdaFunction'
+
+  ScalableTarget:
+    Type: AWS::ApplicationAutoScaling::ScalableTarget
+    Properties:
+      MaxCapacity: !Ref MaxSize # Correlate to ec2 max
+      MinCapacity: !Ref MinSize # Correlate to ec2 min
+      ResourceId: !Sub service/${AnalysisModelCluster}/${AnalysisModelService}
+      RoleARN: !Sub arn:aws:iam::${AWS::AccountId}:role/aws-service-role/ecs.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_ECSService
+      ScalableDimension: ecs:service:DesiredCount
+      ServiceNamespace: ecs
+
+  ScalingPolicy:
     Type: AWS::ApplicationAutoScaling::ScalingPolicy
     Properties:
-      PolicyName: APIServiceScaleOutPolicy
-      PolicyType: StepScaling
-      ScalingTargetId: !Ref APIServiceScalableTarget
-      StepScalingPolicyConfiguration:
-        AdjustmentType: ChangeInCapacity
-        Cooldown: 60
-        MetricAggregationType: Average
-        StepAdjustments:
-          - MetricIntervalLowerBound: 0
-            ScalingAdjustment: 1
-
-  APIServiceScaleInPolicy:
-    Type: AWS::ApplicationAutoScaling::ScalingPolicy
-    Properties:
-      PolicyName: APIServiceScaleInPolicy
-      PolicyType: StepScaling
-      ScalingTargetId: !Ref APIServiceScalableTarget
-      StepScalingPolicyConfiguration:
-        AdjustmentType: ChangeInCapacity
-        Cooldown: 60
-        MetricAggregationType: Average
-        StepAdjustments:
-          - MetricIntervalUpperBound: 0
-            ScalingAdjustment: -1
-
-  APIServiceCPUMemoryScaleOutAlarm:
-    Type: AWS::CloudWatch::Alarm
-    Properties:
-      AlarmName: APIServiceCPUMemoryScaleOutAlarm
-      ComparisonOperator: GreaterThanOrEqualToThreshold
-      EvaluationPeriods: 2
-      Metrics:
-        - Id: cpu
-          MetricStat:
-            Metric:
-              Namespace: AWS/ECS
-              MetricName: CPUUtilization
-              Dimensions:
-                - Name: ClusterName
-                  Value: !Ref APICluster
-                - Name: ServiceName
-                  Value: !GetAtt APIService.Name
-            Period: 60
-            Stat: Average
-          ReturnData: false
-        - Id: memory
-          MetricStat:
-            Metric:
-              Namespace: AWS/ECS
-              MetricName: MemoryUtilization
-              Dimensions:
-                - Name: ClusterName
-                  Value: !Ref APICluster
-                - Name: ServiceName
-                  Value: !GetAtt APIService.Name
-            Period: 60
-            Stat: Average
-          ReturnData: false
-        - Id: maxUtilization
-          Expression: 'MAX([cpu, memory])'
-          Label: Max of CPU and Memory Utilization
-          ReturnData: true
-      Threshold: 70
-      AlarmDescription: Alarm when either CPU or Memory utilization is high
-      AlarmActions:
-        - !Ref APIServiceScaleOutPolicy
-
-  APIServiceCPUMemoryScaleInAlarm:
-    Type: AWS::CloudWatch::Alarm
-    Properties:
-      AlarmName: APIServiceCPUMemoryScaleInAlarm
-      ComparisonOperator: LessThanOrEqualToThreshold
-      EvaluationPeriods: 2
-      Metrics:
-        - Id: cpu
-          MetricStat:
-            Metric:
-              Namespace: AWS/ECS
-              MetricName: CPUUtilization
-              Dimensions:
-                - Name: ClusterName
-                  Value: !Ref APICluster
-                - Name: ServiceName
-                  Value: !GetAtt APIService.Name
-            Period: 300
-            Stat: Average
-          ReturnData: false
-        - Id: memory
-          MetricStat:
-            Metric:
-              Namespace: AWS/ECS
-              MetricName: MemoryUtilization
-              Dimensions:
-                - Name: ClusterName
-                  Value: !Ref APICluster
-                - Name: ServiceName
-                  Value: !GetAtt APIService.Name
-            Period: 300
-            Stat: Average
-          ReturnData: false
-
-        - Id: minUtilization
-          Expression: 'MAX([cpu, memory])'
-          Label: Max of CPU and Memory Utilization
-          ReturnData: true
-      Threshold: 30
-      AlarmDescription: Alarm when both CPU and Memory utilization are low
-      AlarmActions:
-        - !Ref APIServiceScaleInPolicy
+      PolicyName: SqsQueueTrackingPolicy
+      PolicyType: TargetTrackingScaling
+      ScalingTargetId: !Ref ScalableTarget
+      TargetTrackingScalingPolicyConfiguration:
+        CustomizedMetricSpecification:
+          MetricName: backlogPerTask
+          Namespace: CustomDemo/ECS/SQS
+          Dimensions:
+            - Name: ClusterName
+              Value: !Ref AnalysisModelCluster
+            - Name: ServiceName
+              Value: !Ref AnalysisModelService
+          Statistic: Average
+        TargetValue: !Ref TargetBacklogPerTask
+        ScaleInCooldown: 60
+        ScaleOutCooldown: 60
 
   # Because we are launching tasks in AWS VPC networking mode
   # the tasks themselves also have an extra security group that is unique
   # to them. This is a unique security group just for this service,
   # to control which things it can talk to, and who can talk to it
-  APIServiceSecurityGroup:
+  AnalysisModelServiceSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: !Sub Access to service ${APIService}
+      GroupDescription: !Sub Access to service ${AnalysisModelService}
       VpcId: !Ref VPCId
 
 Outputs:
-  APICluster:
-    Description: A reference to the API ECS cluster
-    Value: !Ref APICluster
+  AnalysisModelCluster:
+    Description: A reference to the Analysis Model ECS cluster
+    Value: !Ref AnalysisModelCluster
     Export:
-      Name: !Sub ${StackName}-ECSCluster
+      Name: !Sub ${StackName}-AnalysisModelCluster
 
-  APIServiceName:
-    Description: Name of the API ECS Service
-    Value: !GetAtt APIService.Name
+  AnalysisModelServiceName:
+    Description: Name of the Analysis Model ECS Service
+    Value: !GetAtt AnalysisModelService.Name
     Export:
-      Name: !Sub ${StackName}-APIServiceName
+      Name: !Sub ${StackName}-AnalysisModelServiceName
 
-  APICapacityProvider:
-    Description: The API cluster capacity provider that the service should use
+  AnalysisModelCapacityProvider:
+    Description:
+      The Analysis Model cluster capacity provider that the service should use
       to request capacity when it wants to start up a task
-    Value: !Sub ${StackName}-APICapacityProvider
+    Value: !Sub ${StackName}-AnalysisModelCapacityProvider
 
-  APITaskDefinitionArn:
-    Description: ARN of the API Task Definition
-    Value: !Ref APITaskDefinition
+  AnalysisModelTaskDefinitionArn:
+    Description: ARN of the Analysis Model Task Definition
+    Value: !Ref AnalysisModelTaskDefinition
     Export:
-      Name: !Sub ${StackName}-TaskDefinitionArn
+      Name: !Sub ${StackName}-AnalysisModelTaskDefinitionArn

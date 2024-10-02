@@ -36,6 +36,10 @@ jobs:
           aws s3 sync apps/api/infrastructure s3://$S3_BUCKET/api/ \
           --delete --exclude "*" --include "*.yml"
 
+          # Sync .yml files to /analysis-model path
+          aws s3 sync apps/analysis-model/infrastructure s3://$S3_BUCKET/analysis-model/ \
+          --delete --exclude "*" --include "*.yml"
+
           # Sync .yml files to /main path
           aws s3 sync infrastructure/stacks s3://$S3_BUCKET/main/ \
           --delete --exclude "*" --include "*.yml"

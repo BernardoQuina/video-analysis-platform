@@ -2,38 +2,88 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: 'Parent stack for VPC, API Cluster with Auto Scaling EC2 Instances and ALB'
 
 Parameters:
+  # Stacks S3
   StackTemplatesS3BucketName:
     Type: String
     Description: Name of the S3 bucket containing nested stack templates
-  ECRRepositoryName:
-    Type: String
-    Description: Name of the ECR repository
-  ImageTag:
-    Type: String
-    Description: Tag of the Docker image to deploy
-  ECSAMI:
+
+  # API parameters
+  APIECSAMI:
     Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
     Default: /aws/service/ecs/optimized-ami/amazon-linux-2/recommended/image_id
-    Description: The AMI ID used for the cluster, leave it as the default value to get the latest AMI
-  InstanceType:
+    Description: The AMI ID used for the API cluster, leave it as the default value to get the latest AMI
+  APIInstanceType:
     Type: String
     Default: t3.micro
-    Description: EC2 instance type
-  DesiredCapacity:
+    Description: EC2 instance type for the API cluster
+  APIDesiredCapacity:
     Type: Number
     Default: 1
-    Description: Desired number of EC2 instances in the Auto Scaling Group
-  MaxSize:
+    Description: Desired number of EC2 instances in the API Auto Scaling Group
+  APIMinSize:
+    Type: Number
+    Default: 1
+    Description: Minimum number of EC2 instances in the API Auto Scaling Group
+  APIMaxSize:
     Type: Number
     Default: 2
-    Description: Maximum number of EC2 instances in the Auto Scaling Group
-  MinSize:
+    Description: Maximum number of EC2 instances in the API Auto Scaling Group
+  APIECRRepositoryName:
+    Type: String
+    Description: Name of the ECR API repository
+  APIImageTag:
+    Type: String
+    Default: latest
+    Description: Tag of the API Docker image to deploy
+
+  # Analysis Model parameters
+  AnalysisModelECSAMI:
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
+    Default: /aws/service/ecs/optimized-ami/amazon-linux-2/gpu/recommended/image_id
+    Description: The AMI ID used for the Analysis Model cluster, leave it as the default value to get the latest AMI
+  AnalysisModelInstanceType:
+    Type: String
+    Default: g4dn.xlarge
+    Description: EC2 instance type for the Analysis Model cluster. GPU-enabled instance required
+  AnalysisModelMinSize:
     Type: Number
-    Default: 1
-    Description: Minimum number of EC2 instances in the Auto Scaling Group
+    Default: 0
+    Description: Minimum number of EC2 instances in the Analysis Model Auto Scaling Group
+  AnalysisModelMaxSize:
+    Type: Number
+    Default: 2
+    Description: Maximum number of EC2 instances in the Analysis Model Auto Scaling Group
+  AnalysisModelDesiredCapacity:
+    Type: Number
+    Default: 0
+    Description: Desired number of EC2 instances in the Analysis Model Auto Scaling Group
+  AnalysisModelTargetBacklogPerTask:
+    Type: Number
+    Default: 30
+    Description: This is the ideal number of messages in backlog to be processed per task and it should be calculated by dividing the acceptable latency for a job completion by the average processing time of that job. For example if it is acceptable to wait 300 seconds for a job completion and it usually takes 10 seconds to complete the job than the target backlog per task = 300 / 10 = 30. This means that if we have 30 messages we want 1 task running, 60 messages we want 2 tasks running and so on. The lower the acceptable latency the fewer messages will be needed to trigger a scale out event and vice versa.
+  AnalysisModelScaleInThreshold:
+    Type: Number
+    Default: 0 # Scales down to zero when there are no more messages
+    Description: Number of messages which to scale in to zero tasks
+  PollerECRRepositoryName:
+    Type: String
+    Description: Name of the poller app ECR repository
+  PollerImageTag:
+    Type: String
+    Default: latest
+    Description: Tag of the poller app Docker image to deploy
+  AnalysisModelECRRepositoryName:
+    Type: String
+    Description: Name of the analysis model ECR repository
+  AnalysisModelImageTag:
+    Type: String
+    Default: latest
+    Description: Tag of the analysis model Docker image to deploy
+
+  # ALB parameters
   DomainName:
     Type: String
-    Description: Domain name for the ALB
+    Description: Domain name for the API ALB
   HostedZoneId:
     Type: String
     Description: The ID of the hosted zone in Route 53
@@ -75,13 +125,37 @@ Resources:
         VPCId: !GetAtt VPCStack.Outputs.VPC
         PublicSubnet3: !GetAtt VPCStack.Outputs.PublicSubnet3
         PublicSubnet4: !GetAtt VPCStack.Outputs.PublicSubnet4
-        ECSAMI: !Ref ECSAMI
-        InstanceType: !Ref InstanceType
-        MinSize: !Ref MinSize
-        MaxSize: !Ref MaxSize
-        DesiredCapacity: !Ref DesiredCapacity
-        ECRRepositoryName: !Ref ECRRepositoryName
-        ImageTag: !Ref ImageTag
+        ECSAMI: !Ref APIECSAMI
+        InstanceType: !Ref APIInstanceType
+        MinSize: !Ref APIMinSize
+        MaxSize: !Ref APIMaxSize
+        DesiredCapacity: !Ref APIDesiredCapacity
+        ECRRepositoryName: !Ref APIECRRepositoryName
+        ImageTag: !Ref APIImageTag
         ALBTargetGroupArn: !GetAtt ALBStack.Outputs.ALBTargetGroupArn
         ALBSecurityGroupId: !GetAtt ALBStack.Outputs.ALBSecurityGroupId
+        StackName: !Ref AWS::StackName
+
+  # Analysis model (and service) Stack
+  AnalysisModelClusterStack:
+    Type: AWS::CloudFormation::Stack
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
+    Properties:
+      TemplateURL: !Sub https://${StackTemplatesS3BucketName}.s3.amazonaws.com/analysis-model/analysis-model-cluster.yml
+      Parameters:
+        VPCId: !GetAtt VPCStack.Outputs.VPC
+        PublicSubnet5: !GetAtt VPCStack.Outputs.PublicSubnet5
+        PublicSubnet6: !GetAtt VPCStack.Outputs.PublicSubnet6
+        ECSAMI: !Ref AnalysisModelECSAMI
+        InstanceType: !Ref AnalysisModelInstanceType
+        MinSize: !Ref AnalysisModelMinSize
+        MaxSize: !Ref AnalysisModelMaxSize
+        DesiredCapacity: !Ref AnalysisModelDesiredCapacity
+        TargetBacklogPerTask: !Ref AnalysisModelTargetBacklogPerTask
+        ScaleInThreshold: !Ref AnalysisModelScaleInThreshold
+        PollerECRRepositoryName: !Ref PollerECRRepositoryName
+        PollerImageTag: !Ref PollerImageTag
+        AnalysisModelECRRepositoryName: !Ref AnalysisModelECRRepositoryName
+        AnalysisModelImageTag: !Ref AnalysisModelImageTag
         StackName: !Ref AWS::StackName

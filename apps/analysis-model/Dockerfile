@@ -24,7 +24,6 @@ ARG FRONTEND_URL
 
 # Set environment variables
 ENV NODE_ENV=$NODE_ENV
-ENV FRONTEND_URL=$FRONTEND_URL
 
 # Expose the port the app runs on
 EXPOSE 4000

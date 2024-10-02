@@ -55,7 +55,7 @@ Resources:
         - Key: Name
           Value: Public Subnet 2
 
-  # Instead of public subnet 3 and 4 use the private subnets commented out below.
+  # Instead of public subnet 3, 4, 5 and 6 use the private subnets and a NAT Gateway.
   # Using public subnets for the ec2 instances for this demo so I stay within the free
   # tier because if they were in private subnets I'd need a vpc endpoint interface or
   # a NAT so the instances could communicate with the ecs service
@@ -80,6 +80,28 @@ Resources:
       Tags:
         - Key: Name
           Value: Public Subnet 4
+
+  PublicSubnet5:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [0, !GetAZs '']
+      CidrBlock: 10.0.5.0/24
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: Public Subnet 5
+
+  PublicSubnet6:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [1, !GetAZs '']
+      CidrBlock: 10.0.6.0/24
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: Public Subnet 6
 
   # Public Route Table
   PublicRouteTable:
@@ -122,6 +144,18 @@ Resources:
       RouteTableId: !Ref PublicRouteTable
       SubnetId: !Ref PublicSubnet4
 
+  PublicSubnet5RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      SubnetId: !Ref PublicSubnet5
+
+  PublicSubnet6RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      SubnetId: !Ref PublicSubnet6
+
 Outputs:
   VPC:
     Description: A reference to the created VPC
@@ -139,6 +173,8 @@ Outputs:
           !Ref PublicSubnet2,
           !Ref PublicSubnet3,
           !Ref PublicSubnet4,
+          !Ref PublicSubnet5,
+          !Ref PublicSubnet6,
         ],
       ]
     Export:
@@ -167,3 +203,15 @@ Outputs:
     Value: !Ref PublicSubnet4
     Export:
       Name: !Sub ${StackName}-PublicSubnet4
+
+  PublicSubnet5:
+    Description: A reference to the public subnet in the 1st Availability Zone (for ECS instances)
+    Value: !Ref PublicSubnet5
+    Export:
+      Name: !Sub ${StackName}-PublicSubnet5
+
+  PublicSubnet6:
+    Description: A reference to the public subnet in the 2nd Availability Zone (for ECS instances)
+    Value: !Ref PublicSubnet6
+    Export:
+      Name: !Sub ${StackName}-PublicSubnet6

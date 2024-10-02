@@ -441,7 +441,7 @@ Outputs:
     Description: A reference to the API ECS cluster
     Value: !Ref APICluster
     Export:
-      Name: !Sub ${StackName}-ECSCluster
+      Name: !Sub ${StackName}-APICluster
 
   APIServiceName:
     Description: Name of the API ECS Service
@@ -458,4 +458,4 @@ Outputs:
     Description: ARN of the API Task Definition
     Value: !Ref APITaskDefinition
     Export:
-      Name: !Sub ${StackName}-TaskDefinitionArn
+      Name: !Sub ${StackName}-APITaskDefinitionArn
