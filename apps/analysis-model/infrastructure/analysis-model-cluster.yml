@@ -170,7 +170,7 @@ Resources:
                   - 'sqs:ReceiveMessage'
                   - 'sqs:DeleteMessage'
                   - 'sqs:GetQueueAttributes'
-                Resource: !Ref AnalysisSQSQueue
+                Resource: !GetAtt AnalysisSQSQueue.Arn
 
   # This is a role which is used within Fargate to allow the Fargate agent
   # to download images, and upload logs.
