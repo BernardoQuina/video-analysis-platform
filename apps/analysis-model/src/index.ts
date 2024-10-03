@@ -1,7 +1,7 @@
 /* eslint-disable no-console */ import {
   SQSClient,
   ReceiveMessageCommand,
-  DeleteMessageCommand,
+  // DeleteMessageCommand,
   Message,
 } from '@aws-sdk/client-sqs';
 import 'dotenv/config';
@@ -17,7 +17,7 @@ type MessageBody = {
 
 type Result = { text: string };
 
-async function analyzeVideo({
+async function _analyzeVideo({
   video_path,
   text_prompt,
 }: MessageBody): Promise<Result> {
@@ -45,7 +45,8 @@ async function processMessage(message: Message) {
   const messageBody: MessageBody = JSON.parse(message.Body);
 
   try {
-    await analyzeVideo(messageBody);
+    // await analyzeVideo(messageBody);
+    console.log({ messageBody });
   } catch (error) {
     console.error(`Error processing video ${messageBody.video_path}:`, error);
     throw error; // Rethrow to trigger SQS message retention
@@ -74,15 +75,17 @@ async function pollQueue() {
       await processMessage(message);
 
       // Delete the message from the queue
-      const deleteCommand = new DeleteMessageCommand({
-        QueueUrl: process.env.SQS_QUEUE_URL,
-        ReceiptHandle: message.ReceiptHandle,
-      });
-      await sqsClient.send(deleteCommand);
+      // const deleteCommand = new DeleteMessageCommand({
+      //   QueueUrl: process.env.SQS_QUEUE_URL,
+      //   ReceiptHandle: message.ReceiptHandle,
+      // });
 
-      console.log(`Deleted message ${message.MessageId}`);
+      // await sqsClient.send(deleteCommand);
+
+      // console.log(`Deleted message ${message.MessageId}`);
     } catch (error) {
       console.error('Error in poll loop:', error);
+
       // Wait before trying again to avoid flooding logs in case of persistent errors
       await new Promise((resolve) => setTimeout(resolve, 5000));
     }
@@ -91,6 +94,7 @@ async function pollQueue() {
 
 // Start the application
 console.log('Starting video analysis wrapper');
+console.log('Queue url: ', process.env.SQS_QUEUE_URL);
 pollQueue().catch((error) => {
   console.error('Fatal error in main loop:', error);
   throw error;

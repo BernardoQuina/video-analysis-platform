@@ -122,6 +122,7 @@ Resources:
             #!/bin/bash -xe
             echo ECS_CLUSTER=${AnalysisModelCluster} >> /etc/ecs/ecs.config
             echo ECS_AVAILABLE_LOGGING_DRIVERS='["json-file","awslogs"]' >> /etc/ecs/ecs.config
+            echo ECS_ENABLE_GPU_SUPPORT=true >> /etc/ecs/ecs.config
             yum install -y aws-cfn-bootstrap
             /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource AnalysisModelAutoScalingGroup --region ${AWS::Region}
             /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource AnalysisModelAutoScalingGroup --region ${AWS::Region}
@@ -493,12 +494,23 @@ Resources:
               }
       Runtime: python3.8
       Timeout: 30
+      LoggingConfig:
+        LogGroup: !Ref MetricsLambdaCloudWatchLogsGroup
+        
       Environment:
         Variables:
           QUEUE_URL: !GetAtt AnalysisSQSQueue.QueueUrl
           ECS_CLUSTER_NAME: AnalysisModelCluster
           ECS_SERVICE_NAME: !GetAtt AnalysisModelService.Name
           SCALE_IN_THRESHOLD: !Ref ScaleInThreshold
+
+  MetricsLambdaCloudWatchLogsGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: /metrics/lambda
+      RetentionInDays: 14
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Retain
 
   MetricsLambdaPermission:
     Type: AWS::Lambda::Permission
