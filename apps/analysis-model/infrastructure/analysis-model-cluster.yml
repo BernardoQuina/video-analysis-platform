@@ -59,7 +59,6 @@ Resources:
       VisibilityTimeout: 900 # 15 minutes
       ReceiveMessageWaitTimeSeconds: 20 # Long polling
       MessageRetentionPeriod: 604800 # 1 week
-      FifoQueue: false
 
   AnalysisModelCluster:
     Type: AWS::ECS::Cluster

@@ -5,7 +5,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Load environment variables from .env file
 set -o allexport
-source "$SCRIPT_DIR/.env"
+source "$SCRIPT_DIR/../.env"
 set +o allexport
 
 STACK_NAME="main-deployment"
