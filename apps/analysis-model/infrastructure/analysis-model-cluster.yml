@@ -518,22 +518,12 @@ Resources:
         - Arn: !GetAtt MetricsLambdaFunction.Arn
           Id: 'MetricsLambdaFunction'
 
-  ScalableTarget:
-    Type: AWS::ApplicationAutoScaling::ScalableTarget
-    Properties:
-      MaxCapacity: !Ref MaxSize # Correlate to ec2 max
-      MinCapacity: !Ref MinSize # Correlate to ec2 min
-      ResourceId: !Sub service/${AnalysisModelCluster}/${AnalysisModelService}
-      RoleARN: !Sub arn:aws:iam::${AWS::AccountId}:role/aws-service-role/ecs.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_ECSService
-      ScalableDimension: ecs:service:DesiredCount
-      ServiceNamespace: ecs
-
   ScalingPolicy:
     Type: AWS::ApplicationAutoScaling::ScalingPolicy
     Properties:
       PolicyName: SqsQueueTrackingPolicy
       PolicyType: TargetTrackingScaling
-      ScalingTargetId: !Ref ScalableTarget
+      ScalingTargetId: !Ref AnalysisModelServiceScalableTarget
       TargetTrackingScalingPolicyConfiguration:
         CustomizedMetricSpecification:
           MetricName: backlogPerTask
