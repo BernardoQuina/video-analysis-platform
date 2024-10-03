@@ -108,7 +108,7 @@ Resources:
           commands:
             SignalCloudFormation:
               command: !Sub |
-                /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackId} --resource ECSAutoScalingGroup --region ${AWS::Region}
+                /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackId} --resource AnalysisModelAutoScalingGroup --region ${AWS::Region}
     Properties:
       LaunchTemplateData:
         ImageId: !Ref ECSAMI
@@ -319,7 +319,7 @@ Resources:
         WaitOnResourceSignals: true
         MinSuccessfulInstancesPercent: 100
     Properties:
-      AutoScalingGroupName: ECSInstances
+      AutoScalingGroupName: AnalysisModelInstances
       VPCZoneIdentifier:
         - !Ref PublicSubnet5 # set to private subnets in production
         - !Ref PublicSubnet6 # using public to additional costs
@@ -331,7 +331,7 @@ Resources:
       NewInstancesProtectedFromScaleIn: false
       Tags:
         - Key: Name
-          Value: ECSInstances
+          Value: AnalysisModelInstances
           PropagateAtLaunch: true
 
   AnalysisModelServiceAutoScalingRole:

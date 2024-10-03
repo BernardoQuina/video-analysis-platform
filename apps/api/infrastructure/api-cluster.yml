@@ -64,7 +64,7 @@ Resources:
         WaitOnResourceSignals: true
         MinSuccessfulInstancesPercent: 100
     Properties:
-      AutoScalingGroupName: ECSInstances
+      AutoScalingGroupName: APIInstances
       VPCZoneIdentifier:
         - !Ref PublicSubnet3 # set to private subnets in production
         - !Ref PublicSubnet4 # using public to additional costs
@@ -76,7 +76,7 @@ Resources:
       NewInstancesProtectedFromScaleIn: false
       Tags:
         - Key: Name
-          Value: ECSInstances
+          Value: APIInstances
           PropagateAtLaunch: true
 
   APILaunchTemplate:
@@ -119,7 +119,7 @@ Resources:
           commands:
             SignalCloudFormation:
               command: !Sub |
-                /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackId} --resource ECSAutoScalingGroup --region ${AWS::Region}
+                /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackId} --resource APIAutoScalingGroup --region ${AWS::Region}
     Properties:
       LaunchTemplateData:
         ImageId: !Ref ECSAMI
