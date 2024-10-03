@@ -5,8 +5,9 @@ on:
       - main
     paths:
       # Only run when files in infrastructure directories change
-      - 'apps/api/infrastructure/**.yml'
       - 'infrstructure/**.yml'
+      - 'apps/api/infrastructure/**.yml'
+      - 'apps/analysis-model/infrastructure/**.yml'
 
 permissions: # necessary for the GitHub OIDC provider to authenticate with AWS
   id-token: write
