@@ -55,7 +55,7 @@ Resources:
         - Key: Name
           Value: Public Subnet 2
 
-  # Instead of public subnet 3, 4, 5 and 6 use the private subnets and a NAT Gateway.
+  # Instead of public subnets 3, 4, 5 and 6 use the private subnets and a NAT Gateway.
   # Using public subnets for the ec2 instances for this demo so I stay within the free
   # tier because if they were in private subnets I'd need a vpc endpoint interface or
   # a NAT so the instances could communicate with the ecs service
