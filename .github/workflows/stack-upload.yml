@@ -5,7 +5,7 @@ on:
       - main
     paths:
       # Only run when files in infrastructure directories change
-      - 'infrstructure/**.yml'
+      - 'infrastructure/**.yml'
       - 'apps/api/infrastructure/**.yml'
       - 'apps/analysis-model/infrastructure/**.yml'
 
