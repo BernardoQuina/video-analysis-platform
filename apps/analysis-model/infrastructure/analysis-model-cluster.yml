@@ -432,10 +432,12 @@ Resources:
               active_tasks = service_desc['services'][0]['runningCount']
               
               # Calculate backlog per task
-              if active_tasks > 0:
+              if approx_messages == 0:
+                  backlog_per_task = 0; # Scaling to zero
+              elif active_tasks > 0:
                   backlog_per_task = approx_messages / active_tasks
               elif approx_messages > 0:
-                  backlog_per_task = approx_messages  # When scaling from zero
+                  backlog_per_task = approx_messages  # Scaling from zero
               else:
                   backlog_per_task = 0  # No messages and no tasks
               
@@ -455,35 +457,6 @@ Resources:
                   ]
               )
               
-              # Handle scaling to/from zero
-              resource_id = f"service/{cluster_name}/{service_name}"
-              scalable_targets = autoscaling.describe_scalable_targets(
-                  ServiceNamespace='ecs',
-                  ResourceIds=[resource_id]
-              )['ScalableTargets']
-              
-              if scalable_targets:
-                  current_min_capacity = scalable_targets[0]['MinCapacity']
-                  
-                  if approx_messages <= scale_in_threshold and current_min_capacity > 0:
-                      # Scale in to zero
-                      autoscaling.register_scalable_target(
-                          ServiceNamespace='ecs',
-                          ResourceId=resource_id,
-                          ScalableDimension='ecs:service:DesiredCount',
-                          MinCapacity=0,
-                          MaxCapacity=scalable_targets[0]['MaxCapacity']
-                      )
-                  elif approx_messages > scale_in_threshold and current_min_capacity == 0:
-                      # Scale out from zero
-                      autoscaling.register_scalable_target(
-                          ServiceNamespace='ecs',
-                          ResourceId=resource_id,
-                          ScalableDimension='ecs:service:DesiredCount',
-                          MinCapacity=1,
-                          MaxCapacity=scalable_targets[0]['MaxCapacity']
-                      )
-              
               print(f"Approximate messages: {approx_messages}")
               print(f"Active tasks: {active_tasks}")
               print(f"Backlog per task: {backlog_per_task}")
@@ -496,13 +469,13 @@ Resources:
       Timeout: 30
       LoggingConfig:
         LogGroup: !Ref MetricsLambdaCloudWatchLogsGroup
-        
       Environment:
         Variables:
           QUEUE_URL: !GetAtt AnalysisSQSQueue.QueueUrl
           ECS_CLUSTER_NAME: AnalysisModelCluster
           ECS_SERVICE_NAME: !GetAtt AnalysisModelService.Name
           SCALE_IN_THRESHOLD: !Ref ScaleInThreshold
+    DeletionPolicy: Delete
 
   MetricsLambdaCloudWatchLogsGroup:
     Type: AWS::Logs::LogGroup
