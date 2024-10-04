@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: 'VPC for ECS Cluster'
+Description: 'VPC for ECS Clusters'
 
 Parameters:
   StackName:
@@ -16,7 +16,7 @@ Resources:
       EnableDnsSupport: true
       Tags:
         - Key: Name
-          Value: ECS Cluster VPC
+          Value: ECS Clusters VPC
 
   # Internet Gateway
   InternetGateway:
@@ -24,7 +24,7 @@ Resources:
     Properties:
       Tags:
         - Key: Name
-          Value: ECS Cluster IGW
+          Value: ECS Clusters IGW
 
   InternetGatewayAttachment:
     Type: AWS::EC2::VPCGatewayAttachment
@@ -181,37 +181,37 @@ Outputs:
       Name: !Sub ${StackName}-PublicSubnets
 
   PublicSubnet1:
-    Description: A reference to the public subnet in the 1st Availability Zone
+    Description: Public subnet in the 2nd Availability Zone (for ALB)
     Value: !Ref PublicSubnet1
     Export:
       Name: !Sub ${StackName}-PublicSubnet1
 
   PublicSubnet2:
-    Description: A reference to the public subnet in the 2nd Availability Zone
+    Description: Public subnet in the 3rd Availability Zone (for ALB)
     Value: !Ref PublicSubnet2
     Export:
       Name: !Sub ${StackName}-PublicSubnet2
 
   PublicSubnet3:
-    Description: A reference to the public subnet in the 1st Availability Zone (for ECS instances)
+    Description: Public subnet in the 2nd Availability Zone (for API instances)
     Value: !Ref PublicSubnet3
     Export:
       Name: !Sub ${StackName}-PublicSubnet3
 
   PublicSubnet4:
-    Description: A reference to the public subnet in the 2nd Availability Zone (for ECS instances)
+    Description: Public subnet in the 3rd Availability Zone (for API instances)
     Value: !Ref PublicSubnet4
     Export:
       Name: !Sub ${StackName}-PublicSubnet4
 
   PublicSubnet5:
-    Description: A reference to the public subnet in the 1st Availability Zone (for ECS instances)
+    Description: Public subnet in the 2nd Availability Zone (for video analysis instances)
     Value: !Ref PublicSubnet5
     Export:
       Name: !Sub ${StackName}-PublicSubnet5
 
   PublicSubnet6:
-    Description: A reference to the public subnet in the 2nd Availability Zone (for ECS instances)
+    Description: Public subnet in the 3rd Availability Zone (for video analysis instances)
     Value: !Ref PublicSubnet6
     Export:
       Name: !Sub ${StackName}-PublicSubnet6
