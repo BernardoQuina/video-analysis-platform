@@ -415,7 +415,7 @@ Resources:
               queue_url = os.environ['QUEUE_URL']
               cluster_name = os.environ['CLUSTER_NAME']
               service_name = os.environ['SERVICE_NAME']
-              scale_in_threshold = int(os.environ['SCALE_IN_THRESHOLD'])
+              target_backlog_per_task = int(os.environ['TARGET_BACKLOG_PER_TASK'])
               
               # Get SQS queue attributes
               queue_attrs = sqs.get_queue_attributes(
@@ -432,12 +432,14 @@ Resources:
               active_tasks = service_desc['services'][0]['runningCount']
               
               # Calculate backlog per task
+              # If there are more than 0 messages ensure the minimum backlog triggers the alarm
+              # by setting it to target_backlog_per_task + 1
               if approx_messages == 0:
-                  backlog_per_task = 0; # Scaling to zero
+                  backlog_per_task = 0; # Scale to zero
               elif active_tasks > 0:
-                  backlog_per_task = approx_messages / active_tasks
+                  backlog_per_task = max(approx_messages / active_tasks, target_backlog_per_task + 1)
               elif approx_messages > 0:
-                  backlog_per_task = approx_messages  # Scaling from zero
+                  backlog_per_task =  target_backlog_per_task # Scale from zero
               else:
                   backlog_per_task = 0  # No messages and no tasks
               
@@ -474,7 +476,7 @@ Resources:
           QUEUE_URL: !GetAtt AnalysisSQSQueue.QueueUrl
           CLUSTER_NAME: AnalysisModelCluster
           SERVICE_NAME: AnalysisModelService
-          SCALE_IN_THRESHOLD: !Ref ScaleInThreshold
+          TARGET_BACKLOG_PER_TASK: !Ref TargetBacklogPerTask
     DeletionPolicy: Delete
 
   MetricsLambdaCloudWatchLogsGroup:
@@ -535,7 +537,7 @@ Resources:
   #       Cooldown: 60
   #       StepAdjustments:
   #         - MetricIntervalLowerBound: 0
-  #           MetricIntervalUpperBound: !Ref TargetBacklogPerTask 
+  #           MetricIntervalUpperBound: !Ref TargetBacklogPerTask
   #           ScalingAdjustment: 1
   #         # Alarm not triggered when in the target tracking zone (when greater than 30 for example):
   #         - MetricIntervalLowerBound: !Ref TargetBacklogPerTask
