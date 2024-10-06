@@ -413,8 +413,8 @@ Resources:
               autoscaling = boto3.client('application-autoscaling')
               
               queue_url = os.environ['QUEUE_URL']
-              cluster_name = os.environ['ECS_CLUSTER_NAME']
-              service_name = os.environ['ECS_SERVICE_NAME']
+              cluster_name = os.environ['CLUSTER_NAME']
+              service_name = os.environ['SERVICE_NAME']
               scale_in_threshold = int(os.environ['SCALE_IN_THRESHOLD'])
               
               # Get SQS queue attributes
@@ -448,8 +448,8 @@ Resources:
                       {
                           'MetricName': 'backlogPerTask',
                           'Dimensions': [
-                              {'Name': 'ECSClusterName', 'Value': cluster_name},
-                              {'Name': 'ECSServiceName', 'Value': service_name}
+                              {'Name': 'ClusterName', 'Value': cluster_name},
+                              {'Name': 'ServiceName', 'Value': service_name}
                           ],
                           'Value': backlog_per_task,
                           'Unit': 'Count'
@@ -472,8 +472,8 @@ Resources:
       Environment:
         Variables:
           QUEUE_URL: !GetAtt AnalysisSQSQueue.QueueUrl
-          ECS_CLUSTER_NAME: AnalysisModelCluster
-          ECS_SERVICE_NAME: !GetAtt AnalysisModelService.Name
+          CLUSTER_NAME: AnalysisModelCluster
+          SERVICE_NAME: AnalysisModelService
           SCALE_IN_THRESHOLD: !Ref ScaleInThreshold
     DeletionPolicy: Delete
 
@@ -515,9 +515,9 @@ Resources:
           Namespace: CustomDemo/ECS/SQS
           Dimensions:
             - Name: ClusterName
-              Value: !Ref AnalysisModelCluster
+              Value: AnalysisModelCluster
             - Name: ServiceName
-              Value: !Ref AnalysisModelService
+              Value: AnalysisModelService
           Statistic: Average
         TargetValue: !Ref TargetBacklogPerTask
         ScaleInCooldown: 60
@@ -555,9 +555,9 @@ Resources:
       ComparisonOperator: GreaterThanThreshold
       Dimensions:
         - Name: ClusterName
-          Value: !Ref AnalysisModelCluster
+          Value: AnalysisModelCluster
         - Name: ServiceName
-          Value: !Ref AnalysisModelService
+          Value: AnalysisModelService
       AlarmActions:
         - !Ref ScaleFromZeroPolicy
 
@@ -589,9 +589,9 @@ Resources:
       ComparisonOperator: LessThanOrEqualToThreshold
       Dimensions:
         - Name: ClusterName
-          Value: !Ref AnalysisModelCluster
+          Value: AnalysisModelCluster
         - Name: ServiceName
-          Value: !Ref AnalysisModelService
+          Value: AnalysisModelService
       AlarmActions:
         - !Ref ScaleToZeroPolicy
 
