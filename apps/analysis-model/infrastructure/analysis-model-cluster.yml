@@ -523,6 +523,75 @@ Resources:
         ScaleInCooldown: 60
         ScaleOutCooldown: 60
 
+  ScaleFromZeroPolicy:
+    Type: AWS::ApplicationAutoScaling::ScalingPolicy
+    Properties:
+      PolicyName: ScaleFromZeroPolicy
+      PolicyType: StepScaling
+      ScalingTargetId: !Ref AnalysisModelServiceScalableTarget
+      StepScalingPolicyConfiguration:
+        AdjustmentType: ChangeInCapacity
+        MetricAggregationType: Average
+        Cooldown: 60
+        StepAdjustments:
+          - MetricIntervalLowerBound: 0
+            MetricIntervalUpperBound: !Ref TargetBacklogPerTask # Alarm not triggered when in the target tracking zone (when greater than 30 for example)
+            ScalingAdjustment: 1
+
+  ScaleFromZeroAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: ScaleFromZeroAlarm
+      AlarmDescription: Alarm to trigger scaling from zero when backlog is greater than zero but less than target
+      MetricName: backlogPerTask
+      Namespace: CustomDemo/ECS/SQS
+      Statistic: Average
+      Period: 60
+      EvaluationPeriods: 1
+      Threshold: 0
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: ClusterName
+          Value: !Ref AnalysisModelCluster
+        - Name: ServiceName
+          Value: !Ref AnalysisModelService
+      AlarmActions:
+        - !Ref ScaleFromZeroPolicy
+
+  ScaleToZeroPolicy:
+    Type: AWS::ApplicationAutoScaling::ScalingPolicy
+    Properties:
+      PolicyName: ScaleToZeroPolicy
+      PolicyType: StepScaling
+      ScalingTargetId: !Ref AnalysisModelServiceScalableTarget
+      StepScalingPolicyConfiguration:
+        AdjustmentType: ExactCapacity
+        MetricAggregationType: Average
+        Cooldown: 60
+        StepAdjustments:
+          - MetricIntervalUpperBound: 0
+            ScalingAdjustment: 0
+
+  ScaleToZeroAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: ScaleToZeroAlarm
+      AlarmDescription: Alarm to trigger scaling to zero when backlog is zero
+      MetricName: backlogPerTask
+      Namespace: CustomDemo/ECS/SQS
+      Statistic: Average
+      Period: 60
+      EvaluationPeriods: 1
+      Threshold: 0
+      ComparisonOperator: LessThanOrEqualToThreshold
+      Dimensions:
+        - Name: ClusterName
+          Value: !Ref AnalysisModelCluster
+        - Name: ServiceName
+          Value: !Ref AnalysisModelService
+      AlarmActions:
+        - !Ref ScaleToZeroPolicy
+
   # Because we are launching tasks in AWS VPC networking mode
   # the tasks themselves also have an extra security group that is unique
   # to them. This is a unique security group just for this service,
