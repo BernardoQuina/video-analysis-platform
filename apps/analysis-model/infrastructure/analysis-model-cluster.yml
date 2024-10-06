@@ -535,8 +535,9 @@ Resources:
         Cooldown: 60
         StepAdjustments:
           - MetricIntervalLowerBound: 0
-            MetricIntervalUpperBound: !Ref TargetBacklogPerTask # Alarm not triggered when in the target tracking zone (when greater than 30 for example)
+            MetricIntervalUpperBound: !Ref TargetBacklogPerTask 
             ScalingAdjustment: 1
+          # Alarm not triggered when in the target tracking zone (when greater than 30 for example):
           - MetricIntervalLowerBound: !Ref TargetBacklogPerTask
             ScalingAdjustment: 0
 
