@@ -537,6 +537,8 @@ Resources:
           - MetricIntervalLowerBound: 0
             MetricIntervalUpperBound: !Ref TargetBacklogPerTask # Alarm not triggered when in the target tracking zone (when greater than 30 for example)
             ScalingAdjustment: 1
+          - MetricIntervalLowerBound: !Ref TargetBacklogPerTask
+            ScalingAdjustment: 0
 
   ScaleFromZeroAlarm:
     Type: AWS::CloudWatch::Alarm
