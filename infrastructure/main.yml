@@ -61,10 +61,6 @@ Parameters:
     Type: Number
     Default: 180
     Description: This is the ideal number of messages in backlog to be processed per task and it should be calculated by dividing the acceptable latency for a job completion by the average processing time of that job. For example if it is acceptable to wait 900 seconds for a job completion and it usually takes 5 seconds to complete the job than the target backlog per task = 900 / 5 = 180. This means that if we have 180 messages we want 1 task running, 360 messages we want 2 tasks running and so on. The lower the acceptable latency the fewer messages will be needed to trigger a scale out event and vice versa.
-  AnalysisModelScaleInThreshold:
-    Type: Number
-    Default: 0 # Scales down to zero when there are no more messages
-    Description: Number of messages which to scale in to zero tasks
   PollerECRRepositoryName:
     Type: String
     Description: Name of the poller app ECR repository
@@ -153,7 +149,6 @@ Resources:
         MaxSize: !Ref AnalysisModelMaxSize
         DesiredCapacity: !Ref AnalysisModelDesiredCapacity
         TargetBacklogPerTask: !Ref AnalysisModelTargetBacklogPerTask
-        ScaleInThreshold: !Ref AnalysisModelScaleInThreshold
         PollerECRRepositoryName: !Ref PollerECRRepositoryName
         PollerImageTag: !Ref PollerImageTag
         AnalysisModelECRRepositoryName: !Ref AnalysisModelECRRepositoryName
