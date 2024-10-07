@@ -426,18 +426,17 @@ Resources:
                   services=[service_name]
               )
               active_tasks = service_desc['services'][0]['runningCount']
-              
+
               # Calculate backlog per task
-              # If there are more than 0 messages ensure the minimum backlog triggers the alarm
-              # by setting it to target_backlog_per_task + 1
               if approx_messages == 0:
                   backlog_per_task = 0; # Scale to zero
+              elif approx_messages < target_backlog_per_task * 0.9:
+                  # Prevent target tracking from scaling to zero (we don't want any messages unprocessed). The scale from zero alarm will provision 1 instance
+                  backlog_per_task = target_backlog_per_task * 0.9
               elif active_tasks > 0:
-                  backlog_per_task = max(approx_messages / active_tasks, target_backlog_per_task + 1)
-              elif approx_messages > 0:
-                  backlog_per_task =  target_backlog_per_task # Scale from zero
-              else:
-                  backlog_per_task = 0  # No messages and no tasks
+                  backlog_per_task = approx_messages / active_tasks
+              else: # No tasks and at least 90% of target backlog
+                  backlog_per_task = approx_messages
               
               # Put custom metric data
               cloudwatch.put_metric_data(
@@ -463,7 +462,7 @@ Resources:
                   'statusCode': 200,
                   'body': 'Metrics updated successfully'
               }
-      Runtime: python3.8
+      Runtime: python3.12
       Timeout: 30
       LoggingConfig:
         LogGroup: !Ref MetricsLambdaCloudWatchLogsGroup
@@ -521,43 +520,48 @@ Resources:
         ScaleInCooldown: 60
         ScaleOutCooldown: 60
 
-  # ScaleFromZeroPolicy:
-  #   Type: AWS::ApplicationAutoScaling::ScalingPolicy
-  #   Properties:
-  #     PolicyName: ScaleFromZeroPolicy
-  #     PolicyType: StepScaling
-  #     ScalingTargetId: !Ref AnalysisModelServiceScalableTarget
-  #     StepScalingPolicyConfiguration:
-  #       AdjustmentType: ChangeInCapacity
-  #       MetricAggregationType: Average
-  #       Cooldown: 60
-  #       StepAdjustments:
-  #         - MetricIntervalLowerBound: 0
-  #           MetricIntervalUpperBound: !Ref TargetBacklogPerTask
-  #           ScalingAdjustment: 1
-  #         # Alarm not triggered when in the target tracking zone (when greater than 30 for example):
-  #         - MetricIntervalLowerBound: !Ref TargetBacklogPerTask
-  #           ScalingAdjustment: 0
+  # Its possible to only use target tracking to scale from zero as soon as we have 1
+  # message by setting the backlog metric to the target backlog BUT it will scale too
+  # aggressively (jumping right to 2 instances instead of just 1) which is unnecessary and can
+  # become expensive with G type instances like in this case, so we'll add a scale from zero
+  # policy to be more conservative
+  ScaleFromZeroPolicy:
+    Type: AWS::ApplicationAutoScaling::ScalingPolicy
+    Properties:
+      PolicyName: ScaleFromZeroPolicy
+      PolicyType: StepScaling
+      ScalingTargetId: !Ref AnalysisModelServiceScalableTarget
+      StepScalingPolicyConfiguration:
+        AdjustmentType: ChangeInCapacity
+        MetricAggregationType: Average
+        Cooldown: 60
+        StepAdjustments:
+          - MetricIntervalLowerBound: 0
+            MetricIntervalUpperBound: !Ref TargetBacklogPerTask
+            ScalingAdjustment: 1
+          # Alarm not triggered when in the target tracking zone (when greater than 30 for example):
+          - MetricIntervalLowerBound: !Ref TargetBacklogPerTask
+            ScalingAdjustment: 0
 
-  # ScaleFromZeroAlarm:
-  #   Type: AWS::CloudWatch::Alarm
-  #   Properties:
-  #     AlarmName: ScaleFromZeroAlarm
-  #     AlarmDescription: Alarm to trigger scaling from zero when backlog is greater than zero but less than target
-  #     MetricName: backlogPerTask
-  #     Namespace: CustomDemo/ECS/SQS
-  #     Statistic: Average
-  #     Period: 60
-  #     EvaluationPeriods: 1
-  #     Threshold: 0
-  #     ComparisonOperator: GreaterThanThreshold
-  #     Dimensions:
-  #       - Name: ClusterName
-  #         Value: AnalysisModelCluster
-  #       - Name: ServiceName
-  #         Value: AnalysisModelService
-  #     AlarmActions:
-  #       - !Ref ScaleFromZeroPolicy
+  ScaleFromZeroAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: ScaleFromZeroAlarm
+      AlarmDescription: Alarm to trigger scaling from zero when backlog is greater than zero but less than target
+      MetricName: backlogPerTask
+      Namespace: CustomDemo/ECS/SQS
+      Statistic: Average
+      Period: 60
+      EvaluationPeriods: 1
+      Threshold: 0
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: ClusterName
+          Value: AnalysisModelCluster
+        - Name: ServiceName
+          Value: AnalysisModelService
+      AlarmActions:
+        - !Ref ScaleFromZeroPolicy
 
   # ScaleToZeroPolicy:
   #   Type: AWS::ApplicationAutoScaling::ScalingPolicy
