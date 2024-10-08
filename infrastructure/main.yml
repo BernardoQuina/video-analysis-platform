@@ -43,7 +43,7 @@ Parameters:
     Description: The AMI ID used for the Analysis Model cluster, leave it as the default value to get the latest AMI
   AnalysisModelInstanceType:
     Type: String
-    Default: g6.xlarge
+    Default: g4dn.xlarge
     Description: EC2 instance type for the Analysis Model cluster. GPU-enabled instance required
   AnalysisModelMinSize:
     Type: Number
