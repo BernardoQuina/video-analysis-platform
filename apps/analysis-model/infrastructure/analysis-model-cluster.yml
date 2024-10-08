@@ -279,7 +279,7 @@ Resources:
         ManagedScaling:
           InstanceWarmupPeriod: 60
           MinimumScalingStepSize: 1
-          MaximumScalingStepSize: 2
+          MaximumScalingStepSize: 1
           Status: ENABLED
           # Percentage of cluster reservation to try to maintain
           TargetCapacity: 100
@@ -528,14 +528,17 @@ Resources:
       PolicyType: StepScaling
       ScalingTargetId: !Ref AnalysisModelServiceScalableTarget
       StepScalingPolicyConfiguration:
-        AdjustmentType: ChangeInCapacity
+        AdjustmentType: ExactCapacity
         MetricAggregationType: Average
         Cooldown: 60
         StepAdjustments:
           - MetricIntervalLowerBound: 0
             MetricIntervalUpperBound: !Ref TargetBacklogPerTask
             ScalingAdjustment: 1
-          # Alarm not triggered when in the target tracking zone (when greater than 30 for example):
+
+          # Alarm is still triggered when in the target tracking zone
+          # but wont make any scaling adjustment. A composite alarm where it was only triggered
+          # between 0 and target but it would be more complex than just specifying 0 adjustment:
           - MetricIntervalLowerBound: !Ref TargetBacklogPerTask
             ScalingAdjustment: 0
 
