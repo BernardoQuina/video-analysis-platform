@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: 'ECS Cluster with Auto Scaling EC2 Instances'
+Description: ECS Cluster with Auto Scaling EC2 Instances for the API
 
 Parameters:
   VPCId:
@@ -231,7 +231,7 @@ Resources:
       NetworkMode: awsvpc
       RequiresCompatibilities:
         - EC2
-      Cpu: '1792' # 87.5% of the 2 vCPUs available in t3.micro
+      Cpu: '896' # 87.5% of the 1 vCPU available in t2.micro
       Memory: '700'
       ContainerDefinitions:
         - Name: api-container
@@ -239,7 +239,7 @@ Resources:
           PortMappings:
             - ContainerPort: 4000
           MemoryReservation: 600
-          Cpu: 1792
+          Cpu: 896
           LogConfiguration:
             LogDriver: awslogs
             Options:

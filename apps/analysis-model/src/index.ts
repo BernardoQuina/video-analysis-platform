@@ -7,7 +7,7 @@
 import 'dotenv/config';
 
 // Configure AWS SDK clients
-const region = 'eu-south-2'; // Replace with your AWS region
+const region = 'eu-west-1'; // Replace with your AWS region
 const sqsClient = new SQSClient({ region });
 
 type MessageBody = {

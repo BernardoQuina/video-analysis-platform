@@ -1,0 +1,192 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Lambdas for Transcribe and Rekognition with SQS Event Triggers
+
+Parameters:
+  TranscribeQueueUrl:
+    Type: String
+    Description: URL of the Amazon Transcribe SQS Queue
+  RekognitionQueueUrl:
+    Type: String
+    Description: URL of the Amazon Rekognition SQS Queue
+  StackName:
+    Type: String
+    Description: Name of the parent stack
+
+Resources:
+  # Lambda Execution Role for Transcribe Lambda
+  TranscribeLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: TranscribeLambdaPolicy
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 's3:GetObject'
+                  - 'transcribe:StartTranscriptionJob'
+                Resource: '*'
+
+  # Transcribe Lambda Function
+  TranscribeLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: TranscribeVideoLambda
+      Handler: index.handler
+      Role: !GetAtt TranscribeLambdaRole.Arn
+      Code:
+        ZipFile: |
+          const AWS = require('aws-sdk');
+          const s3 = new AWS.S3();
+          const transcribe = new AWS.TranscribeService();
+
+          exports.handler = async (event) => {
+            console.log({ event })
+
+            const message = JSON.parse(event.Records[0].body);
+
+            console.log({ message })
+
+            const s3Bucket = message.Records[0].s3.bucket.name;
+            const s3Key = message.Records[0].s3.object.key;
+            const jobName = `Transcribe-${s3Key}`;
+
+            const params = {
+              TranscriptionJobName: jobName,
+              LanguageCode: 'en-US',
+              MediaFormat: 'mp4',
+              Media: { MediaFileUri: `s3://${s3Bucket}/${s3Key}` },
+              OutputBucketName: s3Bucket
+            };
+
+            return { statusCode: 400, body: JSON.stringify({ error: 'Test request' }) }
+
+            const result = await transcribe.startTranscriptionJob(params).promise();
+
+            console.log({ result })
+
+            return result;
+          };
+      Runtime: nodejs20.x
+      LoggingConfig:
+        LogGroup: !Ref TranscribeLambdaCloudWatchLogsGroup
+    DeletionPolicy: Delete
+
+  TranscribeLambdaCloudWatchLogsGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: /lambda/transcribe
+      RetentionInDays: 14
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Retain
+
+  # Event Source Mapping for Transcribe SQS
+  TranscribeSQSTrigger:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      EventSourceArn: !Ref TranscribeQueueUrl
+      FunctionName: !Ref TranscribeLambda
+      BatchSize: 10
+      Enabled: true
+
+  # Lambda Execution Role for Rekognition Lambda
+  RekognitionLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: RekognitionLambdaPolicy
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 's3:GetObject'
+                  - 'rekognition:DetectLabels'
+                Resource: '*'
+
+  # Rekognition Lambda Function
+  RekognitionLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: RekognitionVideoLambda
+      Handler: index.handler
+      Role: !GetAtt RekognitionLambdaRole.Arn
+      Code:
+        ZipFile: |
+          const AWS = require('aws-sdk');
+          const rekognition = new AWS.Rekognition();
+
+          exports.handler = async (event) => {
+            console.log({ event })
+
+            const message = JSON.parse(event.Records[0].body);
+
+            console.log({ message })
+
+            const s3Bucket = message.Records[0].s3.bucket.name;
+            const s3Key = message.Records[0].s3.object.key;
+
+            const params = {
+              Image: {
+                S3Object: {
+                  Bucket: s3Bucket,
+                  Name: s3Key,
+                },
+              },
+              MaxLabels: 10,
+              MinConfidence: 70,
+            };
+
+            return { statusCode: 400, body: JSON.stringify({ error: 'Test request' }) }
+
+            const result = await rekognition.detectLabels(params).promise();
+
+            console.log({ result })
+
+            return result;
+          };
+      Runtime: nodejs20.x
+      LoggingConfig:
+        LogGroup: !Ref TranscribeLambdaCloudWatchLogsGroup
+    DeletionPolicy: Delete
+
+  RekognitionLambdaCloudWatchLogsGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: /lambda/rekognition
+      RetentionInDays: 14
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Retain
+
+  # Event Source Mapping for Rekognition SQS
+  RekognitionSQSTrigger:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      EventSourceArn: !Ref RekognitionQueueUrl
+      FunctionName: !Ref RekognitionLambda
+      BatchSize: 10
+      Enabled: true
+
+Outputs:
+  TranscribeLambdaArn:
+    Description: ARN of the Transcribe Lambda function
+    Value: !GetAtt TranscribeLambda.Arn
+    Export:
+      Name: !Sub ${StackName}-TranscribeLambdaArn
+
+  RekognitionLambdaArn:
+    Description: ARN of the Rekognition Lambda function
+    Value: !GetAtt RekognitionLambda.Arn
+    Export:
+      Name: !Sub ${StackName}-RekognitionLambdaArn

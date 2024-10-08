@@ -56,8 +56,8 @@ export const appRouter = router({
       if (process.env.NODE_ENV === 'development') {
         return {
           workerId: cluster.worker?.id,
-          instanceId: 'none (local)',
-          instanceIp: 'none (local)',
+          instanceId: 'none (local environment)',
+          instanceIp: 'none (local environment)',
           message: 'Cannot return instance info on local environment',
         };
       }

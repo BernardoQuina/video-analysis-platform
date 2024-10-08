@@ -14,7 +14,7 @@ Parameters:
     Description: The AMI ID used for the API cluster, leave it as the default value to get the latest AMI
   APIInstanceType:
     Type: String
-    Default: t3.micro
+    Default: t2.micro
     Description: EC2 instance type for the API cluster
   APIDesiredCapacity:
     Type: Number
@@ -85,6 +85,28 @@ Parameters:
     Description: The ID of the hosted zone in Route 53
 
 Resources:
+  # SNS Topic and SQS Queues Stack
+  SNSTopicSQSQueues:
+    Type: AWS::CloudFormation::Stack
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
+    Properties:
+      TemplateURL: !Sub https://${StackTemplatesS3BucketName}.s3.amazonaws.com/main/sns-topic-sqs-queues.yml
+      Parameters:
+        StackName: !Ref AWS::StackName
+
+  # Transcribe and Rekognition Lambdas triggered by SQS
+  TranscribeRekognitionLambdas:
+    Type: AWS::CloudFormation::Stack
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
+    Properties:
+      TemplateURL: !Sub https://${StackTemplatesS3BucketName}.s3.amazonaws.com/main/transcribe-rekognition-lambdas.yml
+      Parameters:
+        StackName: !Ref AWS::StackName
+        TranscribeQueueUrl: !GetAtt SNSTopicSQSQueues.Outputs.TranscribeQueueUrl
+        RekognitionQueueUrl: !GetAtt SNSTopicSQSQueues.Outputs.RekognitionQueueUrl
+
   # VPC Stack
   VPCStack:
     Type: AWS::CloudFormation::Stack
@@ -153,4 +175,6 @@ Resources:
         PollerImageTag: !Ref PollerImageTag
         AnalysisModelECRRepositoryName: !Ref AnalysisModelECRRepositoryName
         AnalysisModelImageTag: !Ref AnalysisModelImageTag
+        CustomAnalysisQueueUrl: !GetAtt SNSTopicSQSQueues.Outputs.CustomAnalysisQueueUrl
+        CustomAnalysisQueueArn: !GetAtt SNSTopicSQSQueues.Outputs.CustomAnalysisQueueArn
         StackName: !Ref AWS::StackName

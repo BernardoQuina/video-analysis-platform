@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: 'ECS Cluster with Auto Scaling EC2 Instances'
+Description: ECS Cluster with Auto Scaling EC2 Instances for custom analysis processing
 
 Parameters:
   VPCId:
@@ -41,21 +41,17 @@ Parameters:
   AnalysisModelImageTag:
     Type: String
     Description: Tag of the analysis model Docker image to deploy
+  CustomAnalysisQueueUrl:
+    Type: String
+    Description: URL of the Custom Analysis SQS Queue
+  CustomAnalysisQueueArn:
+    Type: String
+    Description: URL of the Custom Analysis SQS Queue
   StackName:
     Type: String
     Description: Name of the parent stack
 
 Resources:
-  AnalysisSQSQueue:
-    Type: AWS::SQS::Queue
-    DeletionPolicy: Delete
-    UpdateReplacePolicy: Retain
-    Properties:
-      QueueName: analysis-sqs-queue
-      VisibilityTimeout: 900 # 15 minutes
-      ReceiveMessageWaitTimeSeconds: 20 # Long polling
-      MessageRetentionPeriod: 604800 # 1 week
-
   AnalysisModelCluster:
     Type: AWS::ECS::Cluster
     Properties:
@@ -167,7 +163,7 @@ Resources:
                   - 'sqs:ReceiveMessage'
                   - 'sqs:DeleteMessage'
                   - 'sqs:GetQueueAttributes'
-                Resource: !GetAtt AnalysisSQSQueue.Arn
+                Resource: !Ref CustomAnalysisQueueArn
 
   # This is a role which is used within Fargate to allow the Fargate agent
   # to download images, and upload logs.
@@ -209,7 +205,7 @@ Resources:
           Cpu: 256
           Environment:
             - Name: SQS_QUEUE_URL
-              Value: !GetAtt AnalysisSQSQueue.QueueUrl
+              Value: !Ref CustomAnalysisQueueUrl
           LogConfiguration:
             LogDriver: awslogs
             Options:
@@ -468,7 +464,7 @@ Resources:
         LogGroup: !Ref MetricsLambdaCloudWatchLogsGroup
       Environment:
         Variables:
-          QUEUE_URL: !GetAtt AnalysisSQSQueue.QueueUrl
+          QUEUE_URL: !Ref CustomAnalysisQueueUrl
           CLUSTER_NAME: AnalysisModelCluster
           SERVICE_NAME: AnalysisModelService
           TARGET_BACKLOG_PER_TASK: !Ref TargetBacklogPerTask
@@ -477,7 +473,7 @@ Resources:
   MetricsLambdaCloudWatchLogsGroup:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: /metrics/lambda
+      LogGroupName: /lambda/metrics
       RetentionInDays: 14
     DeletionPolicy: Delete
     UpdateReplacePolicy: Retain
