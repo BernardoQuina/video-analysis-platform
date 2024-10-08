@@ -2,12 +2,12 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: Lambdas for Transcribe and Rekognition with SQS Event Triggers
 
 Parameters:
-  TranscribeQueueUrl:
+  TranscribeQueueArn:
     Type: String
-    Description: URL of the Amazon Transcribe SQS Queue
-  RekognitionQueueUrl:
+    Description: Arn of the Amazon Transcribe SQS Queue
+  RekognitionQueueArn:
     Type: String
-    Description: URL of the Amazon Rekognition SQS Queue
+    Description: Arn of the Amazon Rekognition SQS Queue
   StackName:
     Type: String
     Description: Name of the parent stack
@@ -90,7 +90,7 @@ Resources:
   TranscribeSQSTrigger:
     Type: AWS::Lambda::EventSourceMapping
     Properties:
-      EventSourceArn: !Ref TranscribeQueueUrl
+      EventSourceArn: !Ref TranscribeQueueArn
       FunctionName: !Ref TranscribeLambda
       BatchSize: 10
       Enabled: true
@@ -173,7 +173,7 @@ Resources:
   RekognitionSQSTrigger:
     Type: AWS::Lambda::EventSourceMapping
     Properties:
-      EventSourceArn: !Ref RekognitionQueueUrl
+      EventSourceArn: !Ref RekognitionQueueArn
       FunctionName: !Ref RekognitionLambda
       BatchSize: 10
       Enabled: true

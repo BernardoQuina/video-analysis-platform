@@ -104,8 +104,8 @@ Resources:
       TemplateURL: !Sub https://${StackTemplatesS3BucketName}.s3.amazonaws.com/main/transcribe-rekognition-lambdas.yml
       Parameters:
         StackName: !Ref AWS::StackName
-        TranscribeQueueUrl: !GetAtt SNSTopicSQSQueues.Outputs.TranscribeQueueUrl
-        RekognitionQueueUrl: !GetAtt SNSTopicSQSQueues.Outputs.RekognitionQueueUrl
+        TranscribeQueueArn: !GetAtt SNSTopicSQSQueues.Outputs.TranscribeQueueArn
+        RekognitionQueueArn: !GetAtt SNSTopicSQSQueues.Outputs.RekognitionQueueArn
 
   # VPC Stack
   VPCStack:
