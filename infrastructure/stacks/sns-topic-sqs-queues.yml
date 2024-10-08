@@ -118,9 +118,9 @@ Outputs:
 
   TranscribeQueueArn:
     Description: Arn of the Transcribe SQS Queue
-    Value: !GetAtt CustomAnalysisQueue.Arn
+    Value: !GetAtt TranscribeQueue.Arn
     Export:
-      Name: !Sub ${StackName}-CustomAnalysisQueueArn
+      Name: !Sub ${StackName}-TranscribeQueueArn
 
   RekognitionQueueUrl:
     Description: URL of the Amazon Rekognition SQS Queue
