@@ -31,6 +31,9 @@ Resources:
                 Action:
                   - 's3:GetObject'
                   - 'transcribe:StartTranscriptionJob'
+                  - 'sqs:ReceiveMessage'
+                  - 'sqs:DeleteMessage'
+                  - 'sqs:GetQueueAttributes'
                 Resource: '*'
 
   # Transcribe Lambda Function
@@ -113,6 +116,9 @@ Resources:
                 Action:
                   - 's3:GetObject'
                   - 'rekognition:DetectLabels'
+                  - 'sqs:ReceiveMessage'
+                  - 'sqs:DeleteMessage'
+                  - 'sqs:GetQueueAttributes'
                 Resource: '*'
 
   # Rekognition Lambda Function
