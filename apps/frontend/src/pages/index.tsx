@@ -14,7 +14,7 @@ export default function Home() {
   if (!data) {
     return (
       <div>
-        <p>Hello from CloudFront!!!</p>
+        <p>Hello from CloudFront!</p>
         <br />
         <p> Loading...</p>
       </div>
