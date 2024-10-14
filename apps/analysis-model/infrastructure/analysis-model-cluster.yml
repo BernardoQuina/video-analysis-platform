@@ -580,6 +580,7 @@ Resources:
                   Value: !Ref CustomAnalysisQueueName
             Period: 60
             Stat: Sum
+          ReturnData: false
         - Id: greaterThanZero
           Expression: visibleMessages > 0
           Label: MessagesGreaterThanZero
@@ -591,6 +592,7 @@ Resources:
         - Id: combinedCondition
           Expression: greaterThanZero AND withinThreshold
           Label: ValidBacklogCondition
+          ReturnData: true
       EvaluationPeriods: 1
       DatapointsToAlarm: 1
       Threshold: 1
