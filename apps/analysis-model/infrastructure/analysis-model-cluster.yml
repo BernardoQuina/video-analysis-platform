@@ -541,11 +541,10 @@ Resources:
 
           # Alarm is still triggered when in the target tracking zone
           # but wont make any scaling adjustment. A composite alarm where it was
-          # only triggered between 0 and target but it would be more complex than just 
+          # only triggered between 0 and target but it would be more complex than just
           # specifying 0 adjustment:
           # - MetricIntervalLowerBound: !Ref TargetBacklogPerTask
-            # ScalingAdjustment: 0
-
+          # ScalingAdjustment: 0
 
   # ScaleFromZeroAlarm:
   #   Type: AWS::CloudWatch::Alarm
@@ -565,31 +564,48 @@ Resources:
   #     AlarmActions:
   #       - !Ref ScaleFromZeroPolicy
 
-  ScaleFromZeroAlarm:
+  QueueSizeGreaterThanZeroAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
-      AlarmName: ScaleFromZeroAlarm
-      AlarmDescription: Alarm to trigger scaling from zero when SQS queue length is greater than or equal to zero and less than or equal to target
-      Metrics:
-        - Id: queueSize
-          MetricStat:
-            Metric:
-              Namespace: AWS/SQS
-              MetricName: ApproximateNumberOfMessagesVisible
-              Dimensions:
-                - Name: QueueName
-                  Value: !Ref CustomAnalysisQueueName
-            Period: 60
-            Stat: Sum
-        - Id: threshold
-          Expression: FILL(queueSize, 0)
-        - Id: inRange
-          Expression: !Sub threshold > 0 && threshold <= ${TargetBacklogPerTask}
+      AlarmName: QueueSizeGreaterThanZeroAlarm
+      AlarmDescription: Alarm that triggers when queue size is greater than zero
+      MetricName: ApproximateNumberOfMessagesVisible
+      Namespace: AWS/SQS
+      Dimensions:
+        - Name: QueueName
+          Value: !Ref CustomAnalysisQueueName
+      Statistic: Sum
+      Period: 60
       EvaluationPeriods: 1
       DatapointsToAlarm: 1
-      Threshold: 1
+      Threshold: 0
       ComparisonOperator: GreaterThanThreshold
       TreatMissingData: notBreaching
+
+  QueueSizeLessThanOrEqualToTargetAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: QueueSizeLessThanOrEqualToTargetAlarm
+      AlarmDescription: !Sub Alarm that triggers when queue size is less than or equal to ${TargetBacklogPerTask}
+      MetricName: ApproximateNumberOfMessagesVisible
+      Namespace: AWS/SQS
+      Dimensions:
+        - Name: QueueName
+          Value: !Ref CustomAnalysisQueueName
+      Statistic: Sum
+      Period: 60
+      EvaluationPeriods: 1
+      DatapointsToAlarm: 1
+      Threshold: !Ref TargetBacklogPerTask
+      ComparisonOperator: LessThanOrEqualToThreshold
+      TreatMissingData: notBreaching
+
+  ScaleFromZeroCompositeAlarm:
+    Type: AWS::CloudWatch::CompositeAlarm
+    Properties:
+      AlarmName: ScaleFromZeroCompositeAlarm
+      AlarmDescription: Composite alarm to trigger scaling from zero when SQS queue length is greater than zero and less than or equal to target
+      AlarmRule: !Sub ALARM("${QueueSizeGreaterThanZeroAlarm}") AND ALARM("${QueueSizeLessThanOrEqualToTargetAlarm}")
       AlarmActions:
         - !Ref ScaleFromZeroPolicy
 
