@@ -104,6 +104,12 @@ Outputs:
     Export:
       Name: !Sub ${StackName}-CustomAnalysisQueueUrl
 
+  CustomAnalysisQueueName:
+    Description: Name of the Custom Analysis SQS Queue
+    Value: !GetAtt CustomAnalysisQueue.QueueName
+    Export:
+      Name: !Sub ${StackName}-CustomAnalysisQueueName
+
   CustomAnalysisQueueArn:
     Description: Arn of the Custom Analysis SQS Queue
     Value: !GetAtt CustomAnalysisQueue.Arn
@@ -116,6 +122,12 @@ Outputs:
     Export:
       Name: !Sub ${StackName}-TranscribeQueueUrl
 
+  TranscribeQueueName:
+    Description: Name of the Amazon Transcribe SQS Queue
+    Value: !GetAtt TranscribeQueue.QueueName
+    Export:
+      Name: !Sub ${StackName}-TranscribeQueueName
+
   TranscribeQueueArn:
     Description: Arn of the Transcribe SQS Queue
     Value: !GetAtt TranscribeQueue.Arn
@@ -127,6 +139,13 @@ Outputs:
     Value: !GetAtt RekognitionQueue.QueueUrl
     Export:
       Name: !Sub ${StackName}-RekognitionQueueUrl
+
+  RekognitionQueueName:
+    Description: Name of the Amazon Rekognition SQS Queue
+    Value: !GetAtt RekognitionQueue.QueueName
+    Export:
+      Name: !Sub ${StackName}-RekognitionQueueName
+
 
   RekognitionQueueArn:
     Description: Arn of the Amazon Rekognition SQS Queue

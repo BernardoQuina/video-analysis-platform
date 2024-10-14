@@ -44,9 +44,12 @@ Parameters:
   CustomAnalysisQueueUrl:
     Type: String
     Description: URL of the Custom Analysis SQS Queue
+  CustomAnalysisQueueName:
+    Type: String
+    Description: Arn of the Custom Analysis SQS Queue
   CustomAnalysisQueueArn:
     Type: String
-    Description: URL of the Custom Analysis SQS Queue
+    Description: Arn of the Custom Analysis SQS Queue
   StackName:
     Type: String
     Description: Name of the parent stack
@@ -133,8 +136,8 @@ Resources:
       VpcId: !Ref VPCId
       SecurityGroupEgress:
         - IpProtocol: tcp
-          FromPort: 443
-          ToPort: 443
+          FromPort: -1
+          ToPort: -1
           CidrIp: 0.0.0.0/0
 
   # Role for the EC2 hosts. This allows the ECS agent on the EC2 hosts
@@ -518,9 +521,9 @@ Resources:
 
   # Its possible to only use target tracking to scale from zero as soon as we have 1
   # message by setting the backlog metric to the target backlog BUT it will scale too
-  # aggressively (jumping right to 2 instances instead of just 1) which is unnecessary and can
-  # become expensive with G type instances like in this case, so we'll add a scale from zero
-  # policy to be more conservative
+  # aggressively (jumping right to 2 instances instead of just 1) which is unnecessary and
+  # can become expensive with G type instances like in this case, so we'll add a scale from
+  # zero policy to be more conservative
   ScaleFromZeroPolicy:
     Type: AWS::ApplicationAutoScaling::ScalingPolicy
     Properties:
@@ -537,8 +540,9 @@ Resources:
             ScalingAdjustment: 1
 
           # Alarm is still triggered when in the target tracking zone
-          # but wont make any scaling adjustment. A composite alarm where it was only triggered
-          # between 0 and target but it would be more complex than just specifying 0 adjustment:
+          # but wont make any scaling adjustment. A composite alarm where it was
+          # only triggered between 0 and target but it would be more complex than just 
+          # specifying 0 adjustment:
           - MetricIntervalLowerBound: !Ref TargetBacklogPerTask
             ScalingAdjustment: 0
 
@@ -546,55 +550,19 @@ Resources:
     Type: AWS::CloudWatch::Alarm
     Properties:
       AlarmName: ScaleFromZeroAlarm
-      AlarmDescription: Alarm to trigger scaling from zero when backlog is greater than zero but less than target
-      MetricName: backlogPerTask
-      Namespace: CustomDemo/ECS/SQS
-      Statistic: Average
+      AlarmDescription: Alarm to trigger scaling from zero when SQS queue length is greater than zero
+      MetricName: ApproximateNumberOfMessagesVisible
+      Namespace: AWS/SQS
+      Statistic: Sum
       Period: 60
       EvaluationPeriods: 1
       Threshold: 0
       ComparisonOperator: GreaterThanThreshold
       Dimensions:
-        - Name: ClusterName
-          Value: AnalysisModelCluster
-        - Name: ServiceName
-          Value: AnalysisModelService
+        - Name: QueueName
+          Value: !Ref CustomAnalysisQueueName
       AlarmActions:
         - !Ref ScaleFromZeroPolicy
-
-  # ScaleToZeroPolicy:
-  #   Type: AWS::ApplicationAutoScaling::ScalingPolicy
-  #   Properties:
-  #     PolicyName: ScaleToZeroPolicy
-  #     PolicyType: StepScaling
-  #     ScalingTargetId: !Ref AnalysisModelServiceScalableTarget
-  #     StepScalingPolicyConfiguration:
-  #       AdjustmentType: ExactCapacity
-  #       MetricAggregationType: Average
-  #       Cooldown: 60
-  #       StepAdjustments:
-  #         - MetricIntervalUpperBound: 0
-  #           ScalingAdjustment: -1
-
-  # ScaleToZeroAlarm:
-  #   Type: AWS::CloudWatch::Alarm
-  #   Properties:
-  #     AlarmName: ScaleToZeroAlarm
-  #     AlarmDescription: Alarm to trigger scaling to zero when backlog is zero
-  #     MetricName: backlogPerTask
-  #     Namespace: CustomDemo/ECS/SQS
-  #     Statistic: Average
-  #     Period: 60
-  #     EvaluationPeriods: 1
-  #     Threshold: 0
-  #     ComparisonOperator: LessThanOrEqualToThreshold
-  #     Dimensions:
-  #       - Name: ClusterName
-  #         Value: AnalysisModelCluster
-  #       - Name: ServiceName
-  #         Value: AnalysisModelService
-  #     AlarmActions:
-  #       - !Ref ScaleToZeroPolicy
 
   # Because we are launching tasks in AWS VPC networking mode
   # the tasks themselves also have an extra security group that is unique

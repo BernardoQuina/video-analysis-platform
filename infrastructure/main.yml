@@ -176,5 +176,6 @@ Resources:
         AnalysisModelECRRepositoryName: !Ref AnalysisModelECRRepositoryName
         AnalysisModelImageTag: !Ref AnalysisModelImageTag
         CustomAnalysisQueueUrl: !GetAtt SNSTopicSQSQueues.Outputs.CustomAnalysisQueueUrl
+        CustomAnalysisQueueName: !GetAtt SNSTopicSQSQueues.Outputs.CustomAnalysisQueueName
         CustomAnalysisQueueArn: !GetAtt SNSTopicSQSQueues.Outputs.CustomAnalysisQueueArn
         StackName: !Ref AWS::StackName
