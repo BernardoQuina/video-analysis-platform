@@ -536,31 +536,60 @@ Resources:
         Cooldown: 60
         StepAdjustments:
           - MetricIntervalLowerBound: 0
-            MetricIntervalUpperBound: !Ref TargetBacklogPerTask
+            # MetricIntervalUpperBound: !Ref TargetBacklogPerTask
             ScalingAdjustment: 1
 
           # Alarm is still triggered when in the target tracking zone
           # but wont make any scaling adjustment. A composite alarm where it was
           # only triggered between 0 and target but it would be more complex than just 
           # specifying 0 adjustment:
-          - MetricIntervalLowerBound: !Ref TargetBacklogPerTask
-            ScalingAdjustment: 0
+          # - MetricIntervalLowerBound: !Ref TargetBacklogPerTask
+            # ScalingAdjustment: 0
+
+
+  # ScaleFromZeroAlarm:
+  #   Type: AWS::CloudWatch::Alarm
+  #   Properties:
+  #     AlarmName: ScaleFromZeroAlarm
+  #     AlarmDescription: Alarm to trigger scaling from zero when SQS queue length is greater than zero
+  #     MetricName: ApproximateNumberOfMessagesVisible
+  #     Namespace: AWS/SQS
+  #     Statistic: Sum
+  #     Period: 60
+  #     EvaluationPeriods: 1
+  #     Threshold: 0
+  #     ComparisonOperator: GreaterThanThreshold
+  #     Dimensions:
+  #       - Name: QueueName
+  #         Value: !Ref CustomAnalysisQueueName
+  #     AlarmActions:
+  #       - !Ref ScaleFromZeroPolicy
 
   ScaleFromZeroAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
       AlarmName: ScaleFromZeroAlarm
-      AlarmDescription: Alarm to trigger scaling from zero when SQS queue length is greater than zero
-      MetricName: ApproximateNumberOfMessagesVisible
-      Namespace: AWS/SQS
-      Statistic: Sum
-      Period: 60
+      AlarmDescription: Alarm to trigger scaling from zero when SQS queue length is greater than or equal to zero and less than or equal to target
+      Metrics:
+        - Id: queueSize
+          MetricStat:
+            Metric:
+              Namespace: AWS/SQS
+              MetricName: ApproximateNumberOfMessagesVisible
+              Dimensions:
+                - Name: QueueName
+                  Value: !Ref CustomAnalysisQueueName
+            Period: 60
+            Stat: Sum
+        - Id: threshold
+          Expression: FILL(queueSize, 0)
+        - Id: inRange
+          Expression: !Sub threshold > 0 && threshold <= ${TargetBacklogPerTask}
       EvaluationPeriods: 1
-      Threshold: 0
+      DatapointsToAlarm: 1
+      Threshold: 1
       ComparisonOperator: GreaterThanThreshold
-      Dimensions:
-        - Name: QueueName
-          Value: !Ref CustomAnalysisQueueName
+      TreatMissingData: notBreaching
       AlarmActions:
         - !Ref ScaleFromZeroPolicy
 
