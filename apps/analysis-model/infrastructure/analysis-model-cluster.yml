@@ -265,7 +265,7 @@ Resources:
         MinimumHealthyPercent: 100
       NetworkConfiguration:
         AwsvpcConfiguration:
-          AssignPublicIp: DISABLED
+          AssignPublicIp: ENABLED
           Subnets:
             - !Ref PublicSubnet5 # set to private subnets in production
             - !Ref PublicSubnet6 # using public to avoid vpc endpoint costs (for ecs service)
@@ -485,19 +485,19 @@ Resources:
     Type: AWS::Lambda::Permission
     Properties:
       FunctionName: !Ref MetricsLambdaFunction
-      Action: 'lambda:InvokeFunction'
+      Action: lambda:InvokeFunction
       Principal: events.amazonaws.com
       SourceArn: !GetAtt MetricsScheduleRule.Arn
 
   MetricsScheduleRule:
     Type: AWS::Events::Rule
     Properties:
-      Description: 'Schedule for invoking the Metrics Lambda function'
-      ScheduleExpression: 'rate(1 minute)'
-      State: 'ENABLED'
+      Description: Schedule for invoking the Metrics Lambda function
+      ScheduleExpression: rate(1 minute)
+      State: ENABLED
       Targets:
         - Arn: !GetAtt MetricsLambdaFunction.Arn
-          Id: 'MetricsLambdaFunction'
+          Id: MetricsLambdaFunction
 
   ScalingPolicy:
     Type: AWS::ApplicationAutoScaling::ScalingPolicy
@@ -568,7 +568,7 @@ Resources:
     Type: AWS::CloudWatch::Alarm
     Properties:
       AlarmName: ScaleFromZeroAlarm
-      AlarmDescription: Alarm to trigger scaling from zero when SQS queue length is greater than or equal to zero and less than or equal to target
+      AlarmDescription: Alarm to trigger scaling from zero when SQS queue length is greater than zero and less than or equal to target
       Metrics:
         - Id: visibleMessages
           MetricStat:
