@@ -194,7 +194,6 @@ Resources:
     Type: AWS::ECS::TaskDefinition
     Properties:
       Family: analysis-model-and-poller-task
-      # NetworkMode: awsvpc
       NetworkMode: bridge
       RequiresCompatibilities:
         - EC2
@@ -222,6 +221,9 @@ Resources:
           PortMappings:
             - ContainerPort: 5000
               HostPort: 0 # Dynamic port mapping on the host
+          MountPoints:
+            - SourceVolume: model-data
+              ContainerPath: /mnt/model-data
           MemoryReservation: 14200
           Cpu: 3430
           LogConfiguration:
@@ -230,6 +232,10 @@ Resources:
               awslogs-group: !Ref AnalysisModelCloudWatchLogsGroup
               awslogs-region: !Ref AWS::Region
               awslogs-stream-prefix: ecs
+      Volumes:
+        - Name: model-data
+          Host:
+            SourcePath: /mnt/ebs/model-data
 
   PollerCloudWatchLogsGroup:
     Type: AWS::Logs::LogGroup
