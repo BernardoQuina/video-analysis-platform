@@ -34,6 +34,8 @@ Resources:
                   - 'sqs:ReceiveMessage'
                   - 'sqs:DeleteMessage'
                   - 'sqs:GetQueueAttributes'
+                  - 'logs:CreateLogStream'
+                  - 'logs:PutLogEvents'
                 Resource: '*'
 
   # Transcribe Lambda Function
@@ -119,6 +121,8 @@ Resources:
                   - 'sqs:ReceiveMessage'
                   - 'sqs:DeleteMessage'
                   - 'sqs:GetQueueAttributes'
+                  - 'logs:CreateLogStream'
+                  - 'logs:PutLogEvents'
                 Resource: '*'
 
   # Rekognition Lambda Function
@@ -164,7 +168,7 @@ Resources:
           };
       Runtime: nodejs20.x
       LoggingConfig:
-        LogGroup: !Ref TranscribeLambdaCloudWatchLogsGroup
+        LogGroup: !Ref RekognitionLambdaCloudWatchLogsGroup
     DeletionPolicy: Delete
 
   RekognitionLambdaCloudWatchLogsGroup:
