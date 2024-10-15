@@ -24,6 +24,7 @@ if stack_exists; then
     --stack-name "$STACK_NAME" \
     --template-body file://"$TEMPLATE_FILE" \
     --parameters ParameterKey=StackTemplatesS3BucketName,ParameterValue="$STACK_TEMPLATES_S3_BUCKET_NAME" \
+    ParameterKey=EC2KeyPairName,ParameterValue="$EC2_KEY_PAIR_NAME" \
     ParameterKey=APIECRRepositoryName,ParameterValue="$API_ECR_REPOSITORY_NAME" \
     ParameterKey=PollerECRRepositoryName,ParameterValue="$POLLER_ECR_REPOSITORY_NAME" \
     ParameterKey=AnalysisModelECRRepositoryName,ParameterValue="$ANALYSIS_MODEL_ECR_REPOSITORY_NAME" \
@@ -45,6 +46,7 @@ else
     --stack-name "$STACK_NAME" \
     --template-body file://"$TEMPLATE_FILE" \
     --parameters ParameterKey=StackTemplatesS3BucketName,ParameterValue="$STACK_TEMPLATES_S3_BUCKET_NAME" \
+    ParameterKey=EC2KeyPairName,ParameterValue="$EC2_KEY_PAIR_NAME" \
     ParameterKey=APIECRRepositoryName,ParameterValue="$API_ECR_REPOSITORY_NAME" \
     ParameterKey=PollerECRRepositoryName,ParameterValue="$POLLER_ECR_REPOSITORY_NAME" \
     ParameterKey=AnalysisModelECRRepositoryName,ParameterValue="$ANALYSIS_MODEL_ECR_REPOSITORY_NAME" \

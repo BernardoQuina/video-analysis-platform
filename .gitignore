@@ -15,6 +15,7 @@ apps/frontend/tsconfig.tsbuildinfo
 **/.env
 **/.env.*
 !**/.env.example
+*.pem
 
 # IDE
 .vscode

@@ -7,6 +7,11 @@ Parameters:
     Type: String
     Description: Name of the S3 bucket containing nested stack templates
 
+  # Key pair for ec2 instances
+  EC2KeyPairName:
+    Type: String
+    Description: EC2 key pair name for the instances
+
   # API parameters
   APIECSAMI:
     Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
@@ -145,6 +150,7 @@ Resources:
         PublicSubnet4: !GetAtt VPCStack.Outputs.PublicSubnet4
         ECSAMI: !Ref APIECSAMI
         InstanceType: !Ref APIInstanceType
+        EC2KeyPairName: !Ref EC2KeyPairName
         MinSize: !Ref APIMinSize
         MaxSize: !Ref APIMaxSize
         DesiredCapacity: !Ref APIDesiredCapacity
@@ -167,6 +173,7 @@ Resources:
         PublicSubnet6: !GetAtt VPCStack.Outputs.PublicSubnet6
         ECSAMI: !Ref AnalysisModelECSAMI
         InstanceType: !Ref AnalysisModelInstanceType
+        EC2KeyPairName: !Ref EC2KeyPairName
         MinSize: !Ref AnalysisModelMinSize
         MaxSize: !Ref AnalysisModelMaxSize
         DesiredCapacity: !Ref AnalysisModelDesiredCapacity

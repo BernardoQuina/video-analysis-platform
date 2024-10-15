@@ -17,6 +17,9 @@ Parameters:
   InstanceType:
     Type: String
     Description: EC2 instance type
+  EC2KeyPairName:
+    Type: String
+    Description: EC2 key pair name for the instances
   MinSize:
     Type: Number
     Description: Minimum number of EC2 instances in the Auto Scaling Group
@@ -124,6 +127,7 @@ Resources:
       LaunchTemplateData:
         ImageId: !Ref ECSAMI
         InstanceType: !Ref InstanceType
+        KeyName: !Ref EC2KeyPairName 
         SecurityGroupIds:
           - !GetAtt APIEC2SecurityGroup.GroupId
         IamInstanceProfile:
