@@ -116,6 +116,11 @@ Resources:
           - !GetAtt AnalysisModelEC2SecurityGroup.GroupId
         IamInstanceProfile:
           Arn: !GetAtt AnalysisModelEC2InstanceProfile.Arn
+        BlockDeviceMappings:
+          - DeviceName: /dev/nvme0n1
+            Ebs:
+              VolumeSize: 60         
+              VolumeType: gp3
         UserData:
           Fn::Base64: !Sub |
             #!/bin/bash -xe
@@ -225,9 +230,9 @@ Resources:
           PortMappings:
             - ContainerPort: 5000
               HostPort: 0 # Dynamic port mapping on the host
-          MountPoints:
-            - SourceVolume: model-data
-              ContainerPath: /mnt/model-data
+          # MountPoints:
+          #   - SourceVolume: model-data
+          #     ContainerPath: /mnt/model-data
           MemoryReservation: 14200
           Cpu: 3430
           LogConfiguration:
@@ -236,10 +241,10 @@ Resources:
               awslogs-group: !Ref AnalysisModelCloudWatchLogsGroup
               awslogs-region: !Ref AWS::Region
               awslogs-stream-prefix: ecs
-      Volumes:
-        - Name: model-data
-          Host:
-            SourcePath: /mnt/ebs/model-data
+      # Volumes:
+      #   - Name: model-data
+      #     Host:
+      #       SourcePath: /mnt/ebs/model-data
 
   PollerCloudWatchLogsGroup:
     Type: AWS::Logs::LogGroup
