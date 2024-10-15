@@ -194,7 +194,8 @@ Resources:
     Type: AWS::ECS::TaskDefinition
     Properties:
       Family: analysis-model-and-poller-task
-      NetworkMode: awsvpc
+      # NetworkMode: awsvpc
+      NetworkMode: bridge
       RequiresCompatibilities:
         - EC2
       Cpu: '3686' # 90% of the 4 vCPUs available in g4dn.xlarge
@@ -204,6 +205,7 @@ Resources:
           Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${PollerECRRepositoryName}:${PollerImageTag}
           PortMappings:
             - ContainerPort: 4000
+              HostPort: 0 # Dynamic port mapping on the host
           MemoryReservation: 512
           Cpu: 256
           Environment:
@@ -219,6 +221,7 @@ Resources:
           Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${AnalysisModelECRRepositoryName}:${AnalysisModelImageTag}
           PortMappings:
             - ContainerPort: 5000
+              HostPort: 0 # Dynamic port mapping on the host
           MemoryReservation: 14200
           Cpu: 3430
           LogConfiguration:
@@ -263,14 +266,14 @@ Resources:
       DeploymentConfiguration:
         MaximumPercent: 200
         MinimumHealthyPercent: 100
-      NetworkConfiguration:
-        AwsvpcConfiguration:
-          AssignPublicIp: DISABLED
-          Subnets:
-            - !Ref PublicSubnet5 # set to private subnets in production
-            - !Ref PublicSubnet6 # using public to avoid vpc endpoint costs (for ecs service)
-          SecurityGroups:
-            - !Ref AnalysisModelEC2SecurityGroup
+      # NetworkConfiguration: needed if NetworkMode of task definition is set to awsvpc
+      #   AwsvpcConfiguration:
+      #     AssignPublicIp: DISABLED
+      #     Subnets:
+      #       - !Ref PublicSubnet5 # set to private subnets in production
+      #       - !Ref PublicSubnet6 # using public to avoid vpc endpoint costs (for ecs service)
+      #     SecurityGroups:
+      #       - !Ref AnalysisModelEC2SecurityGroup
 
   # Create an ECS capacity provider to attach the ASG to the Analysis Model cluster
   # so that it auto scales as we launch more tasks
