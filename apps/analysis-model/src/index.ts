@@ -1,13 +1,13 @@
 /* eslint-disable no-console */ import {
   SQSClient,
   ReceiveMessageCommand,
-  // DeleteMessageCommand,
+  DeleteMessageCommand,
   Message,
 } from '@aws-sdk/client-sqs';
 import 'dotenv/config';
 
 // Configure AWS SDK clients
-const region = 'eu-west-1'; // Replace with your AWS region
+const region = 'eu-west-1';
 const sqsClient = new SQSClient({ region });
 
 type MessageBody = {
@@ -17,7 +17,7 @@ type MessageBody = {
 
 type Result = { text: string };
 
-async function _analyzeVideo({
+async function analyzeVideo({
   video_path,
   text_prompt,
 }: MessageBody): Promise<Result> {
@@ -46,6 +46,12 @@ async function processMessage(message: Message) {
 
   try {
     // await analyzeVideo(messageBody);
+    await analyzeVideo({
+      video_path:
+        'https://replicate.delivery/pbxt/JvUeO366GYGoMEHxfSwn39LYgScZh6hKNj2EuJ17SXO6aGER/archery.mp4',
+      text_prompt: 'What are these two doing?',
+    });
+
     console.log({ messageBody });
   } catch (error) {
     console.error(`Error processing video ${messageBody.video_path}:`, error);
@@ -75,14 +81,14 @@ async function pollQueue() {
       await processMessage(message);
 
       // Delete the message from the queue
-      // const deleteCommand = new DeleteMessageCommand({
-      //   QueueUrl: process.env.SQS_QUEUE_URL,
-      //   ReceiptHandle: message.ReceiptHandle,
-      // });
+      const deleteCommand = new DeleteMessageCommand({
+        QueueUrl: process.env.SQS_QUEUE_URL,
+        ReceiptHandle: message.ReceiptHandle,
+      });
 
-      // await sqsClient.send(deleteCommand);
+      await sqsClient.send(deleteCommand);
 
-      // console.log(`Deleted message ${message.MessageId}`);
+      console.log(`Deleted message ${message.MessageId}`);
     } catch (error) {
       console.error('Error in poll loop:', error);
 

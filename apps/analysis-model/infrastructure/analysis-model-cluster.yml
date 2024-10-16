@@ -119,7 +119,7 @@ Resources:
         BlockDeviceMappings:
           - DeviceName: /dev/xvda
             Ebs:
-              VolumeSize: 60         
+              VolumeSize: 50         
               VolumeType: gp3
         UserData:
           Fn::Base64: !Sub |
@@ -229,10 +229,7 @@ Resources:
           Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${AnalysisModelECRRepositoryName}:${AnalysisModelImageTag}
           PortMappings:
             - ContainerPort: 5000
-              HostPort: 0 # Dynamic port mapping on the host
-          # MountPoints:
-          #   - SourceVolume: model-data
-          #     ContainerPath: /mnt/model-data
+              HostPort: 5000
           MemoryReservation: 14200
           Cpu: 3430
           LogConfiguration:
@@ -241,10 +238,6 @@ Resources:
               awslogs-group: !Ref AnalysisModelCloudWatchLogsGroup
               awslogs-region: !Ref AWS::Region
               awslogs-stream-prefix: ecs
-      # Volumes:
-      #   - Name: model-data
-      #     Host:
-      #       SourcePath: /mnt/ebs/model-data
 
   PollerCloudWatchLogsGroup:
     Type: AWS::Logs::LogGroup
