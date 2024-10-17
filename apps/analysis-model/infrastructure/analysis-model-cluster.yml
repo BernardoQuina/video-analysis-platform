@@ -111,7 +111,7 @@ Resources:
       LaunchTemplateData:
         ImageId: !Ref ECSAMI
         InstanceType: !Ref InstanceType
-        KeyName: !Ref EC2KeyPairName 
+        KeyName: !Ref EC2KeyPairName
         SecurityGroupIds:
           - !GetAtt AnalysisModelEC2SecurityGroup.GroupId
         IamInstanceProfile:
@@ -119,7 +119,7 @@ Resources:
         BlockDeviceMappings:
           - DeviceName: /dev/xvda
             Ebs:
-              VolumeSize: 50         
+              VolumeSize: 50
               VolumeType: gp3
         UserData:
           Fn::Base64: !Sub |
@@ -219,6 +219,12 @@ Resources:
           Environment:
             - Name: SQS_QUEUE_URL
               Value: !Ref CustomAnalysisQueueUrl
+            - Name: MODEL_HOST
+              Value: analysis-model-container
+            - Name: MODEL_PORT
+              Value: '5000'
+          Links:
+            - analysis-model-container
           LogConfiguration:
             LogDriver: awslogs
             Options:
@@ -229,7 +235,7 @@ Resources:
           Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${AnalysisModelECRRepositoryName}:${AnalysisModelImageTag}
           PortMappings:
             - ContainerPort: 5000
-              HostPort: 5000
+              HostPort: 0 # Dynamic port mapping on the host
           MemoryReservation: 14200
           Cpu: 3430
           LogConfiguration:

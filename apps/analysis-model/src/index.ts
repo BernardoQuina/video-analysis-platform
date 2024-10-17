@@ -23,11 +23,14 @@ async function analyzeVideo({
 }: MessageBody): Promise<Result> {
   console.log('Analyzing video: ', video_path);
 
-  const response = await fetch('http://localhost:5000/predictions', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ input: { video_path, text_prompt } }),
-  });
+  const response = await fetch(
+    `http://${process.env.MODEL_HOST}:${process.env.MODEL_PORT}/predictions`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ input: { video_path, text_prompt } }),
+    },
+  );
 
   if (!response.ok) {
     throw new Error(`HTTP error! status: ${response.status}`);
