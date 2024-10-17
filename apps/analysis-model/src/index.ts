@@ -101,7 +101,7 @@ async function pollQueue() {
   }
 }
 
-setTimeout(() => {}, 1000 * 60 * 5); // wait 5 minutes to get model ready
+await new Promise((resolve) => setTimeout(resolve, 1000 * 60 * 5)); // wait 5 minutes to get model ready
 
 // Start the application
 console.log('Starting video analysis wrapper');
