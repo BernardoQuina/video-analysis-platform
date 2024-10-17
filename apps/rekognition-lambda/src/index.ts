@@ -35,7 +35,7 @@ export const handler = async (
 
   console.log({ params });
 
-  return { statusCode: 400, body: JSON.stringify({ error: 'Test request' }) };
+  return { statusCode: 400, body: JSON.stringify({ error: 'Test request.' }) };
 
   try {
     const command = new DetectLabelsCommand(params);
