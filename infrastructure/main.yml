@@ -128,7 +128,7 @@ Resources:
     DeletionPolicy: Delete
     UpdateReplacePolicy: Delete
     Properties:
-      TemplateURL: !Sub https://${StackTemplatesS3BucketName}.s3.amazonaws.com/rekognition-lambda/rekogniton-lambda.yml
+      TemplateURL: !Sub https://${StackTemplatesS3BucketName}.s3.amazonaws.com/rekognition-lambda/rekognition-lambda.yml
       Parameters:
         RekognitionQueueArn: !GetAtt SNSTopicSQSQueues.Outputs.RekognitionQueueArn
         LambdasCodeS3BucketName: !Ref LambdasCodeS3BucketName
