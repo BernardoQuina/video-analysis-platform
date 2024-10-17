@@ -1,0 +1,81 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Lambda for Transcribe with SQS Event Triggers
+
+Parameters:
+  TranscribeQueueArn:
+    Type: String
+    Description: Arn of the Amazon Transcribe SQS Queue
+  LambdasCodeS3BucketName:
+    Type: String
+    Description: Name of the pre created bucket that stores lambda code zip files
+  EnvironmentName:
+    Type: String
+    Description: Name of the the environment of the lambda (e.g. development, production)
+  StackName:
+    Type: String
+    Description: Name of the parent stack
+
+Resources:
+  # Lambda Execution Role for Transcribe Lambda
+  TranscribeLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: TranscribeLambdaPolicy
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 's3:GetObject'
+                  - 'transcribe:StartTranscriptionJob'
+                  - 'sqs:ReceiveMessage'
+                  - 'sqs:DeleteMessage'
+                  - 'sqs:GetQueueAttributes'
+                  - 'logs:CreateLogStream'
+                  - 'logs:PutLogEvents'
+                Resource: '*'
+
+  # Transcribe Lambda Function
+  TranscribeLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: TranscribeVideoLambda
+      Handler: index.handler
+      Role: !GetAtt TranscribeLambdaRole.Arn
+      Code:
+        S3Bucket: !Ref LambdasCodeS3BucketName
+        S3Key: !Sub ${EnvironmentName}/transcribe-lambda.zip
+      Runtime: nodejs20.x
+      LoggingConfig:
+        LogGroup: !Ref TranscribeLambdaCloudWatchLogsGroup
+    DeletionPolicy: Delete
+
+  TranscribeLambdaCloudWatchLogsGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: /lambda/transcribe
+      RetentionInDays: 14
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Retain
+
+  # Event Source Mapping for Transcribe SQS
+  TranscribeSQSTrigger:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      EventSourceArn: !Ref TranscribeQueueArn
+      FunctionName: !Ref TranscribeLambda
+      BatchSize: 10
+      Enabled: true
+
+Outputs:
+  TranscribeLambdaArn:
+    Description: ARN of the Transcribe Lambda function
+    Value: !GetAtt TranscribeLambda.Arn
+    Export:
+      Name: !Sub ${StackName}-TranscribeLambdaArn

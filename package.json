@@ -15,7 +15,8 @@
     "prepare": "husky install",
     "deploy-frontend": "turbo run deploy-frontend",
     "deploy-main": "./infrastructure/stack-deploy.sh",
-    "build-images": "turbo run build-image"
+    "build-images": "turbo run build-image",
+    "package-lambda": "turbo run package-lambda"
   },
   "keywords": [],
   "author": "",

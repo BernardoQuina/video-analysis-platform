@@ -1,0 +1,81 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Lambda for Rekognition with SQS Event Triggers
+
+Parameters:
+  RekognitionQueueArn:
+    Type: String
+    Description: Arn of the Amazon Rekognition SQS Queue
+  LambdasCodeS3BucketName:
+    Type: String
+    Description: Name of the pre created bucket that stores lambda code zip files
+  EnvironmentName:
+    Type: String
+    Description: Name of the the environment of the lambda (e.g. development, production)
+  StackName:
+    Type: String
+    Description: Name of the parent stack
+
+Resources:
+  # Lambda Execution Role for Rekognition Lambda
+  RekognitionLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: RekognitionLambdaPolicy
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 's3:GetObject'
+                  - 'rekognition:DetectLabels'
+                  - 'sqs:ReceiveMessage'
+                  - 'sqs:DeleteMessage'
+                  - 'sqs:GetQueueAttributes'
+                  - 'logs:CreateLogStream'
+                  - 'logs:PutLogEvents'
+                Resource: '*'
+
+  # Rekognition Lambda Function
+  RekognitionLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: RekognitionVideoLambda
+      Handler: index.handler
+      Role: !GetAtt RekognitionLambdaRole.Arn
+      Code:
+        S3Bucket: !Ref LambdasCodeS3BucketName
+        S3Key: !Sub ${EnvironmentName}/rekognition-lambda.zip
+      Runtime: nodejs20.x
+      LoggingConfig:
+        LogGroup: !Ref RekognitionLambdaCloudWatchLogsGroup
+    DeletionPolicy: Delete
+
+  RekognitionLambdaCloudWatchLogsGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: /lambda/rekognition
+      RetentionInDays: 14
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Retain
+
+  # Event Source Mapping for Rekognition SQS
+  RekognitionSQSTrigger:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      EventSourceArn: !Ref RekognitionQueueArn
+      FunctionName: !Ref RekognitionLambda
+      BatchSize: 10
+      Enabled: true
+
+Outputs:
+  RekognitionLambdaArn:
+    Description: ARN of the Rekognition Lambda function
+    Value: !GetAtt RekognitionLambda.Arn
+    Export:
+      Name: !Sub ${StackName}-RekognitionLambdaArn

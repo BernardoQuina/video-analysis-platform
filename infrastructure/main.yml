@@ -12,6 +12,15 @@ Parameters:
     Type: String
     Description: EC2 key pair name for the instances
 
+  # Lambda Parameters
+  LambdasCodeS3BucketName:
+    Type: String
+    Description: Name of the pre created bucket that stores lambda code zip files
+  EnvironmentName:
+    Type: String
+    Default: production
+    Description: Name of the the environment of the lambdas (e.g. development, production)
+
   # API parameters
   APIECSAMI:
     Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
@@ -100,17 +109,31 @@ Resources:
       Parameters:
         StackName: !Ref AWS::StackName
 
-  # Transcribe and Rekognition Lambdas triggered by SQS
-  TranscribeRekognitionLambdas:
+  # Transcribe Lambda triggered by SQS
+  TranscribeLambda:
     Type: AWS::CloudFormation::Stack
     DeletionPolicy: Delete
     UpdateReplacePolicy: Delete
     Properties:
-      TemplateURL: !Sub https://${StackTemplatesS3BucketName}.s3.amazonaws.com/main/transcribe-rekognition-lambdas.yml
+      TemplateURL: !Sub https://${StackTemplatesS3BucketName}.s3.amazonaws.com/transcribe-lambda/transcribe-lambda.yml
       Parameters:
-        StackName: !Ref AWS::StackName
         TranscribeQueueArn: !GetAtt SNSTopicSQSQueues.Outputs.TranscribeQueueArn
+        LambdasCodeS3BucketName: !Ref LambdasCodeS3BucketName
+        EnvironmentName: !Ref EnvironmentName
+        StackName: !Ref AWS::StackName
+
+  # Rekognition Lambda triggered by SQS
+  RekognitionLambda:
+    Type: AWS::CloudFormation::Stack
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
+    Properties:
+      TemplateURL: !Sub https://${StackTemplatesS3BucketName}.s3.amazonaws.com/rekognition-lambda/rekogniton-lambda.yml
+      Parameters:
         RekognitionQueueArn: !GetAtt SNSTopicSQSQueues.Outputs.RekognitionQueueArn
+        LambdasCodeS3BucketName: !Ref LambdasCodeS3BucketName
+        EnvironmentName: !Ref EnvironmentName
+        StackName: !Ref AWS::StackName
 
   # VPC Stack
   VPCStack:

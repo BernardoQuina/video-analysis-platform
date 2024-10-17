@@ -4,6 +4,7 @@
 #prod
 build
 dist
+*.zip
 
 # next
 apps/frontend/.next

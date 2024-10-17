@@ -35,6 +35,9 @@
     "build-images": {
       "outputs": [],
       "cache": false
+    },
+    "package-lambda": {
+      "outputs": ["*.zip"]
     }
   }
 }
