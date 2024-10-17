@@ -25,9 +25,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build and package Lambda functions
+      - name: Build and package lambda functions
         run: |
-          npm run package -- --filter=transcribe-lambda --filter=rekognition-lambda
+          npm run package-lambda -- --filter=transcribe-lambda --filter=rekognition-lambda
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -36,7 +36,7 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           role-session-name: GitHubActionsDeployment
 
-      - name: Upload Lambda packages to S3
+      - name: Upload lambda packages to S3
         env:
           S3_BUCKET: ${{ secrets.LAMBDAS_CODE_S3_BUCKET_NAME }}
           ENVIRONMENT_NAME: ${{ vars.ENVIRONMENT_NAME }}
@@ -44,7 +44,7 @@ jobs:
           aws s3 cp apps/transcribe-lambda/transcribe-lambda.zip s3://$S3_BUCKET/$ENVIRONMENT_NAME/
           aws s3 cp apps/rekognition-lambda/rekognition-lambda.zip s3://$S3_BUCKET/$ENVIRONMENT_NAME/
 
-      - name: Update Lambda functions
+      - name: Update lambda functions
         env:
           S3_BUCKET: ${{ secrets.LAMBDAS_CODE_S3_BUCKET_NAME }}
           ENVIRONMENT_NAME: ${{ vars.ENVIRONMENT_NAME }}
