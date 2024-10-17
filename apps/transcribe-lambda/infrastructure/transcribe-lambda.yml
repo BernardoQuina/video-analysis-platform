@@ -7,7 +7,7 @@ Parameters:
     Description: Arn of the Amazon Transcribe SQS Queue
   LambdasCodeS3BucketName:
     Type: String
-    Description: Name of the pre created bucket that stores lambda code zip files
+    Description: Name of the pre created bucket that stores lambda code zip file
   EnvironmentName:
     Type: String
     Description: Name of the the environment of the lambda (e.g. development, production)

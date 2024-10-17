@@ -44,11 +44,11 @@ jobs:
           --delete --exclude "*" --include "*.yml"
 
           # Sync .yml files to /transcribe-lambda path
-          aws s3 sync infrastructure/stacks s3://$S3_BUCKET/transcribe-lambda/ \
+          aws s3 sync apps/transcribe-lambda/infrastructure s3://$S3_BUCKET/transcribe-lambda/ \
           --delete --exclude "*" --include "*.yml"
 
           # Sync .yml files to /rekognition-lambda path
-          aws s3 sync infrastructure/stacks s3://$S3_BUCKET/rekognition-lambda/ \
+          aws s3 sync apps/rekognition-lambda/infrastructure s3://$S3_BUCKET/rekognition-lambda/ \
           --delete --exclude "*" --include "*.yml"
 
           # Sync .yml files to /main path
