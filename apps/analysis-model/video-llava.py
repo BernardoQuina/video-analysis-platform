@@ -10,7 +10,7 @@ def download_video(url):
     response = requests.get(url, stream=True)
     response.raise_for_status()
 
-    # Create a temporary file
+    # Create temporary file
     with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as temp_file:
         for chunk in response.iter_content(chunk_size=8192):
             temp_file.write(chunk)
@@ -37,7 +37,7 @@ def process_video(video_url, prompt):
     )
     processor = VideoLlavaProcessor.from_pretrained("LanguageBind/Video-LLaVA-7B-hf")
 
-    # Download the video
+    # Download video
     temp_video_path = download_video(video_url)
 
     try:
@@ -52,7 +52,7 @@ def process_video(video_url, prompt):
             generate_ids, skip_special_tokens=True, clean_up_tokenization_spaces=False
         )[0]
     finally:
-        # Clean up the temporary file
+        # Clean up temporary file
         os.unlink(temp_video_path)
 
 
