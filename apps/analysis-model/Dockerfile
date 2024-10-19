@@ -1,32 +1,24 @@
-FROM --platform=linux/amd64 node:20-alpine
+FROM continuumio/miniconda3
 
-# Set the working directory in the container
-WORKDIR /usr/src/app
+WORKDIR /app
 
-# Copy package.json and package-lock.json
-COPY package*.json ./
+# Copy the environment file
+COPY environment.yml .
 
-# Install dependencies
-RUN npm i
+# Create the conda environment
+RUN conda env create -f environment.yml
 
-# Copy the rest of the application code
-COPY . .
+# Activate the conda environment
+SHELL ["conda", "run", "-n", "video-llava", "/bin/bash", "-c"]
 
-# Build the application
-RUN npm run build
+# Install the necessary dependencies to download the model
+RUN pip install transformers av
 
-# Remove devDependencies after build
-RUN npm prune --production
+# Download the model files
+RUN python -c "from transformers import VideoLlavaForConditionalGeneration; VideoLlavaForConditionalGeneration.from_pretrained('LanguageBind/Video-LLaVA-7B-hf')"
 
-# Declare build arguments
-ARG NODE_ENV
-ARG FRONTEND_URL
+# Copy the Python script
+COPY video_llava.py .
 
-# Set environment variables
-ENV NODE_ENV=$NODE_ENV
-
-# Expose the port the app runs on
-EXPOSE 4000
-
-# Command to run the app
-CMD ["node", "dist/src/index.js"]
+# Set the entrypoint
+ENTRYPOINT ["conda", "run", "-n", "video-llava", "python", "video_llava.py"]
