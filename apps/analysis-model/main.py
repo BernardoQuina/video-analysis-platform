@@ -65,8 +65,12 @@ def main():
         try:
             message = receive_message(sqs)
 
+            print("message: ", message)
+
             if message is not None:
-                process_message(message, sqs, s3, processor, model)
+                result = process_message(message, sqs, s3, processor, model)
+
+                print("result: ", result)
 
         except Exception as e:
             print(f"Error in main loop: {str(e)}")

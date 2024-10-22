@@ -18,8 +18,5 @@ SHELL ["conda", "run", "-n", "video-llava", "/bin/bash", "-c"]
 # Download the model files
 RUN python -c "from transformers import VideoLlavaForConditionalGeneration; VideoLlavaForConditionalGeneration.from_pretrained('LanguageBind/Video-LLaVA-7B-hf', device_map='auto', attn_implementation=None)"
 
-# Copy the Python script
-COPY video_llava.py .
-
 # Set the entrypoint
 ENTRYPOINT ["conda", "run", "-n", "video-llava", "python", "main.py"]
