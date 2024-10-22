@@ -15,3 +15,5 @@ dependencies:
     - av
     - numpy
     - requests
+    - sentencepiece
+    - protobuf

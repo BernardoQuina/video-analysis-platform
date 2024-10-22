@@ -32,10 +32,11 @@ def read_video_pyav(container, indices):
 
 
 def process_video(video_url, prompt):
+    model_name = "LanguageBind/Video-LLaVA-7B-hf"
+    processor = VideoLlavaProcessor.from_pretrained(model_name)
     model = VideoLlavaForConditionalGeneration.from_pretrained(
-        "LanguageBind/Video-LLaVA-7B-hf"
+        model_name, device_map="auto", attn_implementation=None
     )
-    processor = VideoLlavaProcessor.from_pretrained("LanguageBind/Video-LLaVA-7B-hf")
 
     # Download video
     temp_video_path = download_video(video_url)
