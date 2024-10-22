@@ -9,59 +9,71 @@ from transformers import VideoLlavaProcessor, VideoLlavaForConditionalGeneration
 def download_video(url):
     response = requests.get(url, stream=True)
     response.raise_for_status()
-
-    # Create temporary file
     with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as temp_file:
         for chunk in response.iter_content(chunk_size=8192):
             temp_file.write(chunk)
-
     return temp_file.name
 
 
-def read_video_pyav(container, indices):
+def read_video_pyav(container, num_frames=8):
     frames = []
     container.seek(0)
-    start_index = indices[0]
-    end_index = indices[-1]
+
+    # Get video stream
+    stream = container.streams.video[0]
+    total_frames = stream.frames
+    indices = np.linspace(0, total_frames - 1, num_frames, dtype=int)
+
     for i, frame in enumerate(container.decode(video=0)):
-        if i > end_index:
-            break
-        if i >= start_index and i in indices:
-            frames.append(frame)
-    return np.stack([x.to_ndarray(format="rgb24") for x in frames])
+        if i in indices:
+            frames.append(frame.to_ndarray(format="rgb24"))
+            if len(frames) == num_frames:
+                break
+
+    return np.stack(frames)
 
 
 def process_video(video_url, prompt):
     model_name = "LanguageBind/Video-LLaVA-7B-hf"
+
+    # Initialize processor with correct settings
     processor = VideoLlavaProcessor.from_pretrained(model_name)
-    processor.patch_size = 32
-    processor.vision_feature_select_strategy = "default"
+    processor.patch_size = 14  # Standard patch size for ViT
+    processor.vision_feature_select_strategy = "uniform"
+
+    # Initialize model with tied weights
     model = VideoLlavaForConditionalGeneration.from_pretrained(
-        model_name, device_map="auto", attn_implementation=None
+        model_name, device_map="auto", torch_dtype="auto"
     )
+    model.tie_weights()
 
-    # Download video
+    # Download and process video
     temp_video_path = download_video(video_url)
-
     try:
         container = av.open(temp_video_path)
-        print("container: ", container)
-        total_frames = container.streams.video[0].frames
-        print("total frames: ", total_frames)
-        indices = np.arange(0, total_frames, total_frames / 8).astype(int)
-        print("indices: ", indices)
-        clip = read_video_pyav(container, indices)
-        # print("clip: ", clip)
 
-        inputs = processor(text=prompt, videos=clip, return_tensors="pt")
+        # Extract 8 frames uniformly
+        clip = read_video_pyav(container, num_frames=8)
+
+        # Process inputs
+        inputs = processor(
+            text=prompt,
+            videos=clip,
+            return_tensors="pt",
+            max_patches=400,  # Set maximum number of patches
+        ).to(model.device)
+
+        # Generate response
         generate_ids = model.generate(
-            **inputs, do_sample=True, max_new_tokens=80
+            **inputs, do_sample=True, max_new_tokens=80, temperature=0.7, top_p=0.9
         )
+
         return processor.batch_decode(
             generate_ids, skip_special_tokens=True, clean_up_tokenization_spaces=False
         )[0]
+
     finally:
-        # Clean up temporary file
+        container.close()
         os.unlink(temp_video_path)
 
 
