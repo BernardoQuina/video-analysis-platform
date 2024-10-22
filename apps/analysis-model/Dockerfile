@@ -2,8 +2,12 @@ FROM continuumio/miniconda3
 
 WORKDIR /app
 
-# Copy the environment file
+# Copy files
 COPY environment.yml .
+COPY config.py .
+COPY video_llava.py .
+COPY aws_utils.py .
+COPY main.py .
 
 # Create the conda environment
 RUN conda env create -f environment.yml
@@ -18,4 +22,4 @@ RUN python -c "from transformers import VideoLlavaForConditionalGeneration; Vide
 COPY video_llava.py .
 
 # Set the entrypoint
-ENTRYPOINT ["conda", "run", "-n", "video-llava", "python", "video_llava.py"]
+ENTRYPOINT ["conda", "run", "-n", "video-llava", "python", "main.py"]
