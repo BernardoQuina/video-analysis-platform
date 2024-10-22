@@ -34,8 +34,11 @@ def read_video_pyav(container, indices):
 def process_video(video_url, prompt):
     model_name = "LanguageBind/Video-LLaVA-7B-hf"
     processor = VideoLlavaProcessor.from_pretrained(model_name)
+
+    # Ensure processor configuration is set properly
     processor.patch_size = 32
     processor.vision_feature_select_strategy = "default"
+
     model = VideoLlavaForConditionalGeneration.from_pretrained(
         model_name, device_map="auto", attn_implementation=None
     )
@@ -45,15 +48,14 @@ def process_video(video_url, prompt):
 
     try:
         container = av.open(temp_video_path)
-        print("container: ", container)
         total_frames = container.streams.video[0].frames
-        print("total frames: ", total_frames)
         indices = np.arange(0, total_frames, total_frames / 8).astype(int)
-        print("indices: ", indices)
         clip = read_video_pyav(container, indices)
-        # print("clip: ", clip)
 
-        inputs = processor(text=prompt, videos=clip, return_tensors="pt")
+        # Ensure input is batched properly (even for one video)
+        inputs = processor(text=prompt, videos=[clip], return_tensors="pt")
+
+        # Generate response with batch input
         generate_ids = model.generate(**inputs, do_sample=True, max_new_tokens=80)
         return processor.batch_decode(
             generate_ids, skip_special_tokens=True, clean_up_tokenization_spaces=False
