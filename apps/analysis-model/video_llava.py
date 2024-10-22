@@ -41,7 +41,7 @@ def process_video(video_url, prompt):
 
     model = VideoLlavaForConditionalGeneration.from_pretrained(
         model_name,
-        cache_dir="/home/ec2-user/.cache/huggingface/hub/models--LanguageBind--Video-LLaVA-7B-hf",
+        cache_dir="/home/ec2-user/.cache/huggingface/hub",
         device_map="auto",
         attn_implementation=None,
     )
