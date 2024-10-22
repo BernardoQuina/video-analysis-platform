@@ -36,7 +36,7 @@ def process_video(video_url, prompt):
     processor = VideoLlavaProcessor.from_pretrained(model_name)
 
     # Ensure processor configuration is set properly
-    processor.patch_size = 32
+    processor.patch_size = 14
     processor.vision_feature_select_strategy = "default"
 
     model = VideoLlavaForConditionalGeneration.from_pretrained(
