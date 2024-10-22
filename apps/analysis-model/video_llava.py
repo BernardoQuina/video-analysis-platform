@@ -42,9 +42,13 @@ def process_video(video_url, prompt):
 
     try:
         container = av.open(temp_video_path)
+        print("container: ", container)
         total_frames = container.streams.video[0].frames
+        print("total frames: ", total_frames)
         indices = np.arange(0, total_frames, total_frames / 8).astype(int)
+        print("indices: ", indices)
         clip = read_video_pyav(container, indices)
+        print("clip: ", clip)
 
         inputs = processor(text=prompt, videos=clip, return_tensors="pt")
         generate_ids = model.generate(**inputs, max_length=80)
