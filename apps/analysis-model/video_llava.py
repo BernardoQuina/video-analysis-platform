@@ -54,7 +54,9 @@ def process_video(video_url, prompt):
         print("clip: ", clip)
 
         inputs = processor(text=prompt, videos=clip, return_tensors="pt")
-        generate_ids = model.generate(**inputs, max_length=80, do_sample=True)
+        generate_ids = model.generate(
+            **inputs, max_length=80, do_sample=True, max_new_tokens=80
+        )
         return processor.batch_decode(
             generate_ids, skip_special_tokens=True, clean_up_tokenization_spaces=False
         )[0]
