@@ -60,7 +60,6 @@ def process_video(video_url, prompt):
             text=prompt,
             videos=clip,
             return_tensors="pt",
-            max_patches=400,  # Set maximum number of patches
         ).to(model.device)
 
         # Generate response
