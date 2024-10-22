@@ -14,7 +14,7 @@ def receive_message(sqs):
         MaxNumberOfMessages=1,
         WaitTimeSeconds=20
     )
-    return response.get('Messages', [])
+    return response.get('Messages', [])[0]
 
 def delete_message(sqs, receipt_handle):
     sqs.delete_message(

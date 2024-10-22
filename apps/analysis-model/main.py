@@ -55,27 +55,20 @@ def main():
     if not config.SQS_QUEUE_URL:
         raise ValueError("SQS_QUEUE_URL environment variable is required")
 
-    print("here 1")
-
     # Initialize AWS clients
     sqs, s3 = get_aws_clients()
-
-    print("here 2")
 
     # Initialize model and processor
     processor, model = initialize_model_and_processor()
 
-    print("here 3")
-
     while True:
         try:
-            print("here 4")
-
             message = receive_message(sqs)
 
-            print("here 5")
+            print("message: ", message)
 
-            process_message(message, sqs, s3, processor, model)
+            if message is not None:
+                process_message(message, sqs, s3, processor, model)
 
         except Exception as e:
             print(f"Error in main loop: {str(e)}")
