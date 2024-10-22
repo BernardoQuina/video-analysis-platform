@@ -65,8 +65,6 @@ def main():
         try:
             message = receive_message(sqs)
 
-            print("message: ", message)
-
             if message is not None:
                 process_message(message, sqs, s3, processor, model)
 

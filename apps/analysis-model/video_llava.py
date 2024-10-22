@@ -33,9 +33,7 @@ def process_video(video_path, prompt, processor, model):
     container = av.open(video_path)
     try:
         total_frames = container.streams.video[0].frames
-        print('total frames: ', total_frames)
         indices = np.arange(0, total_frames, total_frames / 8).astype(int)
-        print('indices: ', indices)
         clip = read_video_pyav(container, indices)
         
         inputs = processor(
