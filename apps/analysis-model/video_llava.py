@@ -34,6 +34,8 @@ def read_video_pyav(container, indices):
 def process_video(video_url, prompt):
     model_name = "LanguageBind/Video-LLaVA-7B-hf"
     processor = VideoLlavaProcessor.from_pretrained(model_name)
+    processor.patch_size = 32
+    processor.vision_feature_select_strategy = "default"
     model = VideoLlavaForConditionalGeneration.from_pretrained(
         model_name, device_map="auto", attn_implementation=None
     )
@@ -63,6 +65,6 @@ def process_video(video_url, prompt):
 
 if __name__ == "__main__":
     video_url = "https://replicate.delivery/pbxt/JvUeO366GYGoMEHxfSwn39LYgScZh6hKNj2EuJ17SXO6aGER/archery.mp4"
-    prompt = "What are these two doing?"
+    prompt = "USER: <video>\nWhat are these two doing? ASSISTANT:"
     result = process_video(video_url, prompt)
     print(result)
