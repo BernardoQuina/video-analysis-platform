@@ -3,12 +3,7 @@ import numpy as np
 import requests
 import tempfile
 import os
-import torch
-from transformers import (
-    VideoLlavaProcessor,
-    VideoLlavaForConditionalGeneration,
-    BitsAndBytesConfig,
-)
+from transformers import VideoLlavaProcessor, VideoLlavaForConditionalGeneration
 
 
 def download_video(url):
@@ -44,15 +39,11 @@ def process_video(video_url, prompt):
     processor.patch_size = 14
     processor.vision_feature_select_strategy = "default"
 
-    # specify how to quantize the model
-    quantization_config = BitsAndBytesConfig(
-        load_in_4bit=True,
-        bnb_4bit_quant_type="nf4",
-        bnb_4bit_compute_dtype=torch.float16,
-    )
-
     model = VideoLlavaForConditionalGeneration.from_pretrained(
-        model_name, device_map="auto", quantization_config=quantization_config
+        model_name,
+        cache_dir="/home/ec2-user/.cache/huggingface/hub/models--LanguageBind--Video-LLaVA-7B-hf",
+        device_map="auto",
+        attn_implementation=None,
     )
 
     # Download video
