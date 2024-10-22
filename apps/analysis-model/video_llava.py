@@ -67,6 +67,6 @@ def process_video(video_url, prompt):
 
 if __name__ == "__main__":
     video_url = "https://replicate.delivery/pbxt/JvUeO366GYGoMEHxfSwn39LYgScZh6hKNj2EuJ17SXO6aGER/archery.mp4"
-    prompt = "What are these two doing?"
+    prompt = "USER: <video>\nWhat are these two doing? ASSISTANT:"
     result = process_video(video_url, prompt)
     print(result)
