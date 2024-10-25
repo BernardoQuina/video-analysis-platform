@@ -205,8 +205,8 @@ Resources:
       ContainerDefinitions:
         - Name: analysis-model-container
           Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${AnalysisModelECRRepositoryName}:${AnalysisModelImageTag}
-          MemoryReservation: 58982
-          Cpu: 14745
+          MemoryReservation: 58981
+          Cpu: 14744
           Environment:
             - Name: SQS_QUEUE_URL
               Value: !Ref CustomAnalysisQueueUrl
