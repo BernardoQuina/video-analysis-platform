@@ -5,7 +5,7 @@ Parameters:
   # Stacks S3
   StackTemplatesS3BucketName:
     Type: String
-    Description: Name of the S3 bucket containing nested stack templates
+    Description: Name of the S3 bucket containing nested stack templates (needs to be pre-created)
 
   # Key pair for ec2 instances
   EC2KeyPairName:
@@ -15,11 +15,16 @@ Parameters:
   # Lambda Parameters
   LambdasCodeS3BucketName:
     Type: String
-    Description: Name of the pre created bucket that stores lambda code zip files
+    Description: Name of the pre created bucket that stores lambda code zip files (needs to be pre-created)
   EnvironmentName:
     Type: String
     Default: production
     Description: Name of the the environment of the lambdas (e.g. development, production)
+  
+  # Video storage S3
+  VideoStorageS3BucketName:
+    Type: String
+    Description: Name of the S3 bucket that will store uploaded videos (needs to be pre-created)
 
   # API parameters
   APIECSAMI:
@@ -199,4 +204,5 @@ Resources:
         CustomAnalysisQueueUrl: !GetAtt SNSTopicSQSQueues.Outputs.CustomAnalysisQueueUrl
         CustomAnalysisQueueName: !GetAtt SNSTopicSQSQueues.Outputs.CustomAnalysisQueueName
         CustomAnalysisQueueArn: !GetAtt SNSTopicSQSQueues.Outputs.CustomAnalysisQueueArn
+        VideoStorageS3BucketName: !Ref VideoStorageS3BucketName
         StackName: !Ref AWS::StackName

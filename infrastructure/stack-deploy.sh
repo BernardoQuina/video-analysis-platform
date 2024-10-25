@@ -25,6 +25,7 @@ if stack_exists; then
     --template-body file://"$TEMPLATE_FILE" \
     --parameters ParameterKey=StackTemplatesS3BucketName,ParameterValue="$STACK_TEMPLATES_S3_BUCKET_NAME" \
     ParameterKey=LambdasCodeS3BucketName,ParameterValue="$LAMBDAS_CODE_S3_BUCKET_NAME" \
+    ParameterKey=VideoStorageS3BucketName,ParameterValue="$VIDEO_STORAGE_S3_BUCKET_NAME" \
     ParameterKey=EC2KeyPairName,ParameterValue="$EC2_KEY_PAIR_NAME" \
     ParameterKey=APIECRRepositoryName,ParameterValue="$API_ECR_REPOSITORY_NAME" \
     ParameterKey=AnalysisModelECRRepositoryName,ParameterValue="$ANALYSIS_MODEL_ECR_REPOSITORY_NAME" \
@@ -47,6 +48,7 @@ else
     --template-body file://"$TEMPLATE_FILE" \
     --parameters ParameterKey=StackTemplatesS3BucketName,ParameterValue="$STACK_TEMPLATES_S3_BUCKET_NAME" \
     ParameterKey=LambdasCodeS3BucketName,ParameterValue="$LAMBDAS_CODE_S3_BUCKET_NAME" \
+    ParameterKey=VideoStorageS3BucketName,ParameterValue="$VIDEO_STORAGE_S3_BUCKET_NAME" \
     ParameterKey=EC2KeyPairName,ParameterValue="$EC2_KEY_PAIR_NAME" \
     ParameterKey=APIECRRepositoryName,ParameterValue="$API_ECR_REPOSITORY_NAME" \
     ParameterKey=AnalysisModelECRRepositoryName,ParameterValue="$ANALYSIS_MODEL_ECR_REPOSITORY_NAME" \
