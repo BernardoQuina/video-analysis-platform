@@ -27,7 +27,6 @@ if stack_exists; then
     ParameterKey=LambdasCodeS3BucketName,ParameterValue="$LAMBDAS_CODE_S3_BUCKET_NAME" \
     ParameterKey=EC2KeyPairName,ParameterValue="$EC2_KEY_PAIR_NAME" \
     ParameterKey=APIECRRepositoryName,ParameterValue="$API_ECR_REPOSITORY_NAME" \
-    ParameterKey=PollerECRRepositoryName,ParameterValue="$POLLER_ECR_REPOSITORY_NAME" \
     ParameterKey=AnalysisModelECRRepositoryName,ParameterValue="$ANALYSIS_MODEL_ECR_REPOSITORY_NAME" \
     ParameterKey=DomainName,ParameterValue="$DOMAIN_NAME" \
     ParameterKey=HostedZoneId,ParameterValue="$HOSTED_ZONE_ID" \
@@ -50,7 +49,6 @@ else
     ParameterKey=LambdasCodeS3BucketName,ParameterValue="$LAMBDAS_CODE_S3_BUCKET_NAME" \
     ParameterKey=EC2KeyPairName,ParameterValue="$EC2_KEY_PAIR_NAME" \
     ParameterKey=APIECRRepositoryName,ParameterValue="$API_ECR_REPOSITORY_NAME" \
-    ParameterKey=PollerECRRepositoryName,ParameterValue="$POLLER_ECR_REPOSITORY_NAME" \
     ParameterKey=AnalysisModelECRRepositoryName,ParameterValue="$ANALYSIS_MODEL_ECR_REPOSITORY_NAME" \
     ParameterKey=DomainName,ParameterValue="$DOMAIN_NAME" \
     ParameterKey=HostedZoneId,ParameterValue="$HOSTED_ZONE_ID" \
