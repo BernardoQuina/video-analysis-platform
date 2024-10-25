@@ -8,3 +8,4 @@ protobuf
 sentencepiece
 accelerate
 bitsandbytes
+boto3
