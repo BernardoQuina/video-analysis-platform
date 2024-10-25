@@ -210,6 +210,9 @@ Resources:
           Environment:
             - Name: SQS_QUEUE_URL
               Value: !Ref CustomAnalysisQueueUrl
+          ResourceRequirements:
+            - Type: GPU
+              Value: 1
           LogConfiguration:
             LogDriver: awslogs
             Options:
