@@ -200,13 +200,13 @@ Resources:
       NetworkMode: bridge
       RequiresCompatibilities:
         - EC2
-      Cpu: '14745' # 90% of the 16 vCPUs available in g4dn.4xlarge
+      Cpu: '14336' # 14 of the 16 vCPUs available in g4dn.4xlarge
       Memory: '58982' # 90% of the 64GB available in g4dn.4xlarge
       ContainerDefinitions:
         - Name: analysis-model-container
           Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${AnalysisModelECRRepositoryName}:${AnalysisModelImageTag}
           MemoryReservation: 58981
-          Cpu: 14744
+          Cpu: 14330
           Environment:
             - Name: SQS_QUEUE_URL
               Value: !Ref CustomAnalysisQueueUrl
