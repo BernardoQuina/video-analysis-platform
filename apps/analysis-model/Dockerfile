@@ -1,22 +1,43 @@
-FROM continuumio/miniconda3
+FROM nvidia/cuda:12.6.2-cudnn-runtime-ubuntu24.04
 
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+  python3-pip \
+  python3-venv \
+  python3-dev \
+  ffmpeg \
+  libsm6 \
+  libxext6 \
+  libxrender-dev \
+  && rm -rf /var/lib/apt/lists/*
+
+# Create and set working directory
 WORKDIR /app
 
-# Copy files
-COPY environment.yml .
+# Copy requirements first to leverage Docker cache
+COPY requirements.txt .
+
+# Create and activate virtual environment
+ENV VIRTUAL_ENV=/opt/venv
+RUN python3 -m venv $VIRTUAL_ENV
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
+# Install Python dependencies
+RUN pip3 install --no-cache-dir -r requirements.txt
+
+# Copy remaining files
 COPY config.py .
-COPY video_llava.py .
 COPY aws_utils.py .
+COPY download_model.py .
+COPY video_llava.py .
 COPY main.py .
 
-# Create the conda environment
-RUN conda env create -f environment.yml
+# Set environment variables for GPU support
+ENV NVIDIA_VISIBLE_DEVICES all
+ENV NVIDIA_DRIVER_CAPABILITIES compute,utility,video
 
-# Activate the conda environment
-SHELL ["conda", "run", "-n", "video-llava", "/bin/bash", "-c"]
+# Download model
+RUN python3 download_model.py
 
-# Download the model files
-RUN python -c "from transformers import VideoLlavaForConditionalGeneration; VideoLlavaForConditionalGeneration.from_pretrained('LanguageBind/Video-LLaVA-7B-hf', device_map='auto', attn_implementation=None)"
-
-# Set the entrypoint
-ENTRYPOINT ["conda", "run", "-n", "video-llava", "python", "main.py"]
+# Command to run the script
+CMD ["python3", "video_analysis.py"]
