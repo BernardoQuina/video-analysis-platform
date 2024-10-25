@@ -40,4 +40,4 @@ ENV NVIDIA_DRIVER_CAPABILITIES compute,utility,video
 RUN python3 download_model.py
 
 # Command to run the script
-CMD ["python3", "video_analysis.py"]
+CMD ["python3", "main.py"]
