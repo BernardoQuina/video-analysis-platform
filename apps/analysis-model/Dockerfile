@@ -37,7 +37,7 @@ ENV NVIDIA_VISIBLE_DEVICES all
 ENV NVIDIA_DRIVER_CAPABILITIES compute,utility,video
 
 # Download model
-RUN python3 download_model.py
+RUN python3 -u download_model.py
 
 # Command to run the script
 CMD ["python3", "-u", "main.py"]
