@@ -29,6 +29,7 @@ if stack_exists; then
     ParameterKey=EC2KeyPairName,ParameterValue="$EC2_KEY_PAIR_NAME" \
     ParameterKey=APIECRRepositoryName,ParameterValue="$API_ECR_REPOSITORY_NAME" \
     ParameterKey=AnalysisModelECRRepositoryName,ParameterValue="$ANALYSIS_MODEL_ECR_REPOSITORY_NAME" \
+    ParameterKey=AnalysisModelECSAMI,ParameterValue="$ANALYSIS_MODEL_ECS_AMI" \
     ParameterKey=DomainName,ParameterValue="$DOMAIN_NAME" \
     ParameterKey=HostedZoneId,ParameterValue="$HOSTED_ZONE_ID" \
     --capabilities CAPABILITY_IAM 2>&1)
@@ -52,6 +53,7 @@ else
     ParameterKey=EC2KeyPairName,ParameterValue="$EC2_KEY_PAIR_NAME" \
     ParameterKey=APIECRRepositoryName,ParameterValue="$API_ECR_REPOSITORY_NAME" \
     ParameterKey=AnalysisModelECRRepositoryName,ParameterValue="$ANALYSIS_MODEL_ECR_REPOSITORY_NAME" \
+    ParameterKey=AnalysisModelECSAMI,ParameterValue="$ANALYSIS_MODEL_ECS_AMI" \
     ParameterKey=DomainName,ParameterValue="$DOMAIN_NAME" \
     ParameterKey=HostedZoneId,ParameterValue="$HOSTED_ZONE_ID" \
     --capabilities CAPABILITY_IAM 2>&1)
