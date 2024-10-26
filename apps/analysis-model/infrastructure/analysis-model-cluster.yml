@@ -211,7 +211,7 @@ Resources:
   AnalysisModelTaskDefinition:
     Type: AWS::ECS::TaskDefinition
     Properties:
-      Family: analysis-model-and-poller-task
+      Family: analysis-model-task
       NetworkMode: bridge
       RequiresCompatibilities:
         - EC2

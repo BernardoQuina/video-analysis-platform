@@ -57,7 +57,7 @@ Parameters:
 
   # Analysis Model parameters
   AnalysisModelECSAMI:
-    Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
+    Type: String # If using default change to: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
     Default: /aws/service/ecs/optimized-ami/amazon-linux-2/gpu/recommended/image_id
     Description: The AMI ID used for the Analysis Model cluster, leave it as the default value to get the latest AMI
   AnalysisModelInstanceType:
