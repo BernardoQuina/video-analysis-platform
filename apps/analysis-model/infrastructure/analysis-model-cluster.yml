@@ -114,7 +114,7 @@ Resources:
         IamInstanceProfile:
           Arn: !GetAtt AnalysisModelEC2InstanceProfile.Arn
         BlockDeviceMappings:
-          - DeviceName: /dev/sda1
+          - DeviceName: /dev/xvda
             Ebs:
               VolumeSize: 120
               VolumeType: gp3
