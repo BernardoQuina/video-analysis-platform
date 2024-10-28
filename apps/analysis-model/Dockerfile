@@ -36,8 +36,8 @@ COPY main.py .
 ENV NVIDIA_VISIBLE_DEVICES all
 ENV NVIDIA_DRIVER_CAPABILITIES compute,utility,video
 
-# Download model
-RUN python3 -u download_model.py
+# Copy model cache (this is optional and not included in the repo, you need to download it before building the image)
+# COPY model-cache /root/.cache
 
 # Command to run the script
 CMD ["python3", "-u", "main.py"]
