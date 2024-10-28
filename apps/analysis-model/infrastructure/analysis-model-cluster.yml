@@ -116,7 +116,7 @@ Resources:
         BlockDeviceMappings:
           - DeviceName: /dev/xvda
             Ebs:
-              VolumeSize: 60
+              VolumeSize: 120
               VolumeType: gp3
         UserData:
           Fn::Base64: !Sub |
