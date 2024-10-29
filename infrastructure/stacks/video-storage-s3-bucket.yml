@@ -24,31 +24,49 @@ Resources:
     Properties:
       BucketName: !Ref VideoStorageS3BucketName
       NotificationConfiguration:
-        LambdaConfigurations:
-          - Event: s3:ObjectCreated:Put
-            Function: !Ref TranscribeLambdaArn
-          - Event: s3:ObjectCreated:Put
-            Function: !Ref RekognitionLambdaArn
+        EventBridgeConfiguration:
+          EventBridgeEnabled: true
 
-   # Grant permission for S3 to invoke the Transcribe Lambda
+  # EventBridge Rule
+  S3UploadRule:
+    Type: 'AWS::Events::Rule'
+    Properties:
+      Description: 'Rule to capture S3 upload events and trigger Lambda functions'
+      State: 'ENABLED'
+      EventPattern:
+        source:
+          - 'aws.s3'
+        detail-type:
+          - 'Object Created'
+        detail:
+          bucket:
+            name:
+              - !Ref VideoStorageS3BucketName
+      Targets:
+        - Arn: !Ref TranscribeLambdaArn
+          Id: 'TranscribeLambda'
+        - Arn: !Ref RekognitionLambdaArn
+          Id: 'RekognitionLambda'
+
+    # Grant permission for S3 to invoke the Transcribe Lambda
   TranscribeLambdaPermissionForS3:
     Type: AWS::Lambda::Permission
     Properties:
       SourceAccount: !Ref AccountId
       Action: lambda:InvokeFunction
       FunctionName: !Ref TranscribeLambdaArn
-      Principal: s3.amazonaws.com
-      SourceArn: !GetAtt VideoStorageS3Bucket.Arn
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt S3UploadRule.Arn
 
-   # Grant permission for S3 to invoke the Rekognition Lambda
+    # Grant permission for S3 to invoke the Rekognition Lambda
   RekognitionLambdaPermissionForS3:
     Type: AWS::Lambda::Permission
     Properties:
       SourceAccount: !Ref AccountId
       Action: lambda:InvokeFunction
       FunctionName: !Ref RekognitionLambdaArn
-      Principal: s3.amazonaws.com
-      SourceArn: !GetAtt VideoStorageS3Bucket.Arn
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt S3UploadRule.Arn
 
 Outputs:
   VideoStorageS3BucketArn:
