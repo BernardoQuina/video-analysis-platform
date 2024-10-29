@@ -117,7 +117,14 @@ Resources:
           - DeviceName: /dev/xvda
             Ebs:
               VolumeSize: 120
-              VolumeType: gp3
+              # Using io2 makes the instance startup time about 8 minutes quicker than if
+              # using gp3 if we are loading the model from disk BUT this can become
+              # expensive very quickly if the volume is provisioned during many hours of
+              # the month. Costs about 17 dollars for 15 hours per month but about 880
+              # dollars if provisioned during the whole month (730 hours)
+              VolumeType: io2
+              Iops: 12000
+              DeleteOnTermination: true
         UserData:
           Fn::Base64: !Sub |
             #!/bin/bash -xe
@@ -215,13 +222,13 @@ Resources:
       NetworkMode: bridge
       RequiresCompatibilities:
         - EC2
-      Cpu: '10240' # 10 of 16 vCPUs available in g4dn.4xlarge (its the max value accepted)
-      Memory: '58982' # 90% of the 64GB available in g4dn.4xlarge
+      Cpu: '3686' # 90% of 4 vCPUs available in g4dn.xlarge
+      Memory: '14746' # 90% of the 16GB available in g4dn.xlarge
       ContainerDefinitions:
         - Name: analysis-model-container
           Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${AnalysisModelECRRepositoryName}:${AnalysisModelImageTag}
-          MemoryReservation: 58982
-          Cpu: 10240
+          Cpu: 3685
+          MemoryReservation: 14745
           Environment:
             - Name: SQS_QUEUE_URL
               Value: !Ref CustomAnalysisQueueUrl
