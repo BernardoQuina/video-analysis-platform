@@ -2,6 +2,10 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: 'Parent stack for VPC, API Cluster with Auto Scaling EC2 Instances and ALB'
 
 Parameters:
+  AccountId:
+    Type: String
+    Description: AWS account ID (needed for lambda permission)
+
   # Stacks S3
   StackTemplatesS3BucketName:
     Type: String
@@ -20,7 +24,7 @@ Parameters:
     Type: String
     Default: production
     Description: Name of the the environment of the lambdas (e.g. development, production)
-  
+
   # Video storage S3
   VideoStorageS3BucketName:
     Type: String
@@ -97,17 +101,17 @@ Parameters:
     Description: The ID of the hosted zone in Route 53
 
 Resources:
-  # SNS Topic and SQS Queues Stack
-  SNSTopicSQSQueues:
+  # Custom Analysis SQS Queue Stack
+  CustomAnalysisSQSQueue:
     Type: AWS::CloudFormation::Stack
     DeletionPolicy: Delete
     UpdateReplacePolicy: Delete
     Properties:
-      TemplateURL: !Sub https://${StackTemplatesS3BucketName}.s3.amazonaws.com/main/sns-topic-sqs-queues.yml
+      TemplateURL: !Sub https://${StackTemplatesS3BucketName}.s3.amazonaws.com/main/custom-analysis-sqs-queue.yml
       Parameters:
         StackName: !Ref AWS::StackName
 
-  # Transcribe Lambda triggered by SQS
+  # Transcribe Lambda Stack (triggered by S3 video upload)
   TranscribeLambda:
     Type: AWS::CloudFormation::Stack
     DeletionPolicy: Delete
@@ -115,12 +119,11 @@ Resources:
     Properties:
       TemplateURL: !Sub https://${StackTemplatesS3BucketName}.s3.amazonaws.com/transcribe-lambda/transcribe-lambda.yml
       Parameters:
-        TranscribeQueueArn: !GetAtt SNSTopicSQSQueues.Outputs.TranscribeQueueArn
         LambdasCodeS3BucketName: !Ref LambdasCodeS3BucketName
         EnvironmentName: !Ref EnvironmentName
         StackName: !Ref AWS::StackName
 
-  # Rekognition Lambda triggered by SQS
+  # Rekognition Lambda Stack (triggered by S3 video upload)
   RekognitionLambda:
     Type: AWS::CloudFormation::Stack
     DeletionPolicy: Delete
@@ -128,9 +131,22 @@ Resources:
     Properties:
       TemplateURL: !Sub https://${StackTemplatesS3BucketName}.s3.amazonaws.com/rekognition-lambda/rekognition-lambda.yml
       Parameters:
-        RekognitionQueueArn: !GetAtt SNSTopicSQSQueues.Outputs.RekognitionQueueArn
         LambdasCodeS3BucketName: !Ref LambdasCodeS3BucketName
         EnvironmentName: !Ref EnvironmentName
+        StackName: !Ref AWS::StackName
+
+  # Video Storage S3 Bucket Stack
+  VideoStorageS3BucketStack:
+    Type: AWS::CloudFormation::Stack
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
+    Properties:
+      TemplateURL: !Sub https://${StackTemplatesS3BucketName}.s3.amazonaws.com/main/video-storage-s3-bucket.yml
+      Parameters:
+        AccountId: !Ref AccountId
+        VideoStorageS3BucketName: !Ref VideoStorageS3BucketName
+        TranscribeLambdaArn: !GetAtt TranscribeLambda.Outputs.TranscribeLambdaArn
+        RekognitionLambdaArn: !GetAtt RekognitionLambda.Outputs.RekognitionLambdaArn
         StackName: !Ref AWS::StackName
 
   # VPC Stack
@@ -201,8 +217,8 @@ Resources:
         TargetBacklogPerTask: !Ref AnalysisModelTargetBacklogPerTask
         AnalysisModelECRRepositoryName: !Ref AnalysisModelECRRepositoryName
         AnalysisModelImageTag: !Ref AnalysisModelImageTag
-        CustomAnalysisQueueUrl: !GetAtt SNSTopicSQSQueues.Outputs.CustomAnalysisQueueUrl
-        CustomAnalysisQueueName: !GetAtt SNSTopicSQSQueues.Outputs.CustomAnalysisQueueName
-        CustomAnalysisQueueArn: !GetAtt SNSTopicSQSQueues.Outputs.CustomAnalysisQueueArn
+        CustomAnalysisQueueUrl: !GetAtt CustomAnalysisSQSQueue.Outputs.CustomAnalysisQueueUrl
+        CustomAnalysisQueueName: !GetAtt CustomAnalysisSQSQueue.Outputs.CustomAnalysisQueueName
+        CustomAnalysisQueueArn: !GetAtt CustomAnalysisSQSQueue.Outputs.CustomAnalysisQueueArn
         VideoStorageS3BucketName: !Ref VideoStorageS3BucketName
         StackName: !Ref AWS::StackName

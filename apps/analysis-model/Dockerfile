@@ -36,8 +36,8 @@ COPY main.py .
 ENV NVIDIA_VISIBLE_DEVICES all
 ENV NVIDIA_DRIVER_CAPABILITIES compute,utility,video
 
-# Copy model cache (this is optional and not included in the repo, you need to download it before building the image)
-# COPY model-cache /root/.cache
+# Download model files
+RUN python3 -c "from transformers import VideoLlavaForConditionalGeneration; VideoLlavaForConditionalGeneration.from_pretrained('LanguageBind/Video-LLaVA-7B-hf')"
 
 # Command to run the script
 CMD ["python3", "-u", "main.py"]

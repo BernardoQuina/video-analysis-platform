@@ -23,7 +23,8 @@ if stack_exists; then
   UPDATE_OUTPUT=$(aws cloudformation update-stack \
     --stack-name "$STACK_NAME" \
     --template-body file://"$TEMPLATE_FILE" \
-    --parameters ParameterKey=StackTemplatesS3BucketName,ParameterValue="$STACK_TEMPLATES_S3_BUCKET_NAME" \
+    --parameters ParameterKey=AccountId,ParameterValue="$ACCOUNT_ID" \
+    ParameterKey=StackTemplatesS3BucketName,ParameterValue="$STACK_TEMPLATES_S3_BUCKET_NAME" \
     ParameterKey=LambdasCodeS3BucketName,ParameterValue="$LAMBDAS_CODE_S3_BUCKET_NAME" \
     ParameterKey=VideoStorageS3BucketName,ParameterValue="$VIDEO_STORAGE_S3_BUCKET_NAME" \
     ParameterKey=EC2KeyPairName,ParameterValue="$EC2_KEY_PAIR_NAME" \
@@ -47,7 +48,8 @@ else
   CREATE_OUTPUT=$(aws cloudformation create-stack \
     --stack-name "$STACK_NAME" \
     --template-body file://"$TEMPLATE_FILE" \
-    --parameters ParameterKey=StackTemplatesS3BucketName,ParameterValue="$STACK_TEMPLATES_S3_BUCKET_NAME" \
+    --parameters ParameterKey=AccountId,ParameterValue="$ACCOUNT_ID" \
+    ParameterKey=StackTemplatesS3BucketName,ParameterValue="$STACK_TEMPLATES_S3_BUCKET_NAME" \
     ParameterKey=LambdasCodeS3BucketName,ParameterValue="$LAMBDAS_CODE_S3_BUCKET_NAME" \
     ParameterKey=VideoStorageS3BucketName,ParameterValue="$VIDEO_STORAGE_S3_BUCKET_NAME" \
     ParameterKey=EC2KeyPairName,ParameterValue="$EC2_KEY_PAIR_NAME" \

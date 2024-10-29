@@ -1,0 +1,58 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: S3 bucket to store video uploads (and trigger lambdas)
+
+Parameters:
+  AccountId:
+    Type: String
+    Description: AWS account ID (needed for lambda permission)
+  VideoStorageS3BucketName:
+    Type: String
+    Description: Name of the S3 bucket that will store uploaded videos
+  TranscribeLambdaArn:
+    Type: String
+    Description: ARN of the Transcribe Lambda function
+  RekognitionLambdaArn:
+    Type: String
+    Description: ARN of the Rekognition Lambda function
+  StackName:
+    Type: String
+    Description: Name of the parent stack
+
+Resources:
+  VideoStorageS3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref VideoStorageS3BucketName
+      NotificationConfiguration:
+        LambdaConfigurations:
+          - Event: s3:ObjectCreated:Put
+            Function: !Ref TranscribeLambdaArn
+          - Event: s3:ObjectCreated:Put
+            Function: !Ref RekognitionLambdaArn
+
+   # Grant permission for S3 to invoke the Transcribe Lambda
+  TranscribeLambdaPermissionForS3:
+    Type: AWS::Lambda::Permission
+    Properties:
+      SourceAccount: !Ref AccountId
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref TranscribeLambdaArn
+      Principal: s3.amazonaws.com
+      SourceArn: !GetAtt VideoStorageS3Bucket.Arn
+
+   # Grant permission for S3 to invoke the Rekognition Lambda
+  RekognitionLambdaPermissionForS3:
+    Type: AWS::Lambda::Permission
+    Properties:
+      SourceAccount: !Ref AccountId
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref RekognitionLambdaArn
+      Principal: s3.amazonaws.com
+      SourceArn: !GetAtt VideoStorageS3Bucket.Arn
+
+Outputs:
+  VideoStorageS3BucketArn:
+    Description: ARN of the video storage s3 bucket
+    Value: !GetAtt VideoStorageS3Bucket.Arn
+    Export:
+      Name: !Sub ${StackName}-VideoStorageS3BucketArn

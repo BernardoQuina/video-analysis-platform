@@ -1,0 +1,38 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: SQS Queues for custom video analysis
+
+Parameters:
+  StackName:
+    Type: String
+    Description: Name of the parent stack
+
+Resources:
+  # SQS Queue for Custom Analysis
+  CustomAnalysisQueue:
+    Type: AWS::SQS::Queue
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Retain
+    Properties:
+      QueueName: CustomAnalysisQueue
+      VisibilityTimeout: 900 # 15 minutes
+      ReceiveMessageWaitTimeSeconds: 20 # Long polling
+      MessageRetentionPeriod: 604800 # 1 week
+
+Outputs:
+  CustomAnalysisQueueUrl:
+    Description: URL of the Custom Analysis SQS Queue
+    Value: !GetAtt CustomAnalysisQueue.QueueUrl
+    Export:
+      Name: !Sub ${StackName}-CustomAnalysisQueueUrl
+
+  CustomAnalysisQueueName:
+    Description: Name of the Custom Analysis SQS Queue
+    Value: !GetAtt CustomAnalysisQueue.QueueName
+    Export:
+      Name: !Sub ${StackName}-CustomAnalysisQueueName
+
+  CustomAnalysisQueueArn:
+    Description: Arn of the Custom Analysis SQS Queue
+    Value: !GetAtt CustomAnalysisQueue.Arn
+    Export:
+      Name: !Sub ${StackName}-CustomAnalysisQueueArn

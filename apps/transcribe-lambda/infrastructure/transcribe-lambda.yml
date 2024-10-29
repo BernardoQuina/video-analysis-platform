@@ -2,9 +2,6 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: Lambda for Transcribe with SQS Event Triggers
 
 Parameters:
-  TranscribeQueueArn:
-    Type: String
-    Description: Arn of the Amazon Transcribe SQS Queue
   LambdasCodeS3BucketName:
     Type: String
     Description: Name of the pre created bucket that stores lambda code zip file
@@ -34,9 +31,6 @@ Resources:
                 Action:
                   - 's3:GetObject'
                   - 'transcribe:StartTranscriptionJob'
-                  - 'sqs:ReceiveMessage'
-                  - 'sqs:DeleteMessage'
-                  - 'sqs:GetQueueAttributes'
                   - 'logs:CreateLogStream'
                   - 'logs:PutLogEvents'
                 Resource: '*'
@@ -63,15 +57,6 @@ Resources:
       RetentionInDays: 14
     DeletionPolicy: Delete
     UpdateReplacePolicy: Retain
-
-  # Event Source Mapping for Transcribe SQS
-  TranscribeSQSTrigger:
-    Type: AWS::Lambda::EventSourceMapping
-    Properties:
-      EventSourceArn: !Ref TranscribeQueueArn
-      FunctionName: !Ref TranscribeLambda
-      BatchSize: 10
-      Enabled: true
 
 Outputs:
   TranscribeLambdaArn:

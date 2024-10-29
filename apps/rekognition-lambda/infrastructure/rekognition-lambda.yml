@@ -2,9 +2,6 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: Lambda for Rekognition with SQS Event Triggers
 
 Parameters:
-  RekognitionQueueArn:
-    Type: String
-    Description: Arn of the Amazon Rekognition SQS Queue
   LambdasCodeS3BucketName:
     Type: String
     Description: Name of the pre created bucket that stores lambda code zip file
@@ -34,9 +31,6 @@ Resources:
                 Action:
                   - 's3:GetObject'
                   - 'rekognition:DetectLabels'
-                  - 'sqs:ReceiveMessage'
-                  - 'sqs:DeleteMessage'
-                  - 'sqs:GetQueueAttributes'
                   - 'logs:CreateLogStream'
                   - 'logs:PutLogEvents'
                 Resource: '*'
@@ -63,15 +57,6 @@ Resources:
       RetentionInDays: 14
     DeletionPolicy: Delete
     UpdateReplacePolicy: Retain
-
-  # Event Source Mapping for Rekognition SQS
-  RekognitionSQSTrigger:
-    Type: AWS::Lambda::EventSourceMapping
-    Properties:
-      EventSourceArn: !Ref RekognitionQueueArn
-      FunctionName: !Ref RekognitionLambda
-      BatchSize: 10
-      Enabled: true
 
 Outputs:
   RekognitionLambdaArn:
