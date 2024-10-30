@@ -69,23 +69,22 @@ export const handler = async (
       completedJob.Transcript.TranscriptFileUri,
     );
 
-    const mergedSegments: { speaker_label: string; transcript: string }[] = [];
+    const mergedSegments: { person: string; transcript: string }[] = [];
 
     results.audio_segments.forEach((segment) => {
+      const personNumber = parseInt(segment.speaker_label.split('spk_')[1]) + 1;
+      const person = `Person ${personNumber}`;
+
       if (
         mergedSegments.length > 0 &&
-        mergedSegments[mergedSegments.length - 1].speaker_label ===
-          segment.speaker_label
+        mergedSegments[mergedSegments.length - 1].person === person
       ) {
         // Merge with the last segment in mergedSegments
         const lastSegment = mergedSegments[mergedSegments.length - 1];
         lastSegment.transcript += ' ' + segment.transcript;
       } else {
         // Otherwise, add as a new segment
-        mergedSegments.push({
-          speaker_label: segment.speaker_label,
-          transcript: segment.transcript,
-        });
+        mergedSegments.push({ person, transcript: segment.transcript });
       }
     });
 
