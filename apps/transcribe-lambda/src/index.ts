@@ -45,7 +45,7 @@ export const handler = async (
   const params: StartTranscriptionJobCommandInput = {
     TranscriptionJobName: jobName,
     IdentifyLanguage: true,
-    Settings: { ShowSpeakerLabels: true, MaxSpeakerLabels: 2 },
+    Settings: { ShowSpeakerLabels: true, MaxSpeakerLabels: 10 },
     MediaFormat: 'mp4',
     Media: { MediaFileUri: `s3://${bucket.name}/${object.key}` },
   };
@@ -69,7 +69,27 @@ export const handler = async (
       completedJob.Transcript.TranscriptFileUri,
     );
 
-    console.dir(results.audio_segments, { depth: Infinity });
+    const mergedSegments: { speaker_label: string; transcript: string }[] = [];
+
+    results.audio_segments.forEach((segment) => {
+      if (
+        mergedSegments.length > 0 &&
+        mergedSegments[mergedSegments.length - 1].speaker_label ===
+          segment.speaker_label
+      ) {
+        // Merge with the last segment in mergedSegments
+        const lastSegment = mergedSegments[mergedSegments.length - 1];
+        lastSegment.transcript += ' ' + segment.transcript;
+      } else {
+        // Otherwise, add as a new segment
+        mergedSegments.push({
+          speaker_label: segment.speaker_label,
+          transcript: segment.transcript,
+        });
+      }
+    });
+
+    console.dir({ mergedSegments }, { depth: Infinity });
 
     return { statusCode: 200, body: JSON.stringify(results) };
   } catch (error) {
