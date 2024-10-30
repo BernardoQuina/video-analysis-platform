@@ -77,7 +77,7 @@ export const handler = async (
 
     return { statusCode: 200, body: JSON.stringify(transcriptionResults) };
   } catch (error) {
-    console.error('Error starting transcription job:', error);
+    console.error('Error during transcription job:', error);
     return {
       statusCode: 500,
       body: JSON.stringify({ error: (error as Error).message }),

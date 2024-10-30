@@ -28,13 +28,17 @@ export async function getTranscriptionResults({
 }: GetTranscriptionResultsOptions): Promise<TranscriptionResult> {
   // Extract bucket and key from the S3 URI
   const url = new URL(transcriptFileUri);
-  const bucket = url.hostname.split('.')[0];
-  const key = url.pathname.substring(1); // Remove leading slash
+  const pathParts = url.hostname.split('/');
+
+  const bucketName = pathParts[1];
+  const objectKey = pathParts.slice(2).join('/');
+
+  console.log({ url, pathParts, bucketName, objectKey });
 
   // Get the JSON file from S3
   const getCommand = new GetObjectCommand({
-    Bucket: bucket,
-    Key: key,
+    Bucket: bucketName,
+    Key: objectKey,
   });
 
   const response = await s3Client.send(getCommand);
