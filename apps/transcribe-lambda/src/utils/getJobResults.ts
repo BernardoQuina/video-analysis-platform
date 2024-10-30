@@ -9,6 +9,14 @@ type TranscriptionResult = {
       alternatives: { confidence: string; content: string }[];
       type: string;
     }[];
+    audio_segments: {
+      id: number;
+      start_time?: string;
+      end_time?: string;
+      speaker_label: string;
+      transcript: string;
+      items: number[];
+    }[];
   };
   status: string;
 };

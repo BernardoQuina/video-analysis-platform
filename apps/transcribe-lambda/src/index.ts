@@ -50,8 +50,6 @@ export const handler = async (
     Media: { MediaFileUri: `s3://${bucket.name}/${object.key}` },
   };
 
-  console.log({ params });
-
   try {
     const command = new StartTranscriptionJobCommand(params);
     await transcribeClient.send(command);
@@ -67,13 +65,13 @@ export const handler = async (
       throw new Error('No transcript file URI in completed job');
     }
 
-    const transcriptionResults = await getTranscriptionResults(
+    const { results } = await getTranscriptionResults(
       completedJob.Transcript.TranscriptFileUri,
     );
 
-    console.dir({ transcriptionResults }, { depth: Infinity });
+    console.dir(results.audio_segments, { depth: Infinity });
 
-    return { statusCode: 200, body: JSON.stringify(transcriptionResults) };
+    return { statusCode: 200, body: JSON.stringify(results) };
   } catch (error) {
     console.error('Error during transcription job:', error);
     return {
