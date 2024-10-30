@@ -90,6 +90,8 @@ export const handler = async (
 
     const completedJob = await waitForTranscriptionJob(jobName);
 
+    console.dir(completedJob, { depth: Infinity });
+
     return { statusCode: 200, body: JSON.stringify(completedJob) };
   } catch (error) {
     console.error('Error starting transcription job:', error);
