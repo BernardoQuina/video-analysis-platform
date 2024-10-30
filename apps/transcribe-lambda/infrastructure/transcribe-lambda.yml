@@ -42,6 +42,7 @@ Resources:
     Properties:
       FunctionName: TranscribeVideoLambda
       Handler: index.handler
+      Timeout: 900
       Role: !GetAtt TranscribeLambdaRole.Arn
       Code:
         S3Bucket: !Ref LambdasCodeS3BucketName

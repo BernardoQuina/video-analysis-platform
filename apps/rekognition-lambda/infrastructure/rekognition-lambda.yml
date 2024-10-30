@@ -41,6 +41,7 @@ Resources:
     Properties:
       FunctionName: RekognitionVideoLambda
       Handler: index.handler
+      Timeout: 900
       Role: !GetAtt RekognitionLambdaRole.Arn
       Code:
         S3Bucket: !Ref LambdasCodeS3BucketName
