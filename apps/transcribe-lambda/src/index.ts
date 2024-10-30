@@ -21,7 +21,7 @@ export const handler = async (
     S3ObjectCreatedNotificationEventDetail
   >,
 ): Promise<APIGatewayProxyResult> => {
-  console.dir(event, { depth: null, colors: true });
+  console.dir(event, { depth: Infinity });
 
   // const record: SQSRecord = event.Records[0];
   // const message = JSON.parse(record.body);
