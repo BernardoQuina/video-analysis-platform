@@ -68,10 +68,9 @@ export const handler = async (
       throw new Error('No transcript file URI in completed job');
     }
 
-    const transcriptionResults = await getTranscriptionResults({
-      s3Client,
-      transcriptFileUri: completedJob.Transcript.TranscriptFileUri,
-    });
+    const transcriptionResults = await getTranscriptionResults(
+      completedJob.Transcript.TranscriptFileUri,
+    );
 
     console.dir(transcriptionResults, { depth: Infinity });
 
