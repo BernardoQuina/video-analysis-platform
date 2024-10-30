@@ -39,7 +39,6 @@ export const handler = async (
     LanguageCode: 'en-US',
     MediaFormat: 'mp4',
     Media: { MediaFileUri: `s3://${bucket.name}/${object.key}` },
-    OutputBucketName: bucket.name,
   };
 
   console.log({ params });
