@@ -17,6 +17,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.682.0",
     "@aws-sdk/client-transcribe": "^3.670.0",
     "dotenv": "^16.4.5",
     "zod": "^3.23.8"
