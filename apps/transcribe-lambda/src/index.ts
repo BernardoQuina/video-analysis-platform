@@ -45,7 +45,7 @@ export const handler = async (
   const params: StartTranscriptionJobCommandInput = {
     TranscriptionJobName: jobName,
     IdentifyLanguage: true,
-    Settings: { ShowSpeakerLabels: true },
+    Settings: { ShowSpeakerLabels: true, MaxSpeakerLabels: 2 },
     MediaFormat: 'mp4',
     Media: { MediaFileUri: `s3://${bucket.name}/${object.key}` },
   };
