@@ -28,7 +28,7 @@ export async function getTranscriptionResults({
 }: GetTranscriptionResultsOptions): Promise<TranscriptionResult> {
   // Extract bucket and key from the S3 URI
   const url = new URL(transcriptFileUri);
-  const pathParts = url.hostname.split('/');
+  const pathParts = url.pathname.split('/');
 
   const bucketName = pathParts[1];
   const objectKey = pathParts.slice(2).join('/');
