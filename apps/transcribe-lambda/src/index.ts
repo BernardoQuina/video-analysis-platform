@@ -36,15 +36,16 @@ export const handler = async (
     Key: object.key,
   });
 
-  const metadata = await s3Client.send(s3MetadataCommand);
+  const { Metadata } = await s3Client.send(s3MetadataCommand);
 
-  console.log({ metadata });
+  console.log({ Metadata });
 
   const jobName = `Transcribe-${object.key}`;
 
   const params: StartTranscriptionJobCommandInput = {
     TranscriptionJobName: jobName,
-    LanguageCode: 'en-US',
+    IdentifyLanguage: true,
+    Settings: { ShowSpeakerLabels: true },
     MediaFormat: 'mp4',
     Media: { MediaFileUri: `s3://${bucket.name}/${object.key}` },
   };
@@ -62,8 +63,6 @@ export const handler = async (
       pollInterval: POLL_INTERVAL,
     });
 
-    console.dir(completedJob, { depth: Infinity });
-
     if (!completedJob.Transcript?.TranscriptFileUri) {
       throw new Error('No transcript file URI in completed job');
     }
@@ -72,7 +71,7 @@ export const handler = async (
       completedJob.Transcript.TranscriptFileUri,
     );
 
-    console.dir(transcriptionResults, { depth: Infinity });
+    console.dir({ transcriptionResults }, { depth: Infinity });
 
     return { statusCode: 200, body: JSON.stringify(transcriptionResults) };
   } catch (error) {
