@@ -30,7 +30,8 @@ Resources:
               - Effect: Allow
                 Action:
                   - 's3:GetObject'
-                  - 'rekognition:DetectLabels'
+                  - 'rekognition:StartLabelDetection'
+                  - 'rekognition:GetLabelDetection'
                   - 'logs:CreateLogStream'
                   - 'logs:PutLogEvents'
                 Resource: '*'
