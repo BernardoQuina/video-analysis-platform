@@ -34,6 +34,9 @@ if stack_exists; then
     ParameterKey=FrontendDomainName,ParameterValue="$FRONTEND_DOMAIN_NAME" \
     ParameterKey=APIDomainName,ParameterValue="$API_DOMAIN_NAME" \
     ParameterKey=HostedZoneId,ParameterValue="$HOSTED_ZONE_ID" \
+    ParameterKey=GoogleClientId,ParameterValue="$GOOGLE_CLIENT_ID" \
+    ParameterKey=GoogleClientSecret,ParameterValue="$GOOGLE_CLIENT_SECRET" \
+    ParameterKey=AppDomainPrefix,ParameterValue="$APP_DOMAIN_PREFIX" \
     --capabilities CAPABILITY_IAM 2>&1)
 
   if [[ $UPDATE_OUTPUT == *"No updates are to be performed"* ]]; then
@@ -60,6 +63,9 @@ else
     ParameterKey=FrontendDomainName,ParameterValue="$FRONTEND_DOMAIN_NAME" \
     ParameterKey=APIDomainName,ParameterValue="$API_DOMAIN_NAME" \
     ParameterKey=HostedZoneId,ParameterValue="$HOSTED_ZONE_ID" \
+    ParameterKey=GoogleClientId,ParameterValue="$GOOGLE_CLIENT_ID" \
+    ParameterKey=GoogleClientSecret,ParameterValue="$GOOGLE_CLIENT_SECRET" \
+    ParameterKey=AppDomainPrefix,ParameterValue="$APP_DOMAIN_PREFIX" \
     --capabilities CAPABILITY_IAM 2>&1)
 
   if [[ $? -eq 0 ]]; then
