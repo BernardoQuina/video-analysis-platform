@@ -1,8 +1,8 @@
 /* eslint-disable no-console */
 import {
   RekognitionClient,
-  DetectLabelsCommand,
-  DetectLabelsCommandInput,
+  StartLabelDetectionCommand,
+  StartLabelDetectionCommandInput,
 } from '@aws-sdk/client-rekognition';
 import { S3Client, HeadObjectCommand } from '@aws-sdk/client-s3';
 import type {
@@ -12,13 +12,12 @@ import type {
   // eslint-disable-next-line node/no-missing-import
 } from 'aws-lambda';
 
-// import { waitForRekognitionJob } from './utils/waitForJob';
-// import { getRekognitionResults } from './utils/getJobResults';
+import { waitForRekognitionJob } from './utils/waitForJob';
 
 const rekognitionClient = new RekognitionClient({ region: 'eu-west-1' });
 const s3Client = new S3Client({ region: 'eu-west-1' });
 
-// Maximum time to wait for transcription (14 minutes)
+// Maximum time to wait for rekognition job (14 minutes)
 const MAX_WAIT_TIME = 14 * 60 * 1000;
 // Time between status checks (10 seconds)
 const POLL_INTERVAL = 10 * 1000;
@@ -40,34 +39,33 @@ export const handler = async (
 
   console.log({ Metadata });
 
-  const params: DetectLabelsCommandInput = {
-    Image: { S3Object: { Bucket: bucket.name, Name: object.key } },
-    MaxLabels: 10,
+  const params: StartLabelDetectionCommandInput = {
+    Video: { S3Object: { Bucket: bucket.name, Name: object.key } },
     MinConfidence: 70,
   };
 
   try {
-    const command = new DetectLabelsCommand(params);
-    const results = await rekognitionClient.send(command);
+    const command = new StartLabelDetectionCommand(params);
+    const { JobId } = await rekognitionClient.send(command);
 
-    console.dir({ results }, { depth: Infinity });
+    console.log({ JobId });
 
-    // const completedJob = await waitForRekognitionJob({
-    //   rekognitionClient,
-    //   jobName,
-    //   maxWaitTime: MAX_WAIT_TIME,
-    //   pollInterval: POLL_INTERVAL,
-    // });
+    if (!JobId) {
+      throw new Error(
+        'Something went wrong when starting rekognition job. No JobId.',
+      );
+    }
 
-    // if (!completedJob.Transcript?.TranscriptFileUri) {
-    //   throw new Error('No transcript file URI in completed job');
-    // }
+    const completedJob = await waitForRekognitionJob({
+      rekognitionClient,
+      JobId,
+      maxWaitTime: MAX_WAIT_TIME,
+      pollInterval: POLL_INTERVAL,
+    });
 
-    // const { results } = await getRekognitionResults(
-    //   completedJob.Transcript.TranscriptFileUri,
-    // );
+    console.dir({ completedJob }, { depth: Infinity });
 
-    return { statusCode: 200, body: JSON.stringify(results) };
+    return { statusCode: 200, body: JSON.stringify(completedJob) };
   } catch (error) {
     console.error('Error during rekognition job:', error);
     return {
