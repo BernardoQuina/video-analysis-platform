@@ -13,6 +13,7 @@ import type {
 } from 'aws-lambda';
 
 import { waitForRekognitionJob } from './utils/waitForJob';
+import { consolidateLabels } from './utils/consolidateLabels';
 
 const rekognitionClient = new RekognitionClient({ region: 'eu-west-1' });
 const s3Client = new S3Client({ region: 'eu-west-1' });
@@ -63,7 +64,9 @@ export const handler = async (
       pollInterval: POLL_INTERVAL,
     });
 
-    console.dir({ completedJob }, { depth: Infinity });
+    const consolidatedLabels = consolidateLabels(completedJob.Labels ?? []);
+
+    console.dir({ consolidatedLabels }, { depth: Infinity });
 
     return { statusCode: 200, body: JSON.stringify(completedJob) };
   } catch (error) {
