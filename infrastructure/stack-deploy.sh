@@ -31,7 +31,8 @@ if stack_exists; then
     ParameterKey=APIECRRepositoryName,ParameterValue="$API_ECR_REPOSITORY_NAME" \
     ParameterKey=AnalysisModelECRRepositoryName,ParameterValue="$ANALYSIS_MODEL_ECR_REPOSITORY_NAME" \
     ParameterKey=AnalysisModelECSAMI,ParameterValue="$ANALYSIS_MODEL_ECS_AMI" \
-    ParameterKey=DomainName,ParameterValue="$DOMAIN_NAME" \
+    ParameterKey=FrontendDomainName,ParameterValue="$FRONTEND_DOMAIN_NAME" \
+    ParameterKey=APIDomainName,ParameterValue="$API_DOMAIN_NAME" \
     ParameterKey=HostedZoneId,ParameterValue="$HOSTED_ZONE_ID" \
     --capabilities CAPABILITY_IAM 2>&1)
 
@@ -56,7 +57,8 @@ else
     ParameterKey=APIECRRepositoryName,ParameterValue="$API_ECR_REPOSITORY_NAME" \
     ParameterKey=AnalysisModelECRRepositoryName,ParameterValue="$ANALYSIS_MODEL_ECR_REPOSITORY_NAME" \
     ParameterKey=AnalysisModelECSAMI,ParameterValue="$ANALYSIS_MODEL_ECS_AMI" \
-    ParameterKey=DomainName,ParameterValue="$DOMAIN_NAME" \
+    ParameterKey=FrontendDomainName,ParameterValue="$FRONTEND_DOMAIN_NAME" \
+    ParameterKey=APIDomainName,ParameterValue="$API_DOMAIN_NAME" \
     ParameterKey=HostedZoneId,ParameterValue="$HOSTED_ZONE_ID" \
     --capabilities CAPABILITY_IAM 2>&1)
 

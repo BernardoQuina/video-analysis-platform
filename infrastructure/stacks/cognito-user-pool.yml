@@ -1,0 +1,99 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Cognito User Pool with Google-Only Social Sign-In'
+
+Parameters:
+  FrontendDomainName:
+    Type: String
+    Description: Domain Name for frontend site (CloudFront) - For the callback url
+  GoogleClientId:
+    Type: String
+    Description: Google OAuth 2.0 Client ID
+  GoogleClientSecret:
+    Type: String
+    Description: Google OAuth 2.0 Client Secret
+    NoEcho: true
+  AppDomainPrefix:
+    Type: String
+    Description: Prefix for the Cognito domain
+  StackName:
+    Type: String
+    Description: Name of the parent stack
+
+Resources:
+  CognitoUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: !Sub ${StackName}-google-only-pool
+      # Remove default schemas
+      Schema:
+        - Name: email
+          AttributeDataType: String
+          Mutable: true
+          Required: true
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Retain
+
+  CognitoUserPoolDomain:
+    Type: AWS::Cognito::UserPoolDomain
+    Properties:
+      Domain: !Ref AppDomainPrefix
+      UserPoolId: !Ref CognitoUserPool
+
+  CognitoUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      UserPoolId: !Ref CognitoUserPool
+      ClientName: !Sub ${StackName}-google-client
+      GenerateSecret: true
+      ExplicitAuthFlows:
+        - ALLOW_CUSTOM_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
+      SupportedIdentityProviders:
+        - Google
+      CallbackURLs:
+        - !Sub https://${FrontendDomainName}/callback
+        - http://localhost:3000/callback # For local development
+      LogoutURLs:
+        - !Sub https://${FrontendDomainName}
+        - http://localhost:3000
+      AllowedOAuthFlowsUserPoolClient: true
+      AllowedOAuthFlows:
+        - code
+      AllowedOAuthScopes:
+        - email
+        - openid
+        - profile
+
+  CognitoIdentityProviderGoogle:
+    Type: AWS::Cognito::UserPoolIdentityProvider
+    Properties:
+      UserPoolId: !Ref CognitoUserPool
+      ProviderName: Google
+      ProviderType: Google
+      ProviderDetails:
+        client_id: !Ref GoogleClientId
+        client_secret: !Ref GoogleClientSecret
+        authorize_scopes: email profile openid
+      AttributeMapping:
+        email: email
+        given_name: given_name
+        family_name: family_name
+
+Outputs:
+  UserPoolId:
+    Description: Cognito User Pool ID
+    Value: !Ref CognitoUserPool
+    Export:
+      Name: !Sub ${StackName}-UserPoolId
+
+  UserPoolClientId:
+    Description: Cognito User Pool Client ID
+    Value: !Ref CognitoUserPoolClient
+    Export:
+      Name: !Sub ${StackName}-UserPoolClientId
+
+  UserPoolDomain:
+    Description: Cognito Domain
+    Value: !Sub https://${AppDomainPrefix}.auth.${AWS::Region}.amazoncognito.com
+    Export:
+      Name: !Sub ${StackName}-UserPoolDomain

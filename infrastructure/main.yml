@@ -16,6 +16,21 @@ Parameters:
     Type: String
     Description: EC2 key pair name for the instances
 
+  # Cognito (Google sign-in) Parameters
+  FrontendDomainName:
+    Type: String
+    Description: Domain Name for frontend site (CloudFront)
+  GoogleClientId:
+    Type: String
+    Description: Google OAuth 2.0 Client ID
+  GoogleClientSecret:
+    Type: String
+    Description: Google OAuth 2.0 Client Secret
+    NoEcho: true
+  AppDomainPrefix:
+    Type: String
+    Description: Prefix for the Cognito domain
+
   # Lambda Parameters
   LambdasCodeS3BucketName:
     Type: String
@@ -93,7 +108,7 @@ Parameters:
     Description: Tag of the analysis model Docker image to deploy
 
   # ALB parameters
-  DomainName:
+  APIDomainName:
     Type: String
     Description: Domain name for the API ALB
   HostedZoneId:
@@ -101,6 +116,21 @@ Parameters:
     Description: The ID of the hosted zone in Route 53
 
 Resources:
+  # Cognito User Pool Stack
+  CognitoUserPool:
+    Type: AWS::CloudFormation::Stack
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
+    Properties:
+      TemplateURL: !Sub https://${StackTemplatesS3BucketName}.s3.amazonaws.com/main/cognito-user-pool.yml
+      Parameters:
+        FrontendDomainName: !Ref FrontendDomainName
+        GoogleClientId: !Ref GoogleClientId
+        GoogleClientSecret: !Ref GoogleClientSecret
+        AppDomainPrefix: !Ref AppDomainPrefix
+        StackName: !Ref AWS::StackName
+
+
   # Custom Analysis SQS Queue Stack
   CustomAnalysisSQSQueue:
     Type: AWS::CloudFormation::Stack
@@ -170,7 +200,7 @@ Resources:
         VPCId: !GetAtt VPCStack.Outputs.VPC
         PublicSubnet1: !GetAtt VPCStack.Outputs.PublicSubnet1
         PublicSubnet2: !GetAtt VPCStack.Outputs.PublicSubnet2
-        DomainName: !Ref DomainName
+        APIDomainName: !Ref APIDomainName
         HostedZoneId: !Ref HostedZoneId
         StackName: !Ref AWS::StackName
 

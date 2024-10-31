@@ -11,7 +11,7 @@ Parameters:
   PublicSubnet2:
     Type: AWS::EC2::Subnet::Id
     Description: Public Subnet 2 ID
-  DomainName:
+  APIDomainName:
     Type: String
     Description: Domain name for the ALB
   HostedZoneId:
@@ -68,17 +68,17 @@ Resources:
   ACMCertificate:
     Type: AWS::CertificateManager::Certificate
     Properties:
-      DomainName: !Ref DomainName
+      DomainName: !Ref APIDomainName
       ValidationMethod: DNS
       DomainValidationOptions:
-        - DomainName: !Ref DomainName
+        - DomainName: !Ref APIDomainName
           HostedZoneId: !Ref HostedZoneId
 
   Route53RecordSet:
     Type: AWS::Route53::RecordSet
     Properties:
       HostedZoneId: !Ref HostedZoneId
-      Name: !Ref DomainName
+      Name: !Ref APIDomainName
       Type: A
       AliasTarget:
         DNSName: !GetAtt ALB.DNSName
