@@ -40,6 +40,9 @@ export const handler = async (
 
   console.log({ Metadata });
 
+  // TODO: Remove after rekognition tests
+  return { statusCode: 200, body: JSON.stringify({ test: '' }) };
+
   const jobName = `Transcribe-${object.key}`;
 
   const params: StartTranscriptionJobCommandInput = {
@@ -66,7 +69,8 @@ export const handler = async (
     }
 
     const { results } = await getTranscriptionResults(
-      completedJob.Transcript.TranscriptFileUri,
+      // TODO: Remove after rekognition tests
+      completedJob.Transcript?.TranscriptFileUri ?? '',
     );
 
     const mergedSegments: { person: string; transcript: string }[] = [];
