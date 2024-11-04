@@ -48,7 +48,7 @@ Resources:
       ClientName: !Sub ${StackName}-google-client
       GenerateSecret: true
       ExplicitAuthFlows:
-        - ALLOW_CUSTOM_AUTH
+        - ALLOW_USER_PASSWORD_AUTH
         - ALLOW_REFRESH_TOKEN_AUTH
       SupportedIdentityProviders:
         - Google
