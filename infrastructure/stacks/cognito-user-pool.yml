@@ -51,9 +51,9 @@ Resources:
         AccessToken: minutes
         IdToken: minutes
         RefreshToken: minutes
-      AccessTokenValidity: 2
-      IdTokenValidity: 2
-      RefreshTokenValidity: 10
+      AccessTokenValidity: 5
+      IdTokenValidity: 5
+      RefreshTokenValidity: 60
       ExplicitAuthFlows:
         - ALLOW_REFRESH_TOKEN_AUTH
       SupportedIdentityProviders:
