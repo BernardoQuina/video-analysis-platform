@@ -30,6 +30,10 @@ Resources:
           AttributeDataType: String
           Mutable: true
           Required: true
+        - Name: picture
+          AttributeDataType: String
+          Mutable: true
+          Required: false
     DeletionPolicy: Delete
     UpdateReplacePolicy: Retain
 
@@ -86,6 +90,7 @@ Resources:
         email: email
         given_name: given_name
         family_name: family_name
+        picture: picture
 
 Outputs:
   UserPoolId:
