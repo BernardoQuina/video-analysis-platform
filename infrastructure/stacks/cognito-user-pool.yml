@@ -63,8 +63,8 @@ Resources:
       SupportedIdentityProviders:
         - Google
       CallbackURLs:
-        - !Sub https://${FrontendDomainName}/callback
-        - http://localhost:3000/callback # For local development
+        - !Sub https://${FrontendDomainName}
+        - http://localhost:3000 # For local development
       LogoutURLs:
         - !Sub https://${FrontendDomainName}
         - http://localhost:3000
