@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import { inferRouterOutputs } from '@trpc/server';
@@ -91,15 +90,7 @@ function SignedInDropdown({ me }: { me: Me }) {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Avatar className="h-9 w-9 cursor-pointer">
-          <AvatarImage asChild src={me.picture}>
-            <Image
-              src={me.picture}
-              alt={`${me.givenName} ${me.familyName} google profile picture`}
-              unoptimized
-              width={36}
-              height={36}
-            />
-          </AvatarImage>
+          <AvatarImage src={me.picture} />
           <AvatarFallback>
             {me.givenName[0]}
             {me.familyName[0]}
