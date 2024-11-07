@@ -35,8 +35,6 @@ export function GoogleSignIn() {
     const clientId = process.env.NEXT_PUBLIC_COGNITO_CLIENT_ID;
     const redirectUri = encodeURIComponent(window.location.origin);
 
-    console.log({ domain, clientId });
-
     const googleAuthUrl =
       `${domain}/oauth2/authorize?` +
       `response_type=code&` +
