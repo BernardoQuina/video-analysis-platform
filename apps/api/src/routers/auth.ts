@@ -22,7 +22,7 @@ export const auth = router({
   me: publicProcedure.query(async ({ ctx }) => {
     const userOrError = await authenticate(ctx);
 
-    if ('code' in userOrError) return null;
+    if ('code' in userOrError) return null; // we want to return null when no user is logged in
 
     return {
       id: userOrError.sub,
