@@ -69,34 +69,6 @@ Resources:
         - Name: containerInsights
           Value: enabled
 
-  APIAutoScalingGroup:
-    Type: AWS::AutoScaling::AutoScalingGroup
-    DependsOn:
-      - APICluster
-      - APIEC2Role
-    UpdatePolicy:
-      AutoScalingRollingUpdate:
-        MinInstancesInService: 1
-        MaxBatchSize: 2
-        PauseTime: PT2M
-        WaitOnResourceSignals: true
-        MinSuccessfulInstancesPercent: 100
-    Properties:
-      AutoScalingGroupName: APIInstances
-      VPCZoneIdentifier:
-        - !Ref PublicSubnet3 # set to private subnets in production
-        - !Ref PublicSubnet4 # using public to additional costs
-      LaunchTemplate:
-        LaunchTemplateId: !Ref APILaunchTemplate
-        Version: !GetAtt APILaunchTemplate.LatestVersionNumber
-      MinSize: !Ref MinSize
-      MaxSize: !Ref MaxSize
-      NewInstancesProtectedFromScaleIn: false
-      Tags:
-        - Key: Name
-          Value: APIInstances
-          PropagateAtLaunch: true
-
   APILaunchTemplate:
     Type: AWS::EC2::LaunchTemplate
     Metadata:
@@ -191,36 +163,6 @@ Resources:
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role
 
-  # Create an ECS capacity provider to attach the ASG to the API cluster
-  # so that it auto scales as we launch more containers
-  APICapacityProvider:
-    Type: AWS::ECS::CapacityProvider
-    Properties:
-      AutoScalingGroupProvider:
-        AutoScalingGroupArn: !Ref APIAutoScalingGroup
-        ManagedScaling:
-          InstanceWarmupPeriod: 60
-          MinimumScalingStepSize: 1
-          MaximumScalingStepSize: 2
-          Status: ENABLED
-          # Percentage of cluster reservation to try to maintain
-          TargetCapacity: 100
-        ManagedTerminationProtection: DISABLED
-        ManagedDraining: ENABLED
-
-  # Create a cluster capacity provider association so that the cluster
-  # will use the capacity provider
-  APICapacityProviderAssociation:
-    Type: AWS::ECS::ClusterCapacityProviderAssociations
-    Properties:
-      CapacityProviders:
-        - !Ref APICapacityProvider
-      Cluster: !Ref APICluster
-      DefaultCapacityProviderStrategy:
-        - Base: 0
-          CapacityProvider: !Ref APICapacityProvider
-          Weight: 1
-
   # This is a role which is used within Fargate to allow the Fargate agent
   # to download images, and upload logs.
   APITaskExecutionRole:
@@ -247,7 +189,7 @@ Resources:
     Type: AWS::ECS::TaskDefinition
     Properties:
       Family: api-task
-      NetworkMode: awsvpc
+      NetworkMode: bridge
       RequiresCompatibilities:
         - EC2
       Cpu: '896' # 87.5% of the 1 vCPU available in t2.micro
@@ -308,18 +250,68 @@ Resources:
       DeploymentConfiguration:
         MaximumPercent: 200
         MinimumHealthyPercent: 100
-      NetworkConfiguration:
-        AwsvpcConfiguration:
-          AssignPublicIp: DISABLED
-          Subnets:
-            - !Ref PublicSubnet3 # set to private subnets in production
-            - !Ref PublicSubnet4 # using public to avoid vpc endpoint costs (for ecs service)
-          SecurityGroups:
-            - !Ref APIEC2SecurityGroup
       LoadBalancers:
         - ContainerName: api-container
           ContainerPort: 4000
           TargetGroupArn: !Ref ALBTargetGroupArn
+
+  # Create an ECS capacity provider to attach the ASG to the API cluster
+  # so that it auto scales as we launch more containers
+  APICapacityProvider:
+    Type: AWS::ECS::CapacityProvider
+    Properties:
+      AutoScalingGroupProvider:
+        AutoScalingGroupArn: !Ref APIAutoScalingGroup
+        ManagedScaling:
+          InstanceWarmupPeriod: 60
+          MinimumScalingStepSize: 1
+          MaximumScalingStepSize: 2
+          Status: ENABLED
+          # Percentage of cluster reservation to try to maintain
+          TargetCapacity: 100
+        ManagedTerminationProtection: DISABLED
+        ManagedDraining: ENABLED
+
+  # Create a cluster capacity provider association so that the cluster
+  # will use the capacity provider
+  APICapacityProviderAssociation:
+    Type: AWS::ECS::ClusterCapacityProviderAssociations
+    Properties:
+      CapacityProviders:
+        - !Ref APICapacityProvider
+      Cluster: !Ref APICluster
+      DefaultCapacityProviderStrategy:
+        - Base: 0
+          CapacityProvider: !Ref APICapacityProvider
+          Weight: 1
+
+  APIAutoScalingGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    DependsOn:
+      - APICluster
+      - APIEC2Role
+    UpdatePolicy:
+      AutoScalingRollingUpdate:
+        MinInstancesInService: 1
+        MaxBatchSize: 2
+        PauseTime: PT2M
+        WaitOnResourceSignals: true
+        MinSuccessfulInstancesPercent: 100
+    Properties:
+      AutoScalingGroupName: APIInstances
+      VPCZoneIdentifier:
+        - !Ref PublicSubnet3 # set to private subnets in production
+        - !Ref PublicSubnet4 # using public to additional costs
+      LaunchTemplate:
+        LaunchTemplateId: !Ref APILaunchTemplate
+        Version: !GetAtt APILaunchTemplate.LatestVersionNumber
+      MinSize: !Ref MinSize
+      MaxSize: !Ref MaxSize
+      NewInstancesProtectedFromScaleIn: false
+      Tags:
+        - Key: Name
+          Value: APIInstances
+          PropagateAtLaunch: true
 
   APIServiceAutoScalingRole:
     Type: AWS::IAM::Role
