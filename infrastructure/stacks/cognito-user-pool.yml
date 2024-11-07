@@ -105,8 +105,23 @@ Outputs:
     Export:
       Name: !Sub ${StackName}-UserPoolClientId
 
-  UserPoolDomain:
+  CognitoDomain:
     Description: Cognito Domain
     Value: !Sub https://${AppDomainPrefix}.auth.${AWS::Region}.amazoncognito.com
     Export:
-      Name: !Sub ${StackName}-UserPoolDomain
+      Name: !Sub ${StackName}-CognitoDomain
+  CognitoUserPoolId:
+    Description: Cognito User Pool Id
+    Value: !GetAtt CognitoUserPool.UserPoolId
+    Export:
+      Name: !Sub ${StackName}-CognitoUserPoolId
+  CognitoClientId:
+    Description: Cognito Client Id
+    Value: !GetAtt CognitoUserPoolClient.ClientId
+    Export:
+      Name: !Sub ${StackName}-CognitoClientId
+  CognitoClientSecret:
+    Description: Cognito Client Secret
+    Value: !GetAtt CognitoUserPoolClient.ClientSecret
+    Export:
+      Name: !Sub ${StackName}-CognitoClientSecret

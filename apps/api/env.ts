@@ -4,6 +4,11 @@ import { z } from 'zod';
 const envVariables = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']),
   FRONTEND_URL: z.string(),
+  COGNITO_CLIENT_ID: z.string(),
+  COGNITO_CLIENT_SECRET: z.string(),
+  COGNITO_USER_POOL_ID: z.string(),
+  COGNITO_DOMAIN: z.string(),
+  AWS_REGION: z.string(),
 });
 
 envVariables.parse(process.env);

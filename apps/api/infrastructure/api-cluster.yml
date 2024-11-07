@@ -41,6 +41,21 @@ Parameters:
   ALBSecurityGroupId:
     Type: String
     Description: Load Balancer Security Group ID
+  FrontendDomainName:
+    Type: String
+    Description: Frontend custom domain used for cloudfront (used here for api env)
+  CognitoDomain:
+    Type: String
+    Description: Cognito Domain
+  CognitoUserPoolId:
+    Type: String
+    Description: Cognito User Pool Id
+  CognitoClientId:
+    Type: String
+    Description: Cognito Client Id
+  CognitoClientSecret:
+    Type: String
+    Description: Cognito Client Secret
   StackName:
     Type: String
     Description: Name of the parent stack
@@ -127,7 +142,7 @@ Resources:
       LaunchTemplateData:
         ImageId: !Ref ECSAMI
         InstanceType: !Ref InstanceType
-        KeyName: !Ref EC2KeyPairName 
+        KeyName: !Ref EC2KeyPairName
         SecurityGroupIds:
           - !GetAtt APIEC2SecurityGroup.GroupId
         IamInstanceProfile:
@@ -244,6 +259,21 @@ Resources:
             - ContainerPort: 4000
           MemoryReservation: 600
           Cpu: 896
+          Environment:
+            - Name: NODE_ENV
+              Value: production
+            - Name: FRONTEND_URL
+              Value: !Sub https://${FrontendDomainName}
+            - Name: COGNITO_CLIENT_ID
+              Value: !Ref CognitoClientId
+            - Name: COGNITO_CLIENT_SECRET
+              Value: !Ref CognitoClientSecret
+            - Name: COGNITO_USER_POOL_ID
+              Value: !Ref CognitoUserPoolId
+            - Name: COGNITO_DOMAIN
+              Value: !Ref CognitoDomain
+            - Name: AWS_REGION
+              Value: !Ref AWS::Region
           LogConfiguration:
             LogDriver: awslogs
             Options:

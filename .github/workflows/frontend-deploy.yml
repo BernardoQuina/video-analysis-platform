@@ -32,6 +32,8 @@ jobs:
       - name: Build frontend
         env:
           NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL }}
+          NEXT_PUBLIC_COGNITO_DOMAIN: ${{ vars.NEXT_PUBLIC_COGNITO_DOMAIN }}
+          NEXT_PUBLIC_CLIENT_ID: ${{ vars.NEXT_PUBLIC_COGNITO_CLIENT_ID }}
         run: npm run build -- --filter=frontend # Uses Turborepo to build only the frontend
 
       # Configures AWS credentials using OIDC

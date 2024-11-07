@@ -15,8 +15,10 @@ import type {
 import { waitForTranscriptionJob } from './utils/waitForJob';
 import { getTranscriptionResults } from './utils/getJobResults';
 
-const transcribeClient = new TranscribeClient({ region: 'eu-west-1' });
-const s3Client = new S3Client({ region: 'eu-west-1' });
+const transcribeClient = new TranscribeClient({
+  region: process.env.AWS_REGION,
+});
+const s3Client = new S3Client({ region: process.env.AWS_REGION });
 
 // Maximum time to wait for transcription (14 minutes)
 const MAX_WAIT_TIME = 14 * 60 * 1000;
@@ -39,9 +41,6 @@ export const handler = async (
   const { Metadata } = await s3Client.send(s3MetadataCommand);
 
   console.log({ Metadata });
-
-  // TODO: Remove after rekognition tests
-  return { statusCode: 200, body: JSON.stringify({ test: '' }) };
 
   const jobName = `Transcribe-${object.key}`;
 

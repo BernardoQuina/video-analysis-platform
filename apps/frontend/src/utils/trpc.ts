@@ -1,7 +1,7 @@
 import { httpBatchLink } from '@trpc/client';
 import { createTRPCNext } from '@trpc/next';
 
-import type { AppRouter } from '../../../api/src/routes';
+import type { AppRouter } from '../../../api/src/routers';
 
 export const trpc = createTRPCNext<AppRouter>({
   config() {
@@ -9,6 +9,9 @@ export const trpc = createTRPCNext<AppRouter>({
       links: [
         httpBatchLink({
           url: `${process.env.NEXT_PUBLIC_API_URL}/trpc`,
+          fetch(url, options) {
+            return fetch(url, { ...options, credentials: 'include' });
+          },
           async headers() {
             return {};
           },

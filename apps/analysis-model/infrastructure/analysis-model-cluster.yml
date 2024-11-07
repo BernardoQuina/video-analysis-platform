@@ -230,6 +230,8 @@ Resources:
           Cpu: 3685
           MemoryReservation: 14745
           Environment:
+            - Name: AWS_REGION
+              Value: !Ref AWS::Region
             - Name: SQS_QUEUE_URL
               Value: !Ref CustomAnalysisQueueUrl
           ResourceRequirements:

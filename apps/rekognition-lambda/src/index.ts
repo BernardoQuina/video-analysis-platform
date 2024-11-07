@@ -15,8 +15,10 @@ import type {
 import { waitForRekognitionJob } from './utils/waitForJob';
 import { consolidateLabels } from './utils/consolidateLabels';
 
-const rekognitionClient = new RekognitionClient({ region: 'eu-west-1' });
-const s3Client = new S3Client({ region: 'eu-west-1' });
+const rekognitionClient = new RekognitionClient({
+  region: process.env.AWS_REGION,
+});
+const s3Client = new S3Client({ region: process.env.AWS_REGION });
 
 // Maximum time to wait for rekognition job (14 minutes)
 const MAX_WAIT_TIME = 14 * 60 * 1000;

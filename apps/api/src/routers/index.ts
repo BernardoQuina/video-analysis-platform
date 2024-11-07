@@ -1,36 +1,11 @@
 import cluster from 'node:cluster';
 
-import { publicProcedure, router } from './trpc';
+import { publicProcedure, router } from '../utils/trpc';
 
-// Function to simulate CPU load (without blocking)
-function _stressTest(durationInSeconds: number) {
-  const end = Date.now() + durationInSeconds * 1000;
-
-  function performStress() {
-    if (Date.now() >= end) {
-      // eslint-disable-next-line no-console
-      console.log(
-        `CPU stress test finished after ${durationInSeconds} seconds`,
-      );
-      return;
-    }
-
-    // Perform intensive calculation
-    let result = 0;
-    for (let i = 0; i < 1e6; i++) {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      result += Math.sqrt(i);
-    }
-
-    // Use setImmediate to schedule the next batch of calculations
-    setImmediate(performStress);
-  }
-
-  // Start the stress test
-  performStress();
-}
+import { auth } from './auth';
 
 export const appRouter = router({
+  auth,
   test: publicProcedure.query(async () => {
     try {
       // Fetch EC2 instance id and private ip

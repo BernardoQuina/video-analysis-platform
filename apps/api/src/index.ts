@@ -6,9 +6,11 @@ import os from 'node:os';
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import * as trpcExpress from '@trpc/server/adapters/express';
 
-import { appRouter } from './routes';
+import { appRouter } from './routers';
+import { createContext } from './utils/trpc';
 
 const PORT = 4000;
 
@@ -33,17 +35,15 @@ if (cluster.isPrimary) {
 } else {
   const app = express();
 
-  app.use(cors({ origin: process.env.FRONTEND_URL }));
-
-  // Create context for each request
-  const createContext = ({
-    req,
-    res,
-  }: trpcExpress.CreateExpressContextOptions) => ({ req, res });
+  app.use(cors({ origin: process.env.FRONTEND_URL, credentials: true }));
+  app.use(cookieParser());
 
   app.use(
     '/trpc',
-    trpcExpress.createExpressMiddleware({ router: appRouter, createContext }),
+    trpcExpress.createExpressMiddleware({
+      router: appRouter,
+      createContext,
+    }),
   );
 
   app.get('/health', (req, res) => res.status(200).send('healthy!'));

@@ -130,7 +130,6 @@ Resources:
         AppDomainPrefix: !Ref AppDomainPrefix
         StackName: !Ref AWS::StackName
 
-
   # Custom Analysis SQS Queue Stack
   CustomAnalysisSQSQueue:
     Type: AWS::CloudFormation::Stack
@@ -225,7 +224,11 @@ Resources:
         ImageTag: !Ref APIImageTag
         ALBTargetGroupArn: !GetAtt ALBStack.Outputs.ALBTargetGroupArn
         ALBSecurityGroupId: !GetAtt ALBStack.Outputs.ALBSecurityGroupId
-        StackName: !Ref AWS::StackName
+        FrontendDomainName: !Ref FrontendDomainName
+        CognitoDomain: !GetAtt CognitoUserPool.Outputs.CognitoDomain
+        CognitoUserPoolId: !GetAtt CognitoUserPool.Outputs.CognitoUserPoolId
+        CognitoClientId: !GetAtt CognitoUserPool.Outputs.CognitoClientId
+        CognitoClientSecret: !GetAtt CognitoUserPool.Outputs.CognitoClientSecret
 
   # Analysis model (and service) Stack
   AnalysisModelClusterStack:
