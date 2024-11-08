@@ -145,6 +145,11 @@ Resources:
           FromPort: 0
           ToPort: 65535
           SourceSecurityGroupId: !Ref ALBSecurityGroupId
+      SecurityGroupEgress:
+        - IpProtocol: tcp
+          FromPort: 0
+          ToPort: 65535
+          CidrIp: 0.0.0.0/0
 
   # Role for the EC2 hosts. This allows the ECS agent on the EC2 hosts
   # to communicate with the ECS control plane, as well as download the docker
@@ -189,7 +194,7 @@ Resources:
     Type: AWS::ECS::TaskDefinition
     Properties:
       Family: api-task
-      NetworkMode: bridge
+      NetworkMode: awsvpc
       RequiresCompatibilities:
         - EC2
       Cpu: '896' # 87.5% of the 1 vCPU available in t2.micro
@@ -250,6 +255,14 @@ Resources:
       DeploymentConfiguration:
         MaximumPercent: 200
         MinimumHealthyPercent: 100
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: DISABLED
+          Subnets:
+            - !Ref PublicSubnet3 # set to private subnets in production
+            - !Ref PublicSubnet4 # using public to avoid vpc endpoint costs (for ecs service)
+          SecurityGroups:
+            - !Ref APIEC2SecurityGroup
       LoadBalancers:
         - ContainerName: api-container
           ContainerPort: 4000
