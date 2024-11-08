@@ -51,7 +51,7 @@ Resources:
       Name: ALBTargetGroup
       Port: 4000
       Protocol: HTTP
-      TargetType: ip
+      TargetType: instance
       VpcId: !Ref VPCId
 
   ALBSecurityGroup:
