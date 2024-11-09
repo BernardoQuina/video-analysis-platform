@@ -23,7 +23,7 @@ RUN npm install
 # Build the project and its dependencies
 COPY --from=builder /app/out/full/ .
 
-RUN npm run turbo build --filter=api...
+RUN npm run build -- --filter=api
 
 FROM base AS runner
 WORKDIR /app
