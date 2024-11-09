@@ -1,12 +1,14 @@
 import { z } from 'zod';
+import { TRPCError } from '@trpc/server';
 
-import { publicProcedure, router } from '../utils/trpc';
+import { protectedProcedure, publicProcedure, router } from '../utils/trpc';
 import {
   authenticate,
   exchangeCodeForTokens,
   revokeTokens,
   setTokens,
 } from '../utils/cognitoAuth';
+import { db } from '../utils/db';
 
 export const auth = router({
   exchangeCodeForToken: publicProcedure
@@ -36,5 +38,24 @@ export const auth = router({
     const signOutMessage = await revokeTokens(ctx);
 
     return signOutMessage;
+  }),
+
+  userCollections: protectedProcedure.query(async ({ ctx }) => {
+    try {
+      const { data: userCollections } = await db.collections
+        .user({ userId: ctx.user.sub })
+        .go();
+
+      console.log({ userCollections });
+
+      return userCollections;
+    } catch (error) {
+      console.log('error in user collections: ', error);
+
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: (error as Error).message,
+      });
+    }
   }),
 });

@@ -23,3 +23,6 @@ apps/frontend/tsconfig.tsbuildinfo
 
 # turbo
 .turbo
+
+# Anoying macOS files
+.DS_Store

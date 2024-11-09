@@ -1,0 +1,35 @@
+{
+  "name": "@repo/db",
+  "version": "1.0.0",
+  "private": true,
+  "main": "dist/src/index.js",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "build": "rm -rf ./dist && tsc",
+    "start": "node dist/src/index.js",
+    "lint": "tsc --noEmit && eslint .",
+    "lint:fix": "tsc --noEmit && eslint . --fix",
+    "format": "prettier --check ."
+  },
+  "exports": {
+    ".": {
+      "default": "./dist/src/index.js",
+      "types": "./src/index.ts"
+    }
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.687.0",
+    "electrodb": "^3.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.5.4",
+    "tsx": "^4.19.0",
+    "typescript": "^5.5.4"
+  }
+}

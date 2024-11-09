@@ -159,6 +159,7 @@ export async function authenticate({ req, res }: Context) {
     res.clearCookie('access_token');
     res.clearCookie('refresh_token');
 
+    // throw on specific routes if necessary (on the "me" route we don't want to throw)
     return {
       code: 'UNAUTHORIZED' as const,
       message: `Authentication failed:  ${(error as Error).message}`,
