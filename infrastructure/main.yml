@@ -130,6 +130,16 @@ Resources:
         AppDomainPrefix: !Ref AppDomainPrefix
         StackName: !Ref AWS::StackName
 
+  # DynamoDB Table Stack
+  DynamoDBTable:
+    Type: AWS::CloudFormation::Stack
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
+    Properties:
+      TemplateURL: !Sub https://${StackTemplatesS3BucketName}.s3.amazonaws.com/main/dynamodb-table.yml
+      Parameters:
+        StackName: !Ref AWS::StackName
+
   # Custom Analysis SQS Queue Stack
   CustomAnalysisSQSQueue:
     Type: AWS::CloudFormation::Stack

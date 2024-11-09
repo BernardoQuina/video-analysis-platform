@@ -1,0 +1,72 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'DynamoDB Table'
+
+Parameters:
+  StackName:
+    Type: String
+    Description: Name of the parent stack
+
+Resources:
+  DynamoDBTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: dynamodb-table
+      KeySchema:
+        - AttributeName: pk
+          KeyType: HASH # Partition Key
+        - AttributeName: sk
+          KeyType: RANGE # Sort Key
+      AttributeDefinitions:
+        # Primary Key Attributes
+        - AttributeName: pk
+          AttributeType: S
+        - AttributeName: sk
+          AttributeType: S
+        # gsi1 Attributes
+        - AttributeName: gsi1pk
+          AttributeType: S
+        - AttributeName: gsi1sk
+          AttributeType: S
+        # gsi2 Attributes for public videos query
+        - AttributeName: visibility
+          AttributeType: S
+        - AttributeName: createdAt
+          AttributeType: S
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+      GlobalSecondaryIndexes:
+        - IndexName: gsi1pk-gsi1sk-index
+          KeySchema:
+            - AttributeName: gsi1pk
+              KeyType: HASH
+            - AttributeName: gsi1sk
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL # Includes all attributes in the index
+          ProvisionedThroughput:
+            ReadCapacityUnits: 5
+            WriteCapacityUnits: 5
+        - IndexName: gsi2pk-public-videos
+          KeySchema:
+            - AttributeName: visibility
+              KeyType: HASH
+            - AttributeName: createdAt
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL # Includes all attributes in the index
+          ProvisionedThroughput:
+            ReadCapacityUnits: 5
+            WriteCapacityUnits: 5
+      TimeToLiveSpecification:
+        AttributeName: expiresAt
+        Enabled: true
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Retain
+
+Outputs:
+  DynamoDBTableArn:
+    Description: DynamoDB (single table) arn
+    Value: !GetAtt DynamoDBTable.Arn
+    Export:
+      Name: !Sub ${StackName}-DynamoDBTableArn
