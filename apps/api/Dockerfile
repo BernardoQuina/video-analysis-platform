@@ -3,6 +3,9 @@ FROM --platform=linux/amd64 node:20-alpine
 # Set the working directory in the container
 WORKDIR /usr/src/app
 
+# Copy the local db package for build
+COPY packages/db /usr/src/packages/db
+
 # Copy package.json and package-lock.json
 COPY package*.json ./
 
