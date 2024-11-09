@@ -3,6 +3,7 @@ FROM --platform=linux/amd64 node:20-alpine AS base
 FROM base AS builder
 RUN apk update
 RUN apk add --no-cache libc6-compat
+
 # Set working directory
 WORKDIR /app
 RUN npm install -g turbo
