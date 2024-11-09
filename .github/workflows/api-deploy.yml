@@ -56,7 +56,7 @@ jobs:
 
           # Build the Docker image
           docker build \
-           -f ./apps/api/Dockerfile
+           -f ./apps/api/Dockerfile \
            -t $ECR_REGISTRY/$ECR_REPOSITORY:$SHORT_SHA \
            -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
 
