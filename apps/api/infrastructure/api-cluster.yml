@@ -56,6 +56,10 @@ Parameters:
   CognitoClientSecret:
     Type: String
     Description: Cognito Client Secret
+  DynamoDBTableName:
+    Type: String
+    Description: Name for the DynamoDB Table
+    Default: dynamodb-table
   StackName:
     Type: String
     Description: Name of the parent stack
@@ -223,6 +227,8 @@ Resources:
               Value: !Ref CognitoDomain
             - Name: AWS_REGION
               Value: !Ref AWS::Region
+            - Name: DYNAMODB_TABLE_NAME
+              Value: !Ref DynamoDBTableName
           LogConfiguration:
             LogDriver: awslogs
             Options:
@@ -257,14 +263,6 @@ Resources:
       DeploymentConfiguration:
         MaximumPercent: 200
         MinimumHealthyPercent: 100
-      # NetworkConfiguration:
-      #   AwsvpcConfiguration:
-      #     AssignPublicIp: DISABLED
-      #     Subnets:
-      #       - !Ref PublicSubnet3 # set to private subnets in production
-      #       - !Ref PublicSubnet4 # using public to avoid vpc endpoint costs (for ecs service)
-      #     SecurityGroups:
-      #       - !Ref APIEC2SecurityGroup
       LoadBalancers:
         - ContainerName: api-container
           ContainerPort: 4000

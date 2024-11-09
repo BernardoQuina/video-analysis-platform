@@ -31,6 +31,12 @@ Parameters:
     Type: String
     Description: Prefix for the Cognito domain
 
+  # DynamoDB Parameters
+  DynamoDBTableName:
+    Type: String
+    Description: Name for the DynamoDB Table
+    Default: dynamodb-table
+
   # Lambda Parameters
   LambdasCodeS3BucketName:
     Type: String
@@ -138,6 +144,7 @@ Resources:
     Properties:
       TemplateURL: !Sub https://${StackTemplatesS3BucketName}.s3.amazonaws.com/main/dynamodb-table.yml
       Parameters:
+        DynamoDBTableName: !Ref DynamoDBTableName
         StackName: !Ref AWS::StackName
 
   # Custom Analysis SQS Queue Stack
@@ -239,6 +246,7 @@ Resources:
         CognitoUserPoolId: !GetAtt CognitoUserPool.Outputs.CognitoUserPoolId
         CognitoClientId: !GetAtt CognitoUserPool.Outputs.CognitoClientId
         CognitoClientSecret: !GetAtt CognitoUserPool.Outputs.CognitoClientSecret
+        DynamoDBTableName: !Ref DynamoDBTableName
         StackName: !Ref AWS::StackName
 
   # Analysis model (and service) Stack

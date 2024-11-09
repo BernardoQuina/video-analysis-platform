@@ -2,6 +2,9 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: 'DynamoDB Table'
 
 Parameters:
+  DynamoDBTableName:
+    Type: String
+    Description: Name for the DynamoDB Table
   StackName:
     Type: String
     Description: Name of the parent stack
@@ -10,7 +13,7 @@ Resources:
   DynamoDBTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: dynamodb-table
+      TableName: !Ref DynamoDBTableName
       KeySchema:
         - AttributeName: pk
           KeyType: HASH # Partition Key
