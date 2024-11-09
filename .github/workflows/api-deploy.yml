@@ -56,10 +56,9 @@ jobs:
 
           # Build the Docker image
           docker build \
-          --build-arg NODE_ENV=$NODE_ENV \
-          --build-arg FRONTEND_URL=$FRONTEND_URL \
+           -f ./apps/api/Dockerfile
            -t $ECR_REGISTRY/$ECR_REPOSITORY:$SHORT_SHA \
-           -t $ECR_REGISTRY/$ECR_REPOSITORY:latest apps/api
+           -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
 
           # Push the Docker image
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$SHORT_SHA

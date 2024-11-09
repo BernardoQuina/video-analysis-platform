@@ -6,7 +6,7 @@ RUN apk add --no-cache libc6-compat
 # Set working directory
 WORKDIR /app
 RUN npm install -g turbo
-COPY . .
+COPY ../../. .
 RUN turbo prune api --docker
 
 # Add lockfile and package.json's of isolated subworkspace
