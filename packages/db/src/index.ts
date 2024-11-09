@@ -86,12 +86,9 @@ const Videos = new Entity({
   },
   // Mappings to dynamoDB table definitions
   indexes: {
-    primaryKey: {
-      pk: { field: 'pk', composite: ['userId'] },
-      sk: { field: 'sk', composite: ['id'] },
-    },
     byUser: {
       pk: { field: 'pk', composite: ['userId'] },
+      sk: { field: 'sk', composite: ['id'] },
       collection: 'user',
     },
     publicVideos: {
@@ -127,12 +124,9 @@ const UserLimits = new Entity({
   },
   // Mappings to dynamoDB table definitions
   indexes: {
-    primaryKey: {
-      pk: { field: 'pk', composite: ['userId'] },
-      sk: { field: 'sk', composite: ['id'] },
-    },
     byUser: {
       pk: { field: 'pk', composite: ['userId'] },
+      sk: { field: 'sk', composite: ['id'] },
       collection: 'user',
     },
   },
@@ -171,7 +165,7 @@ const Sessions = new Entity({
       index: 'gsi1pk-gsi1sk-index',
       pk: { field: 'gsi1pk', composite: ['userId'] },
       sk: { field: 'gsi1sk', composite: ['id'] },
-      collection: 'user',
+      // collection: 'user', Not possible because it must be on same index
     },
   },
 });
