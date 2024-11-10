@@ -50,7 +50,7 @@ export const auth = router({
 
       return userCollections;
     } catch (error) {
-      console.log('error in user collections: ', error);
+      console.log('Error in user collections: ', error);
 
       throw new TRPCError({
         code: 'INTERNAL_SERVER_ERROR',
