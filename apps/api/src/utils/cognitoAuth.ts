@@ -1,8 +1,12 @@
+import { createHash } from 'node:crypto';
+
 import jwt from 'jsonwebtoken';
 import jwkToPem from 'jwk-to-pem';
 import { TRPCError } from '@trpc/server';
 
 import { Context } from './trpc';
+import { db } from './db';
+import { getTimestampDaysFromNow } from './miscellaneous';
 
 type Tokens = {
   id_token: string;
@@ -12,7 +16,7 @@ type Tokens = {
 };
 
 // The returned cognito user has many more properties but we aren't going to use them
-type CognitoUser = {
+export type CognitoUser = {
   sub: string;
   given_name: string;
   family_name: string;
@@ -64,7 +68,7 @@ async function findJwk(token: string) {
 }
 
 // Validate ID token
-async function validateToken(token: string) {
+export async function validateToken(token: string) {
   try {
     const jwk = await findJwk(token);
     const pem = jwkToPem(jwk);
@@ -92,12 +96,19 @@ async function validateToken(token: string) {
 }
 
 // Refresh tokens using refresh token
-async function refreshTokens(refreshToken: string) {
+async function refreshToken(idTokenHash: string) {
   try {
+    const {
+      data: [session],
+    } = await db.entities.sessions.query.primaryKey({ id: idTokenHash }).go();
+
+    if (!session) {
+      throw new Error('Token expired and no refresh token available');
+    }
+
     const encodedAuth = Buffer.from(`${clientId}:${clientSecret}`).toString(
       'base64',
     );
-
     const tokenUrl = `${cognitoDomain}/oauth2/token`;
 
     const options = {
@@ -109,12 +120,31 @@ async function refreshTokens(refreshToken: string) {
       body: new URLSearchParams({
         grant_type: 'refresh_token',
         client_id: clientId!,
-        refresh_token: refreshToken!,
+        refresh_token: session.refreshToken,
       }),
     };
 
     const response = await fetch(tokenUrl, options);
     const result: Omit<Tokens, 'refresh_token'> = await response.json();
+
+    // Delete previous session
+    db.entities.sessions
+      .delete({ id: idTokenHash, userId: session.userId })
+      .go();
+
+    // Create new session
+    const newIdTokenHash = createHash('sha256')
+      .update(result.id_token)
+      .digest('hex');
+
+    db.entities.sessions
+      .create({
+        id: newIdTokenHash,
+        refreshToken: session.refreshToken,
+        userId: session.userId,
+        expiresAt: getTimestampDaysFromNow(365), // Refresh token expiration
+      })
+      .go();
 
     return result;
   } catch (error) {
@@ -131,24 +161,21 @@ async function refreshTokens(refreshToken: string) {
 export async function authenticate({ req, res }: Context) {
   try {
     const idToken = req.cookies.id_token;
-    const refreshToken = req.cookies.refresh_token;
+
+    if (!idToken) throw new Error('Authentication failed: No id token');
 
     try {
       // Try to validate the current token
       const user = (await validateToken(idToken)) as CognitoUser;
       return user;
     } catch (error) {
-      // If token validation fails and we have a refresh token, try to refresh
-      if (!refreshToken) {
-        throw new TRPCError({
-          code: 'UNAUTHORIZED',
-          message: 'Token expired and no refresh token available',
-        });
-      }
+      // Since id token is not valid anymore we'll get refresh token from db
+      // Hash of id token used bc the token itself is too large for DynamoDB sk
+      const idTokenHash = createHash('sha256').update(idToken).digest('hex');
 
-      const newTokens = await refreshTokens(refreshToken);
-      // Set new cookies
-      setTokens({ res, tokens: newTokens });
+      const newTokens = await refreshToken(idTokenHash);
+      // Set new cookie
+      setToken({ res, idToken: newTokens.id_token });
 
       // Validate the new ID token
       const user = (await validateToken(newTokens.id_token)) as CognitoUser;
@@ -156,8 +183,6 @@ export async function authenticate({ req, res }: Context) {
     }
   } catch (error) {
     res.clearCookie('id_token');
-    res.clearCookie('access_token');
-    res.clearCookie('refresh_token');
 
     // throw on specific routes if necessary (on the "me" route we don't want to throw)
     return {
@@ -204,18 +229,28 @@ export async function exchangeCodeForTokens(code: string) {
 }
 
 export async function revokeTokens({ req, res }: Context) {
-  const refreshToken = req.cookies.refresh_token;
+  const idToken = req.cookies.id_token;
 
-  if (!refreshToken) {
+  if (!idToken) {
     // No token to revoke but clear all tokens from cookies anyway
     res.clearCookie('id_token');
-    res.clearCookie('access_token');
-    res.clearCookie('refresh_token');
 
-    return { message: 'No token to revoked' };
+    return { message: 'No token to be revoked' };
   }
 
   try {
+    // Get refresh token from db
+    // We use hash of the id token as the DynamoDB sk because the token is too large
+    const idTokenHash = createHash('sha256').update(idToken).digest('hex');
+
+    const {
+      data: [session],
+    } = await db.entities.sessions.query.primaryKey({ id: idTokenHash }).go();
+
+    if (!session) {
+      throw new Error('No token available to be revoked');
+    }
+
     const encodedAuth = Buffer.from(`${clientId}:${clientSecret}`).toString(
       'base64',
     );
@@ -228,15 +263,21 @@ export async function revokeTokens({ req, res }: Context) {
         'Content-Type': 'application/x-www-form-urlencoded',
         Authorization: `Basic ${encodedAuth}`,
       },
-      body: new URLSearchParams({ client_id: clientId!, token: refreshToken! }),
+      body: new URLSearchParams({
+        client_id: clientId!,
+        token: session.refreshToken,
+      }),
     };
 
     const response = await fetch(revokeTokenUrl, options);
 
     if (response.ok) {
       res.clearCookie('id_token');
-      res.clearCookie('access_token');
-      res.clearCookie('refresh_token');
+
+      // Delete session
+      db.entities.sessions
+        .delete({ id: idTokenHash, userId: session.userId })
+        .go();
 
       return { message: 'Token revoked' };
     } else {
@@ -252,27 +293,16 @@ export async function revokeTokens({ req, res }: Context) {
   }
 }
 
-// Set tokens in cookies
-export function setTokens({
+// Set token in cookies
+export function setToken({
   res,
-  tokens,
+  idToken,
 }: {
   res: Context['res'];
-  tokens: Tokens | Omit<Tokens, 'refresh_token'>;
+  idToken: string;
 }) {
-  res.cookie('id_token', tokens.id_token, {
+  res.cookie('id_token', idToken, {
     ...cookieOptions,
-    maxAge: tokens.expires_in * 1000,
+    maxAge: 1000 * 60 * 60 * 24 * 365, // Refresh token expiration (so it can be exchanged)
   });
-  res.cookie('access_token', tokens.access_token, {
-    ...cookieOptions,
-    maxAge: tokens.expires_in * 1000,
-  });
-
-  if ('refresh_token' in tokens) {
-    res.cookie('refresh_token', tokens.refresh_token, {
-      ...cookieOptions,
-      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days for refresh token
-    });
-  }
 }
