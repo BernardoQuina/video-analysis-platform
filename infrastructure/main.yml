@@ -247,6 +247,7 @@ Resources:
         CognitoClientId: !GetAtt CognitoUserPool.Outputs.CognitoClientId
         CognitoClientSecret: !GetAtt CognitoUserPool.Outputs.CognitoClientSecret
         DynamoDBTableName: !Ref DynamoDBTableName
+        DynamoDBTableArn: !GetAtt DynamoDBTable.Outputs.DynamoDBTableArn
         StackName: !Ref AWS::StackName
 
   # Analysis model (and service) Stack
