@@ -39,4 +39,4 @@ COPY --from=installer /app .
 EXPOSE 4000
 
 # Command to run the app
-CMD ["node", "dist/src/index.js"]
+CMD ["node", "apps/api/dist/src/index.js"]
