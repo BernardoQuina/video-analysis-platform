@@ -34,7 +34,7 @@ Resources:
         - AttributeName: visibility
           AttributeType: S
         - AttributeName: createdAt
-          AttributeType: S
+          AttributeType: N
       ProvisionedThroughput:
         ReadCapacityUnits: 5
         WriteCapacityUnits: 5
