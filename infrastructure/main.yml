@@ -35,7 +35,7 @@ Parameters:
   DynamoDBTableName:
     Type: String
     Description: Name for the DynamoDB Table
-    Default: dynamodb-table
+    Default: prod-table
 
   # Lambda Parameters
   LambdasCodeS3BucketName:
