@@ -70,6 +70,9 @@ Resources:
         Enabled: true
         HttpVersion: http2 # Uses HTTP/2 for better performance
         DefaultCacheBehavior:
+          FunctionAssociations:
+            - EventType: viewer-request
+              FunctionARN: !GetAtt CloudFrontFunction.FunctionARN
           AllowedMethods: # Specifies which HTTP methods CloudFront processes and forwards
             - GET
             - HEAD
@@ -92,6 +95,26 @@ Resources:
           AcmCertificateArn: !Ref CertificateArn
           SslSupportMethod: sni-only
           MinimumProtocolVersion: TLSv1.2_2021
+
+    # CloudFront Function to handle SPA routing
+  CloudFrontFunction:
+    Type: AWS::CloudFront::Function
+    Properties:
+      Name: SPA-routing
+      AutoPublish: true
+      FunctionCode: |
+        function handler(event) {
+            const request = event.request;
+            const uri = request.uri;
+
+            if (uri !== '' && uri !== '/' && uri.indexOf('.') === -1) {
+                request.uri = uri + '.html';
+            }
+            return request;
+        }
+      FunctionConfig:
+        Comment: Handles SPA routing for CloudFront
+        Runtime: cloudfront-js-2.0
 
   DNSRecord:
     Type: AWS::Route53::RecordSet
