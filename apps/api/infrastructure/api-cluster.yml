@@ -180,16 +180,18 @@ Resources:
             Statement:
               - Effect: Allow
                 Action:
-                  - "dynamodb:PutItem"
-                  - "dynamodb:GetItem"
-                  - "dynamodb:UpdateItem"
-                  - "dynamodb:DeleteItem"
-                  - "dynamodb:Query"
-                  - "dynamodb:BatchGetItem"
-                  - "dynamodb:BatchWriteItem"
-                  - "dynamodb:Scan"
-                  - "dynamodb:DescribeTable"
-                Resource: !Ref DynamoDBTableArn
+                  - 'dynamodb:PutItem'
+                  - 'dynamodb:GetItem'
+                  - 'dynamodb:UpdateItem'
+                  - 'dynamodb:DeleteItem'
+                  - 'dynamodb:Query'
+                  - 'dynamodb:BatchGetItem'
+                  - 'dynamodb:BatchWriteItem'
+                  - 'dynamodb:Scan'
+                  - 'dynamodb:DescribeTable'
+                Resource:
+                  - !Ref DynamoDBTableArn # Main table ARN
+                  - !Sub '${DynamoDBTableArn}/*' # Includes all GSIs of the table
 
   # This is a role which is used within Fargate to allow the Fargate agent
   # to download images, and upload logs.
