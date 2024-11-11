@@ -1,4 +1,3 @@
-import { Metadata } from 'next';
 import { Upload } from 'lucide-react';
 
 import { PageLayout } from '../components/PageLayout';
@@ -7,19 +6,16 @@ import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
 import { Separator } from '../components/ui/separator';
 
-export const metadata: Metadata = {
-  title: 'Video Analysis Library',
-  description:
-    'Discover and explore video analyses in the Video Analysis Library. Access your own videos insights and browse public analyses from other users',
-};
-
 export default function Videos() {
   // const { data: me } = trpc.auth.me.useQuery();
 
   const { data: publicVideos } = trpc.videos.publicVideos.useQuery();
 
   return (
-    <PageLayout>
+    <PageLayout
+      pageTitle="Video Analysis Library"
+      pageDescription="Discover and explore video analyses in the Video Analysis Library. Access your own videos insights and browse public analyses from other users"
+    >
       <div className="gap-6">
         <div className="gap-4">
           <div className="gap-1">
