@@ -24,8 +24,8 @@ Resources:
       # This block ensures the bucket is not publicly accessible
       PublicAccessBlockConfiguration:
         BlockPublicAcls: true
-        BlockPublicPolicy: true
         IgnorePublicAcls: true
+        BlockPublicPolicy: false
         RestrictPublicBuckets: true
       # Enables server-side encryption for the bucket
       BucketEncryption:
