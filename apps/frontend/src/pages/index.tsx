@@ -53,7 +53,6 @@ export default function Home() {
       <p className="py-10 font-medium">hello from cloudfront</p>
       <p className="py-10 font-medium">hello from cloudfront</p>
       <p className="py-10 font-medium">hello from cloudfront</p>
-      <p className="py-10 font-medium">hello from cloudfront</p>
     </PageLayout>
   );
 }
