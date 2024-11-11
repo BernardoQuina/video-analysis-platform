@@ -66,7 +66,6 @@ Resources:
       DistributionConfig:
         Aliases:
           - !Ref DomainName
-        DefaultRootObject: index.html # Sets the default page
         Enabled: true
         HttpVersion: http2 # Uses HTTP/2 for better performance
         DefaultCacheBehavior:
