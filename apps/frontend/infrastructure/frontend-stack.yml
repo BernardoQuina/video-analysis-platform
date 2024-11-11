@@ -39,11 +39,11 @@ Resources:
 
   # CloudFront Origin Access Identity (OAI)
   # This is used to allow CloudFront to access the private S3 bucket
-  CloudFrontOriginAccessIdentity:
-    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
-    Properties:
-      CloudFrontOriginAccessIdentityConfig:
-        Comment: !Sub 'OAI for ${BucketName}'
+  # CloudFrontOriginAccessIdentity:
+  #   Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+  #   Properties:
+  #     CloudFrontOriginAccessIdentityConfig:
+  #       Comment: !Sub 'OAI for ${BucketName}'
 
   # Bucket policy that allows the CloudFront OAI to read from the bucket
   BucketPolicy:
@@ -54,10 +54,23 @@ Resources:
         Version: '2012-10-17'
         Statement:
           - Effect: Allow
-            Principal:
-              AWS: !Sub 'arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity ${CloudFrontOriginAccessIdentity}'
+            Principal: '*'
             Action: 's3:GetObject'
-            Resource: !Sub '${FrontendBucket.Arn}/*'
+            Resource: !Sub ${FrontendBucket.Arn}/*
+            Condition:
+              StringEquals:
+                aws:Referer: temporary-random-secret-value
+    # Type: AWS::S3::BucketPolicy
+    # Properties:
+    #   Bucket: !Ref FrontendBucket
+    #   PolicyDocument:
+    #     Version: '2012-10-17'
+    #     Statement:
+    #       - Effect: Allow
+    #         Principal:
+    #           AWS: !Sub 'arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity ${CloudFrontOriginAccessIdentity}'
+    #         Action: 's3:GetObject'
+    #         Resource: !Sub '${FrontendBucket.Arn}/*'
 
   # CloudFront distribution
   CloudFrontDistribution:
@@ -66,7 +79,7 @@ Resources:
       DistributionConfig:
         Aliases:
           - !Ref DomainName
-        DefaultRootObject: ''
+        DefaultRootObject: index.html
         Enabled: true
         HttpVersion: http2 # Uses HTTP/2 for better performance
         DefaultCacheBehavior:
@@ -85,11 +98,11 @@ Resources:
         Origins:
           - DomainName: !GetAtt FrontendBucket.RegionalDomainName
             Id: S3Origin
-            # OriginCustomHeaders:
-            #   - HeaderName: Referer
-            #     HeaderValue: temporary-random-secret-value
-            S3OriginConfig:
-              OriginAccessIdentity: !Sub 'origin-access-identity/cloudfront/${CloudFrontOriginAccessIdentity}'
+            OriginCustomHeaders:
+              - HeaderName: Referer
+                HeaderValue: temporary-random-secret-value
+            # S3OriginConfig:
+            #   OriginAccessIdentity: !Sub 'origin-access-identity/cloudfront/${CloudFrontOriginAccessIdentity}'
         PriceClass: PriceClass_100 # Uses only US, Canada, Europe, & Israel edges (cheapest option)
         ViewerCertificate:
           AcmCertificateArn: !Ref CertificateArn
