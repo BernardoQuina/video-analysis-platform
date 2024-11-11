@@ -66,6 +66,7 @@ Resources:
       DistributionConfig:
         Aliases:
           - !Ref DomainName
+        DefaultRootObject: ''
         Enabled: true
         HttpVersion: http2 # Uses HTTP/2 for better performance
         DefaultCacheBehavior:
