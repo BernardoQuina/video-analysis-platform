@@ -5,6 +5,7 @@ on:
       - main
     paths:
       - 'apps/api/**' # Only run when files in the api app directory change
+      - 'packages/db/**' # db package as well as its an api depency
 
 permissions: # necessary for the GitHub OIDC provider to authenticate with AWS
   id-token: write
