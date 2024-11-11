@@ -4,7 +4,6 @@ import { useRouter, useSearchParams } from 'next/navigation';
 
 import { PageLayout } from '../components/PageLayout';
 import { trpc } from '../utils/trpc';
-import { Button } from '../components/ui/button';
 
 export const metadata: Metadata = {
   title: 'Video Analysis Demo',
@@ -17,13 +16,6 @@ export default function Home() {
   const code = searchParams.get('code');
 
   const { mutateAsync } = trpc.auth.exchangeCodeForToken.useMutation();
-
-  const { data: me } = trpc.auth.me.useQuery();
-
-  const { data: myCollections, refetch } = trpc.auth.userCollections.useQuery(
-    undefined,
-    { enabled: false },
-  );
 
   const utils = trpc.useUtils();
 
@@ -45,11 +37,8 @@ export default function Home() {
     signIn();
   }, [code, mutateAsync, router, utils.auth.me]);
 
-  if (myCollections) console.log({ myCollections });
-
   return (
     <PageLayout>
-      {me && <Button onClick={() => refetch()}>Get my collections</Button>}
       <p className="py-10 font-medium">hello from cloudfront</p>
       <p className="py-10 font-medium">hello from cloudfront</p>
       <p className="py-10 font-medium">hello from cloudfront</p>
