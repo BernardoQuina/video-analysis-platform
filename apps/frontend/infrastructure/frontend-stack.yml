@@ -24,8 +24,8 @@ Resources:
       # This block ensures the bucket is not publicly accessible
       PublicAccessBlockConfiguration:
         BlockPublicAcls: true
+        BlockPublicPolicy: true
         IgnorePublicAcls: true
-        BlockPublicPolicy: false
         RestrictPublicBuckets: true
       # Enables server-side encryption for the bucket
       BucketEncryption:
@@ -35,15 +35,15 @@ Resources:
       # Static website config
       WebsiteConfiguration:
         IndexDocument: index.html
-        ErrorDocument: index.html
+        ErrorDocument: 404.html
 
   # CloudFront Origin Access Identity (OAI)
   # This is used to allow CloudFront to access the private S3 bucket
-  # CloudFrontOriginAccessIdentity:
-  #   Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
-  #   Properties:
-  #     CloudFrontOriginAccessIdentityConfig:
-  #       Comment: !Sub 'OAI for ${BucketName}'
+  CloudFrontOriginAccessIdentity:
+    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment: !Sub 'OAI for ${BucketName}'
 
   # Bucket policy that allows the CloudFront OAI to read from the bucket
   BucketPolicy:
@@ -54,23 +54,10 @@ Resources:
         Version: '2012-10-17'
         Statement:
           - Effect: Allow
-            Principal: '*'
+            Principal:
+              AWS: !Sub 'arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity ${CloudFrontOriginAccessIdentity}'
             Action: 's3:GetObject'
-            Resource: !Sub ${FrontendBucket.Arn}/*
-            Condition:
-              StringEquals:
-                aws:Referer: temporary-random-secret-value
-    # Type: AWS::S3::BucketPolicy
-    # Properties:
-    #   Bucket: !Ref FrontendBucket
-    #   PolicyDocument:
-    #     Version: '2012-10-17'
-    #     Statement:
-    #       - Effect: Allow
-    #         Principal:
-    #           AWS: !Sub 'arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity ${CloudFrontOriginAccessIdentity}'
-    #         Action: 's3:GetObject'
-    #         Resource: !Sub '${FrontendBucket.Arn}/*'
+            Resource: !Sub '${FrontendBucket.Arn}/*'
 
   # CloudFront distribution
   CloudFrontDistribution:
@@ -79,7 +66,7 @@ Resources:
       DistributionConfig:
         Aliases:
           - !Ref DomainName
-        DefaultRootObject: index.html
+        DefaultRootObject: index.html # Sets the default page
         Enabled: true
         HttpVersion: http2 # Uses HTTP/2 for better performance
         DefaultCacheBehavior:
@@ -98,22 +85,13 @@ Resources:
         Origins:
           - DomainName: !GetAtt FrontendBucket.RegionalDomainName
             Id: S3Origin
-            OriginCustomHeaders:
-              - HeaderName: Referer
-                HeaderValue: temporary-random-secret-value
-            # S3OriginConfig:
-            #   OriginAccessIdentity: !Sub 'origin-access-identity/cloudfront/${CloudFrontOriginAccessIdentity}'
+            S3OriginConfig:
+              OriginAccessIdentity: !Sub 'origin-access-identity/cloudfront/${CloudFrontOriginAccessIdentity}'
         PriceClass: PriceClass_100 # Uses only US, Canada, Europe, & Israel edges (cheapest option)
         ViewerCertificate:
           AcmCertificateArn: !Ref CertificateArn
           SslSupportMethod: sni-only
           MinimumProtocolVersion: TLSv1.2_2021
-        # Custom Error Response configuration
-        CustomErrorResponses:
-          - ErrorCode: 404
-            ResponsePagePath: /index.html # Serve index for 404 errors (client routing will take over)
-            ResponseCode: 200
-            ErrorCachingMinTTL: 300 # Cache error responses for 5 minutes
 
   DNSRecord:
     Type: AWS::Route53::RecordSet
