@@ -20,6 +20,15 @@
   font-style: normal;
 }
 
+@font-face {
+  font-family: 'Satoshi';
+  src:
+    url('/fonts/Satoshi-Bold.woff2') format('woff2'),
+    url('/fonts/Satoshi-Bold.woff') format('woff');
+  font-weight: 700;
+  font-style: normal;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -99,6 +108,21 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+  /* Apply flexbox column layout to common container elements */
+  div,
+  section,
+  article,
+  header,
+  footer,
+  main,
+  aside,
+  button,
+  a,
+  nav {
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box; /* Helps with sizing consistency */
   }
 }
 

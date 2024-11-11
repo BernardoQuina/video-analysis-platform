@@ -66,8 +66,15 @@ export function GoogleSignIn() {
       ) : (
         <GoogleIcon />
       )}
-      <p className="w-32">
-        {isRedirecting ? 'Signing in...' : 'Sign in with Google'}
+      <p className="sm:w-32">
+        {isRedirecting ? (
+          <span>Signing in...</span>
+        ) : (
+          <>
+            <span>Sign in</span>
+            <span className="hidden sm:inline-flex">&nbsp;with Google</span>
+          </>
+        )}
       </p>
     </Button>
   );
