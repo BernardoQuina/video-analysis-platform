@@ -66,7 +66,7 @@ Resources:
       DistributionConfig:
         Aliases:
           - !Ref DomainName
-        DefaultRootObject: index.html
+        DefaultRootObject: ''
         Enabled: true
         HttpVersion: http2 # Uses HTTP/2 for better performance
         DefaultCacheBehavior:
@@ -85,6 +85,9 @@ Resources:
         Origins:
           - DomainName: !GetAtt FrontendBucket.RegionalDomainName
             Id: S3Origin
+            # OriginCustomHeaders:
+            #   - HeaderName: Referer
+            #     HeaderValue: temporary-random-secret-value
             S3OriginConfig:
               OriginAccessIdentity: !Sub 'origin-access-identity/cloudfront/${CloudFrontOriginAccessIdentity}'
         PriceClass: PriceClass_100 # Uses only US, Canada, Europe, & Israel edges (cheapest option)
