@@ -24,7 +24,7 @@ export const auth = router({
       const user = (await validateToken(tokens.id_token)) as CognitoUser;
 
       // Get refresh token from db
-      // We use hash of the id token as the DynamoDB sk because the token is too large
+      // Hash of id token used bc the token itself is too large for DynamoDB sk
       const idTokenHash = createHash('sha256')
         .update(tokens.id_token)
         .digest('hex');
