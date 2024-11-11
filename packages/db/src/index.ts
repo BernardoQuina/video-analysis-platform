@@ -87,8 +87,8 @@ const Videos = new Entity({
   // Mappings to dynamoDB table definitions
   indexes: {
     byUser: {
-      pk: { field: 'pk', composite: ['userId'] },
-      sk: { field: 'sk', composite: ['id'] },
+      pk: { field: 'pk', composite: ['userId'], template: 'USER#' },
+      sk: { field: 'sk', composite: ['id'], template: 'VIDEO#' },
       collection: 'user',
     },
     publicVideos: {
@@ -125,8 +125,8 @@ const UserLimits = new Entity({
   // Mappings to dynamoDB table definitions
   indexes: {
     byUser: {
-      pk: { field: 'pk', composite: ['userId'] },
-      sk: { field: 'sk', composite: ['id'] },
+      pk: { field: 'pk', composite: ['userId'], template: 'USER#' },
+      sk: { field: 'sk', composite: ['id'], template: 'USER_LIMITS#' },
       collection: 'user',
     },
   },
@@ -158,13 +158,13 @@ const Sessions = new Entity({
   // Mappings to dynamoDB table definitions
   indexes: {
     primaryKey: {
-      pk: { field: 'pk', composite: ['id'] },
-      sk: { field: 'sk', composite: ['userId'] },
+      pk: { field: 'pk', composite: ['id'], template: 'SESSION#' },
+      sk: { field: 'sk', composite: ['userId'], template: 'USER#' },
     },
     byUser: {
       index: 'gsi1pk-gsi1sk-index',
-      pk: { field: 'gsi1pk', composite: ['userId'] },
-      sk: { field: 'gsi1sk', composite: ['id'] },
+      pk: { field: 'gsi1pk', composite: ['userId'], template: 'USER#' },
+      sk: { field: 'gsi1sk', composite: ['id'], template: 'SESSION#' },
       // collection: 'user', Not possible because it must be on same index
     },
   },
