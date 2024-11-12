@@ -6,7 +6,7 @@ import { Readable } from 'node:stream';
 import {
   S3Client,
   GetObjectCommand,
-  // PutObjectCommand,
+  PutObjectCommand,
 } from '@aws-sdk/client-s3';
 import type {
   APIGatewayProxyResult,
@@ -89,19 +89,19 @@ export const handler = async (
       throw new Error('Thumbnail was not created');
     }
 
-    // const fileContent = fs.readFileSync(tempThumbnailPath);
-    // const putObjectParams = {
-    //   Bucket: bucketName,
-    //   Key: thumbnailKey,
-    //   Body: fileContent,
-    //   ContentType: 'image/jpeg',
-    // };
+    const fileContent = fs.readFileSync(tempThumbnailPath);
+    const putObjectParams = {
+      Bucket: bucketName,
+      Key: thumbnailKey,
+      Body: fileContent,
+      ContentType: 'image/jpeg',
+    };
 
-    // await s3Client.send(new PutObjectCommand(putObjectParams));
+    await s3Client.send(new PutObjectCommand(putObjectParams));
 
-    // console.log(
-    //   `Successfully created and uploaded thumbnail for ${objectKey} at ${thumbnailKey}`,
-    // );
+    console.log(
+      `Successfully created and uploaded thumbnail for ${objectKey} at ${thumbnailKey}`,
+    );
 
     return {
       statusCode: 200,
