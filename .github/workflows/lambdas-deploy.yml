@@ -6,6 +6,7 @@ on:
     paths:
       - 'apps/transcribe-lambda/**'
       - 'apps/rekognition-lambda/**'
+      - 'apps/thumbnail-lambda/**'
 
 permissions:
   id-token: write

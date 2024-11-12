@@ -32,9 +32,9 @@ Resources:
             Statement:
               - Effect: Allow
                 Action:
-                  - 's3:GetObject'
-                  - 'logs:CreateLogStream'
-                  - 'logs:PutLogEvents'
+                  - s3:GetObject
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
                 Resource: '*'
 
   # Thumbnail Lambda Function
