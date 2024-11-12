@@ -6,7 +6,12 @@ import { trpc } from '../utils/trpc';
 
 function App({ Component, pageProps }: AppProps) {
   return (
-    <ThemeProvider attribute="class" enableSystem defaultTheme="system">
+    <ThemeProvider
+      attribute="class"
+      enableSystem
+      disableTransitionOnChange
+      defaultTheme="system"
+    >
       <Component {...pageProps} />
     </ThemeProvider>
   );
