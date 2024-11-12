@@ -1,8 +1,7 @@
 /* eslint-disable no-console */
-import os from 'node:os';
 import fs from 'node:fs';
 import path from 'node:path';
-import { Readable, PassThrough } from 'node:stream';
+import { Readable } from 'node:stream';
 
 import {
   S3Client,
@@ -29,8 +28,8 @@ export const handler = async (
   const bucketName = bucket.name;
   const objectKey = object.key;
   const thumbnailKey = `thumbnails/${objectKey.replace(/\.[^/.]+$/, '.jpg')}`; // Output path
-  const thumbnailFileName = 'screenshot.jpg';
-  const thumbnailPath = path.join(os.tmpdir(), thumbnailFileName);
+  const tempVideoPath = path.join('/tmp', 'temp-video.mp4');
+  const tempThumbnailPath = path.join('/tmp', 'thumbnail.png');
 
   try {
     // Step 1: Retrieve the video file from S3
@@ -43,24 +42,26 @@ export const handler = async (
     if (!response.Body) {
       throw new Error('No video stream available');
     }
-
-    // Create a PassThrough stream to properly handle the data
-    const passThroughStream = new PassThrough();
-
-    // Pipe the S3 stream to our PassThrough stream
-    (response.Body as Readable).pipe(passThroughStream);
+    // Write the S3 object to a temporary file in Lambda’s /tmp directory
+    const writeStream = fs.createWriteStream(tempVideoPath);
+    await new Promise((resolve, reject) => {
+      (response.Body as Readable)
+        .pipe(writeStream)
+        .on('error', reject)
+        .on('finish', resolve);
+    });
 
     // Step 2: Extract the first frame using ffmpeg
     await new Promise((resolve, reject) => {
       ffmpeg()
         .inputFormat('mp4')
-        .input(passThroughStream)
+        .input(tempVideoPath)
         .inputOptions(['-y']) // Overwrite output files without asking
         .screenshots({
           count: 1, // Capture only one frame
           timemarks: ['1'], // Capture frame at 1 second
-          filename: 'thumbnail.png', // Output file name
-          folder: os.tmpdir(), // temporary folder
+          filename: path.basename(tempThumbnailPath), // Output file name
+          folder: path.dirname(tempThumbnailPath), // temporary folder
         })
         // .outputOptions([
         //   '-frames:v 1', // Extract 1 frame only
@@ -112,10 +113,18 @@ export const handler = async (
       body: JSON.stringify({ error: (error as Error).message }),
     };
   } finally {
-    // Clean up the temporary file
-    if (fs.existsSync(thumbnailPath)) {
+    // Clean up the temporary files
+    if (fs.existsSync(tempThumbnailPath)) {
       try {
-        fs.unlinkSync(thumbnailPath);
+        fs.unlinkSync(tempThumbnailPath);
+      } catch (error) {
+        console.error('Error cleaning up temporary file:', error);
+      }
+    }
+
+    if (fs.existsSync(tempVideoPath)) {
+      try {
+        fs.unlinkSync(tempVideoPath);
       } catch (error) {
         console.error('Error cleaning up temporary file:', error);
       }
