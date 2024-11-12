@@ -62,6 +62,6 @@ jobs:
             --s3-key $ENVIRONMENT_NAME/rekognition-lambda.zip
 
           aws lambda update-function-code \
-            --function-name ThumbanilVideoLambda \
+            --function-name ThumbnailVideoLambda \
             --s3-bucket $S3_BUCKET \
             --s3-key $ENVIRONMENT_NAME/thumbnail-lambda.zip
