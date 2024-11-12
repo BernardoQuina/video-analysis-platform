@@ -27,9 +27,9 @@ export const handler = async (
   const { bucket, object } = event.detail;
   const bucketName = bucket.name;
   const objectKey = object.key;
-  const thumbnailKey = `thumbnails/${objectKey.replace(/\.[^/.]+$/, '.jpg')}`; // Output path
+  const thumbnailKey = `thumbnails/${objectKey.replace(/\.[^/.]+$/, '.jpg')}`;
   const tempVideoPath = path.join('/tmp', 'temp-video.mp4');
-  const tempThumbnailPath = path.join('/tmp', 'thumbnail.png');
+  const tempThumbnailPath = path.join('/tmp', 'thumbnail.jpg');
 
   try {
     // Step 1: Retrieve the video file from S3
@@ -42,7 +42,8 @@ export const handler = async (
     if (!response.Body) {
       throw new Error('No video stream available');
     }
-    // Write the S3 object to a temporary file in Lambda’s /tmp directory
+
+    // Write the S3 object to a temporary file
     const writeStream = fs.createWriteStream(tempVideoPath);
     await new Promise((resolve, reject) => {
       (response.Body as Readable)
@@ -51,41 +52,44 @@ export const handler = async (
         .on('finish', resolve);
     });
 
+    // Verify the file exists and has content
+    if (
+      !fs.existsSync(tempVideoPath) ||
+      fs.statSync(tempVideoPath).size === 0
+    ) {
+      throw new Error('Video file not written correctly');
+    }
+
     // Step 2: Extract the first frame using ffmpeg
     await new Promise((resolve, reject) => {
-      ffmpeg()
-        .inputFormat('mp4')
-        .input(tempVideoPath)
-        .inputOptions(['-y']) // Overwrite output files without asking
-        .screenshots({
-          count: 1, // Capture only one frame
-          timemarks: ['1'], // Capture frame at 1 second
-          filename: path.basename(tempThumbnailPath), // Output file name
-          folder: path.dirname(tempThumbnailPath), // temporary folder
-        })
-        // .outputOptions([
-        //   '-frames:v 1', // Extract 1 frame only
-        //   '-f image2', // Force format
-        //   '-vf scale=320:240', // Scale the output
-        // ])
+      ffmpeg(tempVideoPath) // Direct path input instead of chaining input()
         .on('start', (commandLine) => {
           console.log('FFmpeg process started:', commandLine);
         })
-        .on('end', async () => {
+        .on('end', () => {
           console.log('FFmpeg process completed');
           resolve(null);
         })
         .on('error', (err) => {
           console.error('FFmpeg error:', err);
           reject(err);
+        })
+        .screenshot({
+          count: 1,
+          timestamps: ['1'],
+          filename: path.basename(tempThumbnailPath),
+          folder: path.dirname(tempThumbnailPath),
+          size: '320x240',
         });
-      // .save(thumbnailPath);
     });
 
     // Step 3: Upload the thumbnail to S3
-    // Read the screenshot from the file system
-    // const fileContent = fs.readFileSync(thumbnailPath);
+    // Verify thumbnail was created
+    if (!fs.existsSync(tempThumbnailPath)) {
+      throw new Error('Thumbnail was not created');
+    }
 
+    // const fileContent = fs.readFileSync(tempThumbnailPath);
     // const putObjectParams = {
     //   Bucket: bucketName,
     //   Key: thumbnailKey,
@@ -114,19 +118,13 @@ export const handler = async (
     };
   } finally {
     // Clean up the temporary files
-    if (fs.existsSync(tempThumbnailPath)) {
-      try {
-        fs.unlinkSync(tempThumbnailPath);
-      } catch (error) {
-        console.error('Error cleaning up temporary file:', error);
-      }
-    }
-
-    if (fs.existsSync(tempVideoPath)) {
-      try {
-        fs.unlinkSync(tempVideoPath);
-      } catch (error) {
-        console.error('Error cleaning up temporary file:', error);
+    for (const tempFile of [tempThumbnailPath, tempVideoPath]) {
+      if (fs.existsSync(tempFile)) {
+        try {
+          fs.unlinkSync(tempFile);
+        } catch (error) {
+          console.error(`Error cleaning up temporary file ${tempFile}:`, error);
+        }
       }
     }
   }
