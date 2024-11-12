@@ -53,13 +53,20 @@ export const handler = async (
     // Step 2: Extract the first frame using ffmpeg
     await new Promise((resolve, reject) => {
       ffmpeg()
+        .inputFormat('mp4')
         .input(passThroughStream)
         .inputOptions(['-y']) // Overwrite output files without asking
-        .outputOptions([
-          '-frames:v 1', // Extract 1 frame only
-          '-f image2', // Force format
-          '-vf scale=320:240', // Scale the output
-        ])
+        .screenshots({
+          count: 1, // Capture only one frame
+          timemarks: ['1'], // Capture frame at 1 second
+          filename: 'thumbnail.png', // Output file name
+          folder: os.tmpdir(), // temporary folder
+        })
+        // .outputOptions([
+        //   '-frames:v 1', // Extract 1 frame only
+        //   '-f image2', // Force format
+        //   '-vf scale=320:240', // Scale the output
+        // ])
         .on('start', (commandLine) => {
           console.log('FFmpeg process started:', commandLine);
         })
@@ -70,11 +77,12 @@ export const handler = async (
         .on('error', (err) => {
           console.error('FFmpeg error:', err);
           reject(err);
-        })
-        .save(thumbnailPath);
+        });
+      // .save(thumbnailPath);
     });
 
     // Step 3: Upload the thumbnail to S3
+    // Read the screenshot from the file system
     // const fileContent = fs.readFileSync(thumbnailPath);
 
     // const putObjectParams = {
