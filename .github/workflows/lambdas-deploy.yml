@@ -43,6 +43,7 @@ jobs:
         run: |
           aws s3 cp apps/transcribe-lambda/transcribe-lambda.zip s3://$S3_BUCKET/$ENVIRONMENT_NAME/
           aws s3 cp apps/rekognition-lambda/rekognition-lambda.zip s3://$S3_BUCKET/$ENVIRONMENT_NAME/
+          aws s3 cp apps/thumbnail-lambda/thumbnail-lambda.zip s3://$S3_BUCKET/$ENVIRONMENT_NAME/
 
       - name: Update lambda functions
         env:
@@ -58,3 +59,8 @@ jobs:
             --function-name RekognitionVideoLambda \
             --s3-bucket $S3_BUCKET \
             --s3-key $ENVIRONMENT_NAME/rekognition-lambda.zip
+
+          aws lambda update-function-code \
+            --function-name ThumbanilVideoLambda \
+            --s3-bucket $S3_BUCKET \
+            --s3-key $ENVIRONMENT_NAME/thumbnail-lambda.zip

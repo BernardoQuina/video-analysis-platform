@@ -14,6 +14,9 @@ Parameters:
   RekognitionLambdaArn:
     Type: String
     Description: ARN of the Rekognition Lambda function
+  ThumbnailLambdaArn:
+    Type: String
+    Description: ARN of the Thumbnail generator Lambda function
   StackName:
     Type: String
     Description: Name of the parent stack
@@ -26,29 +29,57 @@ Resources:
       NotificationConfiguration:
         EventBridgeConfiguration:
           EventBridgeEnabled: true
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders:
+              - '*'
+            AllowedMethods:
+              - GET
+              - PUT
+              - POST
+              - DELETE
+              - HEAD
+            AllowedOrigins:
+              - '*' # TODO:  Replace with domain
+            ExposedHeaders:
+              - ETag
+              - x-amz-server-side-encryption
+              - x-amz-request-id
+              - x-amz-id-2
+            MaxAge: 3000
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
 
   # EventBridge Rule
   S3UploadRule:
-    Type: 'AWS::Events::Rule'
+    Type: AWS::Events::Rule
     Properties:
-      Description: 'Rule to capture S3 upload events and trigger Lambda functions'
-      State: 'ENABLED'
+      Description: Rule to capture S3 upload events and trigger Lambda functions
+      State: ENABLED
       EventPattern:
         source:
-          - 'aws.s3'
+          - aws.s3
         detail-type:
-          - 'Object Created'
+          - Object Created
         detail:
           bucket:
             name:
               - !Ref VideoStorageS3BucketName
+          object:
+            key:
+              - prefix: videos/
       Targets:
         - Arn: !Ref TranscribeLambdaArn
-          Id: 'TranscribeLambda'
+          Id: TranscribeLambda
         - Arn: !Ref RekognitionLambdaArn
-          Id: 'RekognitionLambda'
+          Id: RekognitionLambda
+        - Arn: !Ref ThumbnailLambdaArn
+          Id: ThumbnailLambda
 
-    # Grant permission for S3 to invoke the Transcribe Lambda
+  # Grant permission for S3 to invoke the Transcribe Lambda
   TranscribeLambdaPermissionForS3:
     Type: AWS::Lambda::Permission
     Properties:
@@ -58,7 +89,7 @@ Resources:
       Principal: events.amazonaws.com
       SourceArn: !GetAtt S3UploadRule.Arn
 
-    # Grant permission for S3 to invoke the Rekognition Lambda
+  # Grant permission for S3 to invoke the Rekognition Lambda
   RekognitionLambdaPermissionForS3:
     Type: AWS::Lambda::Permission
     Properties:
@@ -67,6 +98,73 @@ Resources:
       FunctionName: !Ref RekognitionLambdaArn
       Principal: events.amazonaws.com
       SourceArn: !GetAtt S3UploadRule.Arn
+
+  # Grant permission for S3 to invoke the Thumbnail Lambda
+  ThumbnailLambdaPermissionForS3:
+    Type: AWS::Lambda::Permission
+    Properties:
+      SourceAccount: !Ref AccountId
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref ThumbnailLambdaArn
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt S3UploadRule.Arn
+
+  CloudFrontOriginAccessIdentity:
+    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment: !Sub OAI for ${VideoStorageS3BucketName}
+
+  VideoDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Origins:
+          - DomainName: !GetAtt VideoStorageS3Bucket.RegionalDomainName
+            Id: S3Origin
+            S3OriginConfig:
+              OriginAccessIdentity: !Sub origin-access-identity/cloudfront/${CloudFrontOriginAccessIdentity}
+        Enabled: true
+        DefaultCacheBehavior:
+          TargetOriginId: S3Origin
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+          CachedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+          ForwardedValues:
+            QueryString: false
+            Cookies:
+              Forward: none
+          DefaultTTL: 86400 # 1 day
+          MaxTTL: 31536000 # 1 year
+          MinTTL: 0
+        CacheBehaviors:
+          - PathPattern: /thumbnails/*
+            TargetOriginId: S3Origin
+            ViewerProtocolPolicy: redirect-to-https
+            AllowedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+            CachedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+            ForwardedValues:
+              QueryString: false
+              Cookies:
+                Forward: none
+            DefaultTTL: 86400 # 1 day
+            MaxTTL: 31536000 # 1 year
+            MinTTL: 0
+        PriceClass: PriceClass_100
+        ViewerCertificate:
+          CloudFrontDefaultCertificate: true
 
 Outputs:
   VideoStorageS3BucketArn:

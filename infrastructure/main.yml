@@ -45,6 +45,9 @@ Parameters:
     Type: String
     Default: production
     Description: Name of the the environment of the lambdas (e.g. development, production)
+  FFMPEGLayerArn:
+    Type: String
+    Description: Your ffmpeg layer needed to create thumbnail from video
 
   # Video storage S3
   VideoStorageS3BucketName:
@@ -181,6 +184,19 @@ Resources:
         EnvironmentName: !Ref EnvironmentName
         StackName: !Ref AWS::StackName
 
+  # Thumbnail Lambda Stack (triggered by S3 video upload)
+  ThumbnailLambda:
+    Type: AWS::CloudFormation::Stack
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
+    Properties:
+      TemplateURL: !Sub https://${StackTemplatesS3BucketName}.s3.amazonaws.com/thumbnail-lambda/thumbnail-lambda.yml
+      Parameters:
+        LambdasCodeS3BucketName: !Ref LambdasCodeS3BucketName
+        EnvironmentName: !Ref EnvironmentName
+        FFMPEGLayerArn: !Ref FFMPEGLayerArn
+        StackName: !Ref AWS::StackName
+
   # Video Storage S3 Bucket Stack
   VideoStorageS3BucketStack:
     Type: AWS::CloudFormation::Stack
@@ -193,6 +209,7 @@ Resources:
         VideoStorageS3BucketName: !Ref VideoStorageS3BucketName
         TranscribeLambdaArn: !GetAtt TranscribeLambda.Outputs.TranscribeLambdaArn
         RekognitionLambdaArn: !GetAtt RekognitionLambda.Outputs.RekognitionLambdaArn
+        ThumbnailLambdaArn: !GetAtt ThumbnailLambda.Outputs.ThumbnailLambdaArn
         StackName: !Ref AWS::StackName
 
   # VPC Stack
@@ -248,6 +265,7 @@ Resources:
         CognitoClientSecret: !GetAtt CognitoUserPool.Outputs.CognitoClientSecret
         DynamoDBTableName: !Ref DynamoDBTableName
         DynamoDBTableArn: !GetAtt DynamoDBTable.Outputs.DynamoDBTableArn
+        VideoStorageS3BucketArn: !GetAtt VideoStorageS3BucketStack.Outputs.VideoStorageS3BucketArn
         StackName: !Ref AWS::StackName
 
   # Analysis model (and service) Stack
@@ -273,5 +291,5 @@ Resources:
         CustomAnalysisQueueUrl: !GetAtt CustomAnalysisSQSQueue.Outputs.CustomAnalysisQueueUrl
         CustomAnalysisQueueName: !GetAtt CustomAnalysisSQSQueue.Outputs.CustomAnalysisQueueName
         CustomAnalysisQueueArn: !GetAtt CustomAnalysisSQSQueue.Outputs.CustomAnalysisQueueArn
-        VideoStorageS3BucketName: !Ref VideoStorageS3BucketName
+        VideoStorageS3BucketArn: !GetAtt VideoStorageS3BucketStack.Outputs.VideoStorageS3BucketArn
         StackName: !Ref AWS::StackName

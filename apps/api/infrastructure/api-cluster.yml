@@ -62,6 +62,9 @@ Parameters:
   DynamoDBTableArn:
     Type: String
     Description: Arn of the DynamoDB Table
+  VideoStorageS3BucketArn:
+    Type: String
+    Description: Video storage S3 bucket Arn (to give upload permissions)
   StackName:
     Type: String
     Description: Name of the parent stack
@@ -192,6 +195,18 @@ Resources:
                 Resource:
                   - !Ref DynamoDBTableArn # Main table ARN
                   - !Sub '${DynamoDBTableArn}/*' # Includes all GSIs of the table
+        - PolicyName: S3UploadAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:CreateMultipartUpload
+                  - s3:CompleteMultipartUpload
+                  - s3:AbortMultipartUpload
+                  - s3:ListMultipartUploadParts
+                  - s3:PutObject
+                Resource: !Sub '${VideoStorageS3BucketArn}/*'
 
   # This is a role which is used within Fargate to allow the Fargate agent
   # to download images, and upload logs.

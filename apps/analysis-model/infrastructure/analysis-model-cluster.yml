@@ -47,9 +47,9 @@ Parameters:
   CustomAnalysisQueueArn:
     Type: String
     Description: Arn of the Custom Analysis SQS Queue
-  VideoStorageS3BucketName:
+  VideoStorageS3BucketArn:
     Type: String
-    Description: Name of the S3 bucket that will store uploaded videos
+    Description: Video storage S3 bucket Arn (to give upload permissions)
   StackName:
     Type: String
     Description: Name of the parent stack
@@ -190,8 +190,8 @@ Resources:
                   - 's3:HeadObject'
                   - 's3:ListBucket'
                 Resource:
-                  - !Sub arn:aws:s3:::${VideoStorageS3BucketName}/*
-                  - !Sub arn:aws:s3:::${VideoStorageS3BucketName}
+                  - !Sub ${VideoStorageS3BucketArn}
+                  - !Sub ${VideoStorageS3BucketArn}/*
 
   # This is a role which is used within Fargate to allow the Fargate agent
   # to download images, and upload logs.

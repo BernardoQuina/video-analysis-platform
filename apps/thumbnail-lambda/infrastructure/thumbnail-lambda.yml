@@ -1,0 +1,75 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Lambda for video thumbnail creation on video upload
+
+Parameters:
+  LambdasCodeS3BucketName:
+    Type: String
+    Description: Name of the pre created bucket that stores lambda code zip file
+  EnvironmentName:
+    Type: String
+    Description: Name of the the environment of the lambda (e.g. development, production)
+  FFMPEGLayerArn:
+    Type: String
+    Description: Your ffmpeg layer needed to create thumbnail from video
+  StackName:
+    Type: String
+    Description: Name of the parent stack
+
+Resources:
+  # Lambda Execution Role for Thumbnail Lambda
+  ThumbnailLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: ThumbnailLambdaPolicy
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 's3:GetObject'
+                  - 'logs:CreateLogStream'
+                  - 'logs:PutLogEvents'
+                Resource: '*'
+
+  # Thumbnail Lambda Function
+  ThumbnailLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: ThumbnailVideoLambda
+      Handler: index.handler
+      Timeout: 900
+      Role: !GetAtt ThumbnailLambdaRole.Arn
+      Code:
+        S3Bucket: !Ref LambdasCodeS3BucketName
+        S3Key: !Sub ${EnvironmentName}/thumbnail-lambda.zip
+      Runtime: nodejs20.x
+      Layers:
+        - !Ref FFMPEGLayerArn
+      Environment:
+        Variables:
+          FFMPEG_PATH: /opt/ffmpeg/ffmpeg
+          FFPROBE_PATH: /opt/ffmpeg/ffprobe
+      LoggingConfig:
+        LogGroup: !Ref ThumbnailLambdaCloudWatchLogsGroup
+    DeletionPolicy: Delete
+
+  ThumbnailLambdaCloudWatchLogsGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: /lambda/thumbnail
+      RetentionInDays: 14
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Retain
+
+Outputs:
+  ThumbnailLambdaArn:
+    Description: ARN of the Thumbnail Lambda function
+    Value: !GetAtt ThumbnailLambda.Arn
+    Export:
+      Name: !Sub ${StackName}-ThumbnailLambdaArn
