@@ -10,6 +10,7 @@ on:
       - 'apps/analysis-model/infrastructure/**.yml'
       - 'apps/transcribe-lambda/infrastructure/**.yml'
       - 'apps/rekognition-lambda/infrastructure/**.yml'
+      - 'apps/thumbnail-lambda/infrastructure/**.yml'
 
 permissions: # necessary for the GitHub OIDC provider to authenticate with AWS
   id-token: write
@@ -49,6 +50,10 @@ jobs:
 
           # Sync .yml files to /rekognition-lambda path
           aws s3 sync apps/rekognition-lambda/infrastructure s3://$S3_BUCKET/rekognition-lambda/ \
+          --delete --exclude "*" --include "*.yml"
+
+          # Sync .yml files to /rekognition-lambda path
+          aws s3 sync apps/thumbnail-lambda/infrastructure s3://$S3_BUCKET/thumbnail-lambda/ \
           --delete --exclude "*" --include "*.yml"
 
           # Sync .yml files to /main path
