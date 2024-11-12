@@ -1,8 +1,7 @@
-/* eslint-disable no-console */
 import os from 'node:os';
 import fs from 'node:fs';
 import path from 'node:path';
-import { Readable } from 'node:stream';
+import { Readable, PassThrough } from 'node:stream';
 
 import {
   S3Client,
@@ -28,9 +27,9 @@ export const handler = async (
   const { bucket, object } = event.detail;
   const bucketName = bucket.name;
   const objectKey = object.key;
-  // const thumbnailKey = `thumbnails/${objectKey.replace(/\.[^/.]+$/, '.jpg')}`; // Output path
-  const thumbnailFileName = 'screenshot.png';
-  const thumbnailPath = path.join(os.tmpdir(), thumbnailFileName); // Use temporary directory to save the thumbnail
+  const thumbnailKey = `thumbnails/${objectKey.replace(/\.[^/.]+$/, '.jpg')}`; // Output path
+  const thumbnailFileName = 'screenshot.jpg';
+  const thumbnailPath = path.join(os.tmpdir(), thumbnailFileName);
 
   try {
     // Step 1: Retrieve the video file from S3
@@ -39,25 +38,42 @@ export const handler = async (
       Key: objectKey,
     };
     const response = await s3Client.send(new GetObjectCommand(getObjectParams));
-    const stream = response.Body as Readable;
 
-    if (!stream) throw new Error('No video stream.');
+    if (!response.Body) {
+      throw new Error('No video stream available');
+    }
 
-    // Step 2: Extract the first frame and resize it
+    // Create a PassThrough stream to properly handle the data
+    const passThroughStream = new PassThrough();
+
+    // Pipe the S3 stream to our PassThrough stream
+    (response.Body as Readable).pipe(passThroughStream);
+
+    // Step 2: Extract the first frame using ffmpeg
     await new Promise((resolve, reject) => {
-      ffmpeg(stream)
-        .on('end', resolve)
-        .on('error', reject)
-        .screenshots({
-          timestamps: ['5'], // take a screenshot at 5 seconds
-          filename: thumbnailFileName, // temporary file name
-          folder: os.tmpdir(), // temporary folder
-          size: '320x240', // output dimensions
-        });
+      ffmpeg()
+        .input(passThroughStream)
+        .inputOptions(['-y']) // Overwrite output files without asking
+        .outputOptions([
+          '-frames:v 1', // Extract 1 frame only
+          '-f image2', // Force format
+          '-vf scale=320:240', // Scale the output
+        ])
+        .on('start', (commandLine) => {
+          console.log('FFmpeg process started:', commandLine);
+        })
+        .on('end', async () => {
+          console.log('FFmpeg process completed');
+          resolve(null);
+        })
+        .on('error', (err) => {
+          console.error('FFmpeg error:', err);
+          reject(err);
+        })
+        .save(thumbnailPath);
     });
 
-    // Step 3: Upload the thumbnail to S3 with the /thumbnails prefix
-    // Read the screenshot from the file system
+    // Step 3: Upload the thumbnail to S3
     // const fileContent = fs.readFileSync(thumbnailPath);
 
     // const putObjectParams = {
@@ -75,7 +91,10 @@ export const handler = async (
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ message: 'Created video thumbnail' }),
+      body: JSON.stringify({
+        message: 'Created video thumbnail',
+        thumbnailKey,
+      }),
     };
   } catch (error) {
     console.error('Error creating video thumbnail:', error);
@@ -86,7 +105,11 @@ export const handler = async (
   } finally {
     // Clean up the temporary file
     if (fs.existsSync(thumbnailPath)) {
-      fs.unlinkSync(thumbnailPath);
+      try {
+        fs.unlinkSync(thumbnailPath);
+      } catch (error) {
+        console.error('Error cleaning up temporary file:', error);
+      }
     }
   }
 };
