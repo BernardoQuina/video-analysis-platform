@@ -14,6 +14,16 @@ export default function Document() {
           media="(prefers-color-scheme: dark)"
           content="black"
         />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                const theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                document.documentElement.setAttribute('data-theme', theme);
+              })();
+            `,
+          }}
+        />
       </Head>
       <body className="min-h-screen antialiased">
         <Main />
