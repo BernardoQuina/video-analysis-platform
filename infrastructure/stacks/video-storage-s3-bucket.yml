@@ -53,6 +53,20 @@ Resources:
         IgnorePublicAcls: true
         RestrictPublicBuckets: true
 
+  # Bucket policy that allows the CloudFront OAI to read from the bucket
+  BucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref VideoStorageS3Bucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: !Sub arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity ${CloudFrontOriginAccessIdentity}
+            Action: s3:GetObject
+            Resource: !Sub ${VideoStorageS3Bucket.Arn}/*
+
   # EventBridge Rule
   S3UploadRule:
     Type: AWS::Events::Rule
