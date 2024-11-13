@@ -96,7 +96,7 @@ Resources:
           SslSupportMethod: sni-only
           MinimumProtocolVersion: TLSv1.2_2021
 
-    # CloudFront Function to handle SPA routing
+  # CloudFront Function to handle SPA routing
   CloudFrontFunction:
     Type: AWS::CloudFront::Function
     Properties:

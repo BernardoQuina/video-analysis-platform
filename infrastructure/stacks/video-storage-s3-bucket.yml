@@ -17,6 +17,15 @@ Parameters:
   ThumbnailLambdaArn:
     Type: String
     Description: ARN of the Thumbnail generator Lambda function
+  MediaDomainName:
+    Type: String
+    Description: Domain name for the CloudFront distribution
+  HostedZoneId:
+    Type: AWS::Route53::HostedZone::Id
+    Description: The ID of the hosted zone in Route 53
+  CertificateArn:
+    Type: String
+    Description: ARN of the manually created ACM certificate (must be in us-east-1 for CloudFront)
   StackName:
     Type: String
     Description: Name of the parent stack
@@ -133,6 +142,8 @@ Resources:
     Type: AWS::CloudFront::Distribution
     Properties:
       DistributionConfig:
+        Aliases:
+          - !Ref MediaDomainName
         Origins:
           - DomainName: !GetAtt VideoStorageS3Bucket.RegionalDomainName
             Id: S3Origin
@@ -178,7 +189,19 @@ Resources:
             MinTTL: 0
         PriceClass: PriceClass_100
         ViewerCertificate:
-          CloudFrontDefaultCertificate: true
+          AcmCertificateArn: !Ref CertificateArn
+          SslSupportMethod: sni-only
+          MinimumProtocolVersion: TLSv1.2_2021
+    
+  DNSRecord:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneId: !Ref HostedZoneId
+      Name: !Ref MediaDomainName
+      Type: A
+      AliasTarget:
+        DNSName: !GetAtt VideoDistribution.DomainName
+        HostedZoneId: Z2FDTNDATAQYW2 # This is a fixed value for CloudFront distributions
 
 Outputs:
   VideoStorageS3BucketArn:

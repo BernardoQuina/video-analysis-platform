@@ -33,7 +33,9 @@ if stack_exists; then
     ParameterKey=AnalysisModelECSAMI,ParameterValue="$ANALYSIS_MODEL_ECS_AMI" \
     ParameterKey=FrontendDomainName,ParameterValue="$FRONTEND_DOMAIN_NAME" \
     ParameterKey=APIDomainName,ParameterValue="$API_DOMAIN_NAME" \
+    ParameterKey=MediaDomainName,ParameterValue="$MEDIA_DOMAIN_NAME" \
     ParameterKey=HostedZoneId,ParameterValue="$HOSTED_ZONE_ID" \
+    ParameterKey=CertificateArn,ParameterValue="$CERTIFICATE_ARN" \
     ParameterKey=GoogleClientId,ParameterValue="$GOOGLE_CLIENT_ID" \
     ParameterKey=GoogleClientSecret,ParameterValue="$GOOGLE_CLIENT_SECRET" \
     ParameterKey=AppDomainPrefix,ParameterValue="$APP_DOMAIN_PREFIX" \
@@ -62,7 +64,9 @@ else
     ParameterKey=AnalysisModelECSAMI,ParameterValue="$ANALYSIS_MODEL_ECS_AMI" \
     ParameterKey=FrontendDomainName,ParameterValue="$FRONTEND_DOMAIN_NAME" \
     ParameterKey=APIDomainName,ParameterValue="$API_DOMAIN_NAME" \
+    ParameterKey=MediaDomainName,ParameterValue="$MEDIA_DOMAIN_NAME" \
     ParameterKey=HostedZoneId,ParameterValue="$HOSTED_ZONE_ID" \
+    ParameterKey=CertificateArn,ParameterValue="$CERTIFICATE_ARN" \
     ParameterKey=GoogleClientId,ParameterValue="$GOOGLE_CLIENT_ID" \
     ParameterKey=GoogleClientSecret,ParameterValue="$GOOGLE_CLIENT_SECRET" \
     ParameterKey=AppDomainPrefix,ParameterValue="$APP_DOMAIN_PREFIX" \

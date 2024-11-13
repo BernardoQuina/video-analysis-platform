@@ -47,6 +47,12 @@ Parameters:
     Description: Name of the the environment of the lambdas (e.g. development, production)
 
   # Video storage S3
+  MediaDomainName:
+    Type: String
+    Description: Domain name for the CloudFront distribution
+  CertificateArn:
+    Type: String
+    Description: ARN of the manually created ACM certificate (must be in us-east-1 for CloudFront)
   VideoStorageS3BucketName:
     Type: String
     Description: Name of the S3 bucket that will store uploaded videos (needs to be pre-created)
@@ -206,6 +212,9 @@ Resources:
         TranscribeLambdaArn: !GetAtt TranscribeLambda.Outputs.TranscribeLambdaArn
         RekognitionLambdaArn: !GetAtt RekognitionLambda.Outputs.RekognitionLambdaArn
         ThumbnailLambdaArn: !GetAtt ThumbnailLambda.Outputs.ThumbnailLambdaArn
+        MediaDomainName: !Ref MediaDomainName
+        HostedZoneId: !Ref HostedZoneId
+        CertificateArn: !Ref CertificateArn
         StackName: !Ref AWS::StackName
 
   # VPC Stack
