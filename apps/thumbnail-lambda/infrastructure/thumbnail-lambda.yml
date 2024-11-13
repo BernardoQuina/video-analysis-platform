@@ -15,10 +15,9 @@ Parameters:
     Type: String
     Description: Name of the parent stack
 
-Transform: AWS::Serverless-2016-10-31 # For FFMPEG layer
-
 Resources:
   FFMPEGLayer:
+    Type: AWS::Lambda::LayerVersion
     Properties:
       CompatibleRuntimes:
         - nodejs10.x
@@ -26,14 +25,12 @@ Resources:
         - ruby2.5
         - java8
         - go1.x
-      ContentUri:
-        Bucket: awsserverlessrepo-changesets-18ssd5swmy82n
-        Key: 340752834213/arn:aws:serverlessrepo:us-east-1:145266761615:applications-ffmpeg-lambda-layer-versions-1.0.0/1fc0da99-81d9-49d0-9972-8db310c3fc72
+      Content:
+        S3Bucket: awsserverlessrepo-changesets-18ssd5swmy82n
+        S3Key: 340752834213/arn:aws:serverlessrepo:us-east-1:145266761615:applications-ffmpeg-lambda-layer-versions-1.0.0/1fc0da99-81d9-49d0-9972-8db310c3fc72
       Description: FFMPEG for AWS Lambda
       LayerName: ffmpeg
       LicenseInfo: GPL-2.0-or-later
-      RetentionPolicy: Retain
-    Type: AWS::Serverless::LayerVersion
 
   # Lambda Execution Role for Thumbnail Lambda
   ThumbnailLambdaRole:
