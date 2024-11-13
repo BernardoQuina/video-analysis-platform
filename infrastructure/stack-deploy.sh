@@ -37,8 +37,8 @@ if stack_exists; then
     ParameterKey=GoogleClientId,ParameterValue="$GOOGLE_CLIENT_ID" \
     ParameterKey=GoogleClientSecret,ParameterValue="$GOOGLE_CLIENT_SECRET" \
     ParameterKey=AppDomainPrefix,ParameterValue="$APP_DOMAIN_PREFIX" \
-    ParameterKey=FFMPEGLayerArn,ParameterValue="$FFMPEG_LAYER_ARN" \
     --capabilities CAPABILITY_IAM 2>&1)
+  # ParameterKey=FFMPEGLayerArn,ParameterValue="$FFMPEG_LAYER_ARN" \
 
   if [[ $UPDATE_OUTPUT == *"No updates are to be performed"* ]]; then
     echo "No updates are to be performed."
@@ -67,8 +67,8 @@ else
     ParameterKey=GoogleClientId,ParameterValue="$GOOGLE_CLIENT_ID" \
     ParameterKey=GoogleClientSecret,ParameterValue="$GOOGLE_CLIENT_SECRET" \
     ParameterKey=AppDomainPrefix,ParameterValue="$APP_DOMAIN_PREFIX" \
-    ParameterKey=FFMPEGLayerArn,ParameterValue="$FFMPEG_LAYER_ARN" \
     --capabilities CAPABILITY_IAM 2>&1)
+  # ParameterKey=FFMPEGLayerArn,ParameterValue="$FFMPEG_LAYER_ARN" \
 
   if [[ $? -eq 0 ]]; then
     echo "Stack creation initiated. Check AWS Console for progress."

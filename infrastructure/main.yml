@@ -45,9 +45,9 @@ Parameters:
     Type: String
     Default: production
     Description: Name of the the environment of the lambdas (e.g. development, production)
-  FFMPEGLayerArn:
-    Type: String
-    Description: Your ffmpeg layer needed to create thumbnail from video
+  # FFMPEGLayerArn:
+  #   Type: String
+  #   Description: Your ffmpeg layer needed to create thumbnail from video
 
   # Video storage S3
   VideoStorageS3BucketName:
@@ -194,7 +194,7 @@ Resources:
       Parameters:
         LambdasCodeS3BucketName: !Ref LambdasCodeS3BucketName
         EnvironmentName: !Ref EnvironmentName
-        FFMPEGLayerArn: !Ref FFMPEGLayerArn
+        # FFMPEGLayerArn: !Ref FFMPEGLayerArn
         StackName: !Ref AWS::StackName
 
   # Video Storage S3 Bucket Stack
