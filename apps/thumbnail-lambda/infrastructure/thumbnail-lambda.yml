@@ -8,9 +8,6 @@ Parameters:
   EnvironmentName:
     Type: String
     Description: Name of the the environment of the lambda (e.g. development, production)
-  # FFMPEGLayerArn:
-  #   Type: String
-  #   Description: Your ffmpeg layer needed to create thumbnail from video
   StackName:
     Type: String
     Description: Name of the parent stack
