@@ -14,7 +14,9 @@ const Videos = new Entity({
   },
   attributes: {
     id: { type: 'string', required: true },
-    s3Uri: { type: 'string', required: true },
+    s3Key: { type: 'string', required: true },
+    thumbnailS3Key: { type: 'string', required: true },
+    uploadComplete: { type: 'boolean', required: true, default: false },
     visibility: {
       type: ['PUBLIC', 'PRIVATE'] as const,
       required: true,

@@ -10,6 +10,7 @@ const envVariables = z.object({
   COGNITO_DOMAIN: z.string(),
   AWS_REGION: z.string(),
   DYNAMODB_TABLE_NAME: z.string(),
+  VIDEO_STORAGE_S3_BUCKET_NAME: z.string(),
 });
 
 envVariables.parse(process.env);
