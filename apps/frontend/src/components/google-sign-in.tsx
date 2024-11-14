@@ -3,11 +3,11 @@ import { useSearchParams } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import { inferRouterOutputs } from '@trpc/server';
 
-import { AppRouter } from '../../../api/src/routers';
+import { AppRouter } from '../../../api/src/routers/index.router';
 import { trpc } from '../utils/trpc';
 
 import { Button } from './ui/button';
-import { GoogleIcon } from './icons/GoogleIcon';
+import { GoogleIcon } from './icons/google-icon';
 import { Skeleton } from './ui/skeleton';
 import {
   DropdownMenu,

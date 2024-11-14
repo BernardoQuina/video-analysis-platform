@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-import { PageLayout } from '../components/PageLayout';
+import { PageLayout } from '../components/page-layout';
 import { trpc } from '../utils/trpc';
 
 export default function Home() {

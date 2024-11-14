@@ -1,8 +1,8 @@
 import { Focus } from 'lucide-react';
 import Link from 'next/link';
 
-import { GoogleSignIn } from './GoogleSignIn';
-import { ThemeToggle } from './ThemeToggle';
+import { GoogleSignIn } from './google-sign-in';
+import { ThemeToggle } from './theme-toggle';
 
 export function Header() {
   return (

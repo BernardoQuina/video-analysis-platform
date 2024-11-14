@@ -11,7 +11,7 @@ import {
   revokeTokens,
   setToken,
   validateToken,
-} from '../utils/cognitoAuth';
+} from '../utils/cognito-auth';
 import { db } from '../utils/db';
 import { getTimestampDaysFromNow } from '../utils/miscellaneous';
 

@@ -1,7 +1,7 @@
 import { httpBatchLink } from '@trpc/client';
 import { createTRPCNext } from '@trpc/next';
 
-import type { AppRouter } from '../../../api/src/routers';
+import type { AppRouter } from '../../../api/src/routers/index.router';
 
 export const trpc = createTRPCNext<AppRouter>({
   config() {

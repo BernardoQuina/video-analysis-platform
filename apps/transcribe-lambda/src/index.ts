@@ -12,8 +12,8 @@ import type {
   // eslint-disable-next-line node/no-missing-import
 } from 'aws-lambda';
 
-import { waitForTranscriptionJob } from './utils/waitForJob';
-import { getTranscriptionResults } from './utils/getJobResults';
+import { waitForTranscriptionJob } from './utils/wait-for-job';
+import { getTranscriptionResults } from './utils/get-job-results';
 
 const transcribeClient = new TranscribeClient({
   region: process.env.AWS_REGION,

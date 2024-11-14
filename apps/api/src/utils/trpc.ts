@@ -1,7 +1,7 @@
 import { initTRPC, TRPCError } from '@trpc/server';
 import * as trpcExpress from '@trpc/server/adapters/express';
 
-import { authenticate } from './cognitoAuth';
+import { authenticate } from './cognito-auth';
 
 // Create context for each request
 export const createContext = ({

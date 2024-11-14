@@ -12,8 +12,8 @@ import type {
   // eslint-disable-next-line node/no-missing-import
 } from 'aws-lambda';
 
-import { waitForRekognitionJob } from './utils/waitForJob';
-import { consolidateLabels } from './utils/consolidateLabels';
+import { waitForRekognitionJob } from './utils/wait-for-job';
+import { consolidateLabels } from './utils/consolidate-labels';
 
 const rekognitionClient = new RekognitionClient({
   region: process.env.AWS_REGION,

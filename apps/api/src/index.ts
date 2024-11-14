@@ -9,7 +9,7 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import * as trpcExpress from '@trpc/server/adapters/express';
 
-import { appRouter } from './routers';
+import { appRouter } from './routers/index.router';
 import { createContext } from './utils/trpc';
 
 const PORT = 4000;

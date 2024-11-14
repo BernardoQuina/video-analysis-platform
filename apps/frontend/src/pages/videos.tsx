@@ -1,6 +1,6 @@
 import { Upload } from 'lucide-react';
 
-import { PageLayout } from '../components/PageLayout';
+import { PageLayout } from '../components/page-layout';
 import { trpc } from '../utils/trpc';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
