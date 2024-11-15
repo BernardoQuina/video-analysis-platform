@@ -1,10 +1,8 @@
-import { Upload } from 'lucide-react';
-
 import { PageLayout } from '../components/page-layout';
 import { trpc } from '../utils/trpc';
-import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
 import { Separator } from '../components/ui/separator';
+import { UploadDialog } from '../components/upload-dialog';
 
 export default function Videos() {
   // const { data: me } = trpc.auth.me.useQuery();
@@ -36,9 +34,7 @@ export default function Videos() {
                       Upload any mp4 video and see what insights you can get!
                     </p>
                   </div>
-                  <Button>
-                    <Upload /> Upload
-                  </Button>
+                  <UploadDialog />
                 </CardContent>
               </Card>
             </div>
@@ -65,9 +61,7 @@ export default function Videos() {
                       public!
                     </p>
                   </div>
-                  <Button>
-                    <Upload /> Upload
-                  </Button>
+                  <UploadDialog />
                 </CardContent>
               </Card>
             </div>

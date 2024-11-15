@@ -25,7 +25,7 @@ const Videos = new Entity({
     prompt: {
       type: 'string',
       required: true,
-      default: 'What is happening in this video?',
+      default: 'Explain what is happening in this video',
     },
     analysisResult: { type: 'string' },
     analysisError: { type: 'string' },

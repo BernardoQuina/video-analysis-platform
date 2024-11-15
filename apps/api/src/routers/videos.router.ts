@@ -78,6 +78,7 @@ export const videos = router({
             s3Key,
             thumbnailS3Key,
             visibility: input.visibility,
+            prompt: input.prompt,
           })
           .go();
       } catch (error) {

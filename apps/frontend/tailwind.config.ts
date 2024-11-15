@@ -59,6 +59,21 @@ const config: Config = {
         md: 'calc(var(--radius) - 2px)',
         sm: 'calc(var(--radius) - 4px)',
       },
+      keyframes: {
+        rainbow: {
+          '0%': { 'background-position': '0%' },
+          '100%': { 'background-position': '200%' },
+        },
+        'rainbow-pulsate': {
+          '0%': { 'background-position': '0%', filter: 'blur(4px)' },
+          '50%': { 'background-position': '100%', filter: 'blur(0px)' },
+          '100%': { 'background-position': '200%', filter: 'blur(4px)' },
+        },
+      },
+      animation: {
+        rainbow: 'rainbow 2s infinite ease-in-out',
+        'rainbow-pulsate': 'rainbow-pulsate 2s infinite ease-in-out',
+      },
     },
   },
   plugins: [require('tailwindcss-animate')],

@@ -20,9 +20,13 @@ export const initiateUploadSchema = z
     visibility: z.enum(['PUBLIC', 'PRIVATE'], {
       message: 'Video visibility must be set either to public or private.',
     }),
+    prompt: z
+      .string({ message: 'An analysis prompt must be provided.' })
+      .min(3, { message: 'Analysis prompt must be at least 3 characters.' }),
   })
   .strict({
-    message: 'Only file name, file type and file size are allowed.',
+    message:
+      'Only file name, file type, file size, visibility and prompt are allowed.',
   });
 
 export const getUploadUrlSchema = z
