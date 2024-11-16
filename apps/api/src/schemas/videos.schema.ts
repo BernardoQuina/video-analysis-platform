@@ -12,11 +12,12 @@ export const initiateUploadSchema = z
       .refine((fileName) => !fileName.includes('/'), {
         message: 'Filename cannot contain forward slashes (/).',
       }),
-    fileType: z.literal('mp4', {
-      message:
-        'File type must be provided and only mp4 is accepted at the moment.',
+    fileType: z.string().refine((value) => value === 'video/mp4', {
+      message: 'Only mp4 files are accepted at the moment.',
     }),
-    fileSize: z.number({ message: 'File size must be provided.' }),
+    fileSize: z
+      .number({ message: 'File size must be provided.' })
+      .max(1024 * 1024 * 200, { message: 'File exceeds 200MB.' }),
     visibility: z.enum(['PUBLIC', 'PRIVATE'], {
       message: 'Video visibility must be set either to public or private.',
     }),

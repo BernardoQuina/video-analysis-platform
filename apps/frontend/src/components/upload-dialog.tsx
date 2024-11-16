@@ -59,7 +59,11 @@ export function UploadDialog() {
                 Upload a video and start multiple AI analysis jobs on it!
               </DialogDescription>
             </DialogHeader>
-            <VideoUploader file={videoFile} setFile={setVideoFile} />
+            <VideoUploader
+              file={videoFile}
+              setFile={setVideoFile}
+              form={form}
+            />
             <FormField
               control={form.control}
               name="prompt"
@@ -74,7 +78,8 @@ export function UploadDialog() {
                     />
                   </FormControl>
                   <FormDescription>
-                    What do you want the model to analyze about the video?
+                    What do you want the model to analyze? You can ask it
+                    anything.
                   </FormDescription>
                   <FormMessage />
                 </FormItem>

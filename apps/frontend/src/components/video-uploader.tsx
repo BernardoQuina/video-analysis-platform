@@ -13,10 +13,17 @@ import Dropzone, {
   type FileRejection,
 } from 'react-dropzone';
 import { toast } from 'sonner';
+import z from 'zod';
+import { UseFormReturn } from 'react-hook-form';
 
-import { cn, formatBytes } from '@/utils/cn';
-import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
+import { initiateUploadSchema } from '../../../api/src/schemas/videos.schema';
+import { cn, formatBytes } from '../utils/cn';
+
+import { FormField, FormItem, FormMessage } from './ui/form';
+import { Progress } from './ui/progress';
+import { Button } from './ui/button';
+
+type Form = UseFormReturn<z.infer<typeof initiateUploadSchema>>;
 
 interface VideoUploaderProps extends React.HTMLAttributes<HTMLDivElement> {
   file: File | undefined;
@@ -25,6 +32,7 @@ interface VideoUploaderProps extends React.HTMLAttributes<HTMLDivElement> {
   accept?: DropzoneProps['accept'];
   maxSize?: DropzoneProps['maxSize']; // 200MB default
   disabled?: boolean;
+  form: Form;
 }
 
 export function VideoUploader(props: VideoUploaderProps) {
@@ -35,6 +43,7 @@ export function VideoUploader(props: VideoUploaderProps) {
     accept = { 'video/mp4': [] },
     maxSize = 1024 * 1024 * 200, // 200MB
     disabled = false,
+    form,
     className,
     ...dropzoneProps
   } = props;
@@ -112,6 +121,14 @@ export function VideoUploader(props: VideoUploaderProps) {
 
   // Revoke preview url when component unmounts
   useEffect(() => {
+    if (file) {
+      form.clearErrors(['fileName', 'fileSize', 'fileType']);
+
+      form.setValue('fileName', file.name);
+      form.setValue('fileSize', file.size);
+      form.setValue('fileType', file.type as 'video/mp4');
+    }
+
     return () => {
       if (!file) return;
       if (previewImage) {
@@ -132,12 +149,13 @@ export function VideoUploader(props: VideoUploaderProps) {
           previewImage={previewImage}
           onRemove={onRemove}
           progress={progress}
+          form={form}
         />
       ) : (
         <Dropzone
           onDrop={onDrop}
           accept={accept}
-          maxSize={maxSize}
+          // maxSize={maxSize} // We will validate this both in the form and backend
           maxFiles={1}
           multiple={false}
           disabled={isDisabled}
@@ -198,9 +216,16 @@ interface FileCardProps {
   onRemove: () => void;
   previewImage: string;
   progress?: number;
+  form: Form;
 }
 
-function FileCard({ file, previewImage, progress, onRemove }: FileCardProps) {
+function FileCard({
+  file,
+  previewImage,
+  progress,
+  onRemove,
+  form,
+}: FileCardProps) {
   return (
     <div className="relative flex-row items-center gap-2.5">
       <div className="flex-1 flex-row gap-2.5">
@@ -231,6 +256,33 @@ function FileCard({ file, previewImage, progress, onRemove }: FileCardProps) {
             </div>
             {progress ? <Progress value={progress} /> : null}
           </div>
+          <FormField
+            control={form.control}
+            name="fileName"
+            render={() => (
+              <FormItem>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="fileSize"
+            render={() => (
+              <FormItem>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="fileType"
+            render={() => (
+              <FormItem>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
       </div>
     </div>
