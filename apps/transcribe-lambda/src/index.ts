@@ -16,8 +16,8 @@ import { waitForTranscriptionJob } from './utils/wait-for-job';
 import { getTranscriptionResults } from './utils/get-job-results';
 
 type Metadata = {
-  videoId: string;
-  userId: string;
+  videoid: string;
+  userid: string;
 };
 
 const transcribeClient = new TranscribeClient({
@@ -43,10 +43,10 @@ export const handler = async (
     Key: object.key,
   });
 
-  const { videoId, userId } = (await s3Client.send(s3MetadataCommand))
+  const { videoid, userid } = (await s3Client.send(s3MetadataCommand))
     .Metadata as Metadata;
 
-  const jobName = `Transcribe-${userId}-${videoId}`;
+  const jobName = `Transcribe-${userid}-${videoid}`;
 
   const params: StartTranscriptionJobCommandInput = {
     TranscriptionJobName: jobName,

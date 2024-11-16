@@ -61,7 +61,7 @@ async function findJwk(token: string) {
     (key: { kid: string }) => key.kid === decodedToken.header.kid,
   );
   if (!jwk) {
-    throw new Error('No matching key found');
+    throw new Error('No matching key found.');
   }
 
   return jwk;
@@ -103,7 +103,7 @@ async function refreshToken(idTokenHash: string) {
     } = await db.entities.sessions.query.primaryKey({ id: idTokenHash }).go();
 
     if (!session) {
-      throw new Error('Token expired and no refresh token available');
+      throw new Error('Token expired and no refresh token available.');
     }
 
     const encodedAuth = Buffer.from(`${clientId}:${clientSecret}`).toString(
@@ -162,7 +162,7 @@ export async function authenticate({ req, res }: Context) {
   try {
     const idToken = req.cookies.id_token;
 
-    if (!idToken) throw new Error('Authentication failed: No id token');
+    if (!idToken) throw new Error('No id token.');
 
     try {
       // Try to validate the current token
@@ -235,7 +235,7 @@ export async function revokeTokens({ req, res }: Context) {
     // No token to revoke but clear all tokens from cookies anyway
     res.clearCookie('id_token');
 
-    return { message: 'No token to be revoked' };
+    return { message: 'No token to be revoked.' };
   }
 
   try {
@@ -248,7 +248,7 @@ export async function revokeTokens({ req, res }: Context) {
     } = await db.entities.sessions.query.primaryKey({ id: idTokenHash }).go();
 
     if (!session) {
-      throw new Error('No token available to be revoked');
+      throw new Error('No token available to be revoked.');
     }
 
     const encodedAuth = Buffer.from(`${clientId}:${clientSecret}`).toString(
@@ -281,7 +281,7 @@ export async function revokeTokens({ req, res }: Context) {
 
       return { message: 'Token revoked' };
     } else {
-      throw new Error('Token revocation request was not successful');
+      throw new Error('Token revocation request was not successful.');
     }
   } catch (error) {
     console.error('Token revocation error: ', error);
