@@ -1,3 +1,10 @@
+import {
+  AlertTriangle,
+  CheckCircle,
+  Info,
+  Loader,
+  XCircle,
+} from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { Toaster as Sonner } from 'sonner';
 
@@ -10,16 +17,30 @@ const Toaster = ({ ...props }: ToasterProps) => {
     <Sonner
       theme={theme as ToasterProps['theme']}
       className="toaster group"
+      closeButton={true}
+      duration={600_000} // 1 min
       toastOptions={{
         classNames: {
           toast:
-            'group toast group-[.toaster]:bg-background group-[.toaster]:text-foreground group-[.toaster]:border-border group-[.toaster]:shadow-lg',
+            'group toast group-[.toaster]:bg-background group-[.toaster]:text-foreground group-[.toaster]:border-border group-[.toaster]:shadow-lg items-start',
           description: 'group-[.toast]:text-muted-foreground',
           actionButton:
             'group-[.toast]:bg-primary group-[.toast]:text-primary-foreground',
           cancelButton:
             'group-[.toast]:bg-muted group-[.toast]:text-muted-foreground',
+
+          closeButton:
+            'group-[.toast]:bg-background group-[.toast]:text-foreground group-[.toaster]:border-border group-[.toaster]:shadow-sm group-[.toast]:left-[unset] group-[.toast]:-right-[1.1rem]',
         },
+      }}
+      icons={{
+        success: <CheckCircle className="mt-0.5 h-4 w-4 text-green-500" />,
+        info: <Info className="mt-0.5 h-4 w-4 text-blue-500" />,
+        warning: <AlertTriangle className="mt-0.5 h-4 w-4 text-amber-500" />,
+        error: <XCircle className="mt-0.5 h-4 w-4 text-red-500" />,
+        loading: (
+          <Loader className="mt-0.5 h-4 w-4 animate-spin text-gray-500" />
+        ),
       }}
       {...props}
     />

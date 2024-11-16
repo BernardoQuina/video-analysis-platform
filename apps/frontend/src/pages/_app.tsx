@@ -3,6 +3,7 @@ import type { AppProps } from 'next/app';
 
 import { ThemeProvider } from '../components/theme-provider';
 import { trpc } from '../utils/trpc';
+import { Toaster } from '../components/ui/sonner';
 
 function App({ Component, pageProps }: AppProps) {
   return (
@@ -13,6 +14,7 @@ function App({ Component, pageProps }: AppProps) {
       defaultTheme="system"
     >
       <Component {...pageProps} />
+      <Toaster />
     </ThemeProvider>
   );
 }

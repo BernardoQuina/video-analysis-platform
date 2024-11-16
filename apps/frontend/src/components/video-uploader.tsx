@@ -28,7 +28,8 @@ type Form = UseFormReturn<z.infer<typeof initiateUploadSchema>>;
 interface VideoUploaderProps extends React.HTMLAttributes<HTMLDivElement> {
   file: File | undefined;
   setFile: Dispatch<SetStateAction<File | undefined>>;
-  progress?: number;
+  uploading: boolean;
+  progress: number;
   accept?: DropzoneProps['accept'];
   maxSize?: DropzoneProps['maxSize']; // 200MB default
   disabled?: boolean;
@@ -39,6 +40,7 @@ export function VideoUploader(props: VideoUploaderProps) {
   const {
     file,
     setFile,
+    uploading,
     progress,
     accept = { 'video/mp4': [] },
     maxSize = 1024 * 1024 * 200, // 200MB
@@ -98,17 +100,6 @@ export function VideoUploader(props: VideoUploaderProps) {
           toast.error(`Video file ${file.name} was rejected.`);
         });
       }
-
-      // if (onUpload && newFiles.length > 0 && newFiles.length <= 1) {
-      //   toast.promise(onUpload(newFiles[0]), {
-      //     loading: `Uploading video...`,
-      //     success: () => {
-      //       setFile(undefined);
-      //       return `Video uploaded.`;
-      //     },
-      //     error: `Failed to upload video.`,
-      //   });
-      // }
     },
 
     [file, setFile],
@@ -148,6 +139,7 @@ export function VideoUploader(props: VideoUploaderProps) {
           file={file}
           previewImage={previewImage}
           onRemove={onRemove}
+          uploading={uploading}
           progress={progress}
           form={form}
         />
@@ -215,13 +207,15 @@ interface FileCardProps {
   file: File;
   onRemove: () => void;
   previewImage: string;
-  progress?: number;
+  uploading: boolean;
+  progress: number;
   form: Form;
 }
 
 function FileCard({
   file,
   previewImage,
+  uploading,
   progress,
   onRemove,
   form,
@@ -254,7 +248,7 @@ function FileCard({
                 {formatBytes(file.size)}
               </p>
             </div>
-            {progress ? <Progress value={progress} /> : null}
+            {uploading ? <Progress value={progress} /> : null}
           </div>
           <FormField
             control={form.control}

@@ -66,8 +66,8 @@ export const videos = router({
 
       const baseName = path.basename(input.fileName);
 
-      const s3Key = `/videos/${ctx.user.sub}/${videoId}-${input.fileName}`;
-      const thumbnailS3Key = `/thumbnails/${ctx.user.sub}/${videoId}-${baseName}.jpg`;
+      const s3Key = `videos/${ctx.user.sub}/${videoId}-${input.fileName}`;
+      const thumbnailS3Key = `thumbnails/${ctx.user.sub}/${videoId}-${baseName}.jpg`;
 
       try {
         // Create video item in db
@@ -99,7 +99,9 @@ export const videos = router({
 
         const { UploadId } = await s3Client.send(command);
 
-        return { uploadId: UploadId };
+        if (!UploadId) throw new Error('No upload id.');
+
+        return { uploadId: UploadId, s3Key, videoId };
       } catch (error) {
         console.error(
           'Error creating/sending multipart upload command: ',
