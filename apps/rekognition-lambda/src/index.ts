@@ -31,6 +31,9 @@ export const handler = async (
     S3ObjectCreatedNotificationEventDetail
   >,
 ): Promise<APIGatewayProxyResult> => {
+  // TODO: remove to activate lambda
+  return { statusCode: 200, body: JSON.stringify({ message: 'Test' }) };
+
   const { bucket, object } = event.detail;
 
   const s3MetadataCommand = new HeadObjectCommand({
@@ -61,7 +64,7 @@ export const handler = async (
 
     const completedJob = await waitForRekognitionJob({
       rekognitionClient,
-      JobId,
+      JobId: JobId!, // TODO: remove duplicate
       maxWaitTime: MAX_WAIT_TIME,
       pollInterval: POLL_INTERVAL,
     });
