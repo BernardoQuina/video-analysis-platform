@@ -95,6 +95,7 @@ export const videos = router({
           Bucket: bucketName,
           Key: s3Key,
           ContentType: input.fileType,
+          Metadata: { videoId, userId: ctx.user.sub }, // to retrieve items from lambda
         });
 
         const { UploadId } = await s3Client.send(command);

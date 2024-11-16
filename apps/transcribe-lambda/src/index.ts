@@ -38,11 +38,13 @@ export const handler = async (
     Key: object.key,
   });
 
-  const { Metadata } = await s3Client.send(s3MetadataCommand);
+  const { videoId, userId } = (await s3Client.send(s3MetadataCommand))
+    .Metadata as {
+    videoId: string;
+    userId: string;
+  };
 
-  console.log({ Metadata });
-
-  const jobName = `Transcribe-${object.key}`;
+  const jobName = `Transcribe-${userId}-${videoId}`;
 
   const params: StartTranscriptionJobCommandInput = {
     TranscriptionJobName: jobName,
@@ -68,7 +70,6 @@ export const handler = async (
     }
 
     const { results } = await getTranscriptionResults(
-      // TODO: Remove after rekognition tests
       completedJob.Transcript?.TranscriptFileUri ?? '',
     );
 
