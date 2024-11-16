@@ -77,6 +77,7 @@ export const videos = router({
             userId: ctx.user.sub,
             s3Key,
             thumbnailS3Key,
+            fileName: input.fileName,
             visibility: input.visibility,
             prompt: input.prompt,
           })
