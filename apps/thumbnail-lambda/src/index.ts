@@ -95,9 +95,8 @@ export const handler = async (
         })
         // Use force_original_aspect_ratio=increase to ensure the image covers the frame
         .outputOptions([
-          'scale=1920:1080:force_original_aspect_ratio=increase',
-          // Then crop to exact dimensions while keeping centered
-          'crop=1920:1080',
+          '-vf',
+          'scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080',
         ])
         .screenshot({
           count: 1,
