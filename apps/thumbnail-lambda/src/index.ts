@@ -93,18 +93,28 @@ export const handler = async (
           console.error('FFmpeg error:', err);
           reject(err);
         })
-        // Use force_original_aspect_ratio=increase to ensure the image covers the frame
-        .outputOptions([
-          '-vf',
-          'scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080',
+        .seekInput(1)
+        .frames(1)
+        .videoFilters([
+          {
+            filter: 'scale',
+            options: {
+              w: 1920,
+              h: 1080,
+              force_original_aspect_ratio: 'increase',
+            },
+          },
+          { filter: 'crop', options: { w: 1920, h: 1080 } },
         ])
-        .screenshot({
-          count: 1,
-          timestamps: ['1'],
-          filename: path.basename(tempThumbnailPath),
-          folder: path.dirname(tempThumbnailPath),
-          size: '1920x1080',
-        });
+        .output(tempThumbnailPath)
+        .run();
+      // .screenshot({
+      //   count: 1,
+      //   timestamps: ['1'],
+      //   filename: path.basename(tempThumbnailPath),
+      //   folder: path.dirname(tempThumbnailPath),
+      //   size: '1920x1080',
+      // });
     });
 
     // Step 3: Upload the thumbnail to S3
