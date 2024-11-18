@@ -276,6 +276,7 @@ Resources:
         CognitoClientSecret: !GetAtt CognitoUserPool.Outputs.CognitoClientSecret
         DynamoDBTableName: !Ref DynamoDBTableName
         DynamoDBTableArn: !GetAtt DynamoDBTable.Outputs.DynamoDBTableArn
+        VideoStorageS3BucketName: !Ref VideoStorageS3BucketName
         VideoStorageS3BucketArn: !GetAtt VideoStorageS3BucketStack.Outputs.VideoStorageS3BucketArn
         StackName: !Ref AWS::StackName
 
