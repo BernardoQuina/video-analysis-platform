@@ -57,7 +57,7 @@ export function UploadDialog() {
 
     // Slip file and prepare to upload parts
     const chunks = Math.ceil(values.fileSize / CHUNK_SIZE);
-    const parts = Array.from({ length: chunks }, (_, i) => i + 1); // part numbers array
+    const parts = Array.from({ length: chunks }, (_, i) => i + 1); // Part numbers array
     const eTags: { PartNumber: number; ETag: string }[] = [];
     let uploadedChunks = 0;
 
