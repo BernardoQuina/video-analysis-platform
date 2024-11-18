@@ -53,13 +53,13 @@ export const handler = async (
       .get({ id: videoid, userId: userid })
       .go();
 
-    if (!videoItem) throw new Error('Video item not found in db');
+    if (!videoItem) throw new Error('Video item not found in db.');
 
     // Step 1: Retrieve the video file from S3
     const response = await s3Client.send(new GetObjectCommand(objectParams));
 
     if (!response.Body) {
-      throw new Error('No video stream available');
+      throw new Error('No video stream available.');
     }
 
     // Write the S3 object to a temporary file
@@ -76,7 +76,7 @@ export const handler = async (
       !fs.existsSync(tempVideoPath) ||
       fs.statSync(tempVideoPath).size === 0
     ) {
-      throw new Error('Video file not written correctly');
+      throw new Error('Video file not written correctly.');
     }
 
     // Step 2: Extract the first frame using ffmpeg
@@ -86,7 +86,7 @@ export const handler = async (
           console.log('FFmpeg process started:', commandLine);
         })
         .on('end', () => {
-          console.log('FFmpeg process completed');
+          console.log('FFmpeg process completed.');
           resolve(null);
         })
         .on('error', (err) => {

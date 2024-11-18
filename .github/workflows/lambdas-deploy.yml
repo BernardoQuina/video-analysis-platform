@@ -28,7 +28,11 @@ jobs:
 
       - name: Build and package lambda functions
         run: |
-          npm run package-lambda -- --filter=transcribe-lambda --filter=rekognition-lambda --filter=thumbnail-lambda
+          npm run build -- --filter=@repo/db && \
+          npm run package-lambda -- \
+          --filter=transcribe-lambda \
+          --filter=rekognition-lambda \
+          --filter=thumbnail-lambda
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
