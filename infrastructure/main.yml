@@ -173,6 +173,8 @@ Resources:
       Parameters:
         LambdasCodeS3BucketName: !Ref LambdasCodeS3BucketName
         EnvironmentName: !Ref EnvironmentName
+        DynamoDBTableName: !Ref DynamoDBTableName
+        DynamoDBTableArn: !GetAtt DynamoDBTable.Outputs.DynamoDBTableArn
         StackName: !Ref AWS::StackName
 
   # Rekognition Lambda Stack (triggered by S3 video upload)
@@ -185,6 +187,8 @@ Resources:
       Parameters:
         LambdasCodeS3BucketName: !Ref LambdasCodeS3BucketName
         EnvironmentName: !Ref EnvironmentName
+        DynamoDBTableName: !Ref DynamoDBTableName
+        DynamoDBTableArn: !GetAtt DynamoDBTable.Outputs.DynamoDBTableArn
         StackName: !Ref AWS::StackName
 
   # Thumbnail Lambda Stack (triggered by S3 video upload)
@@ -197,6 +201,8 @@ Resources:
       Parameters:
         LambdasCodeS3BucketName: !Ref LambdasCodeS3BucketName
         EnvironmentName: !Ref EnvironmentName
+        DynamoDBTableName: !Ref DynamoDBTableName
+        DynamoDBTableArn: !GetAtt DynamoDBTable.Outputs.DynamoDBTableArn
         StackName: !Ref AWS::StackName
 
   # Video Storage S3 Bucket Stack

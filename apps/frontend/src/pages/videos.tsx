@@ -3,11 +3,11 @@ import { trpc } from '../utils/trpc';
 import { Card, CardContent } from '../components/ui/card';
 import { Separator } from '../components/ui/separator';
 import { UploadDialog } from '../components/upload-dialog';
+import { VideoCard } from '../components/video-card';
 
 export default function Videos() {
-  // const { data: me } = trpc.auth.me.useQuery();
-
   const { data: publicVideos } = trpc.videos.publicVideos.useQuery();
+  const { data: myVideos } = trpc.videos.myVideos.useQuery();
 
   return (
     <PageLayout
@@ -22,7 +22,7 @@ export default function Videos() {
               Your video uploads and respective AI analyses.
             </p>
           </div>
-          {(publicVideos ?? []).length === 0 ? (
+          {(myVideos ?? []).length === 0 ? (
             <div className="items-center pt-8">
               <Card>
                 <CardContent className="flex-row items-center gap-4">
@@ -38,7 +38,13 @@ export default function Videos() {
                 </CardContent>
               </Card>
             </div>
-          ) : null}
+          ) : (
+            <div className="flex-row flex-wrap gap-4">
+              {myVideos!.map((video) => (
+                <VideoCard key={video.id} video={video} />
+              ))}
+            </div>
+          )}
         </div>
         <Separator />
         <div className="gap-4">
@@ -65,7 +71,13 @@ export default function Videos() {
                 </CardContent>
               </Card>
             </div>
-          ) : null}
+          ) : (
+            <div className="flex-row flex-wrap gap-2">
+              {publicVideos!.map((video) => (
+                <VideoCard key={video.id} video={video} />
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </PageLayout>

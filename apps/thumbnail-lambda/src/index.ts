@@ -7,6 +7,7 @@ import {
   S3Client,
   GetObjectCommand,
   PutObjectCommand,
+  HeadObjectCommand,
 } from '@aws-sdk/client-s3';
 import type {
   APIGatewayProxyResult,
@@ -15,8 +16,18 @@ import type {
   // eslint-disable-next-line node/no-missing-import
 } from 'aws-lambda';
 import ffmpeg from 'fluent-ffmpeg';
+import { useDB } from '@repo/db';
+
+type Metadata = {
+  videoid: string;
+  userid: string;
+};
 
 const s3Client = new S3Client({ region: process.env.AWS_REGION });
+const db = useDB({
+  region: process.env.AWS_REGION,
+  tableName: process.env.DYNAMODB_TABLE_NAME,
+});
 
 export const handler = async (
   event: EventBridgeEvent<
@@ -27,17 +38,25 @@ export const handler = async (
   const { bucket, object } = event.detail;
   const bucketName = bucket.name;
   const objectKey = object.key;
-  const thumbnailKey = `thumbnails/${objectKey.replace(/\.[^/.]+$/, '.jpg')}`;
   const tempVideoPath = path.join('/tmp', 'temp-video.mp4');
   const tempThumbnailPath = path.join('/tmp', 'thumbnail.jpg');
 
+  const objectParams = { Bucket: bucketName, Key: objectKey };
+
+  const { videoid, userid } = (
+    await s3Client.send(new HeadObjectCommand(objectParams))
+  ).Metadata as Metadata;
+
   try {
+    // Get info from db
+    const { data: videoItem } = await db.entities.videos
+      .get({ id: videoid, userId: userid })
+      .go();
+
+    if (!videoItem) throw new Error('Video item not found in db');
+
     // Step 1: Retrieve the video file from S3
-    const getObjectParams = {
-      Bucket: bucketName,
-      Key: objectKey,
-    };
-    const response = await s3Client.send(new GetObjectCommand(getObjectParams));
+    const response = await s3Client.send(new GetObjectCommand(objectParams));
 
     if (!response.Body) {
       throw new Error('No video stream available');
@@ -92,7 +111,7 @@ export const handler = async (
     const fileContent = fs.readFileSync(tempThumbnailPath);
     const putObjectParams = {
       Bucket: bucketName,
-      Key: thumbnailKey,
+      Key: videoItem.thumbnailS3Key,
       Body: fileContent,
       ContentType: 'image/jpeg',
     };
@@ -100,14 +119,14 @@ export const handler = async (
     await s3Client.send(new PutObjectCommand(putObjectParams));
 
     console.log(
-      `Successfully created and uploaded thumbnail for ${objectKey} at ${thumbnailKey}`,
+      `Successfully created and uploaded thumbnail for ${objectKey} at ${videoItem.thumbnailS3Key}`,
     );
 
     return {
       statusCode: 200,
       body: JSON.stringify({
         message: 'Created video thumbnail',
-        thumbnailKey,
+        thumbnailKey: videoItem.thumbnailS3Key,
       }),
     };
   } catch (error) {

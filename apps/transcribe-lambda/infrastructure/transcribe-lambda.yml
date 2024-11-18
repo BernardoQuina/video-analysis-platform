@@ -8,6 +8,12 @@ Parameters:
   EnvironmentName:
     Type: String
     Description: Name of the the environment of the lambda (e.g. development, production)
+  DynamoDBTableName:
+    Type: String
+    Description: Name for the DynamoDB Table
+  DynamoDBTableArn:
+    Type: String
+    Description: Arn of the DynamoDB Table
   StackName:
     Type: String
     Description: Name of the parent stack
@@ -29,12 +35,30 @@ Resources:
             Statement:
               - Effect: Allow
                 Action:
-                  - 's3:GetObject'
-                  - 'transcribe:StartTranscriptionJob'
-                  - 'transcribe:GetTranscriptionJob'
-                  - 'logs:CreateLogStream'
-                  - 'logs:PutLogEvents'
+                  - s3:GetObject
+                  - transcribe:StartTranscriptionJob
+                  - transcribe:GetTranscriptionJob
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
                 Resource: '*'
+        - PolicyName: DynamoDBCRUDPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:PutItem
+                  - dynamodb:GetItem
+                  - dynamodb:UpdateItem
+                  - dynamodb:DeleteItem
+                  - dynamodb:Query
+                  - dynamodb:BatchGetItem
+                  - dynamodb:BatchWriteItem
+                  - dynamodb:Scan
+                  - dynamodb:DescribeTable
+                Resource:
+                  - !Ref DynamoDBTableArn # Main table ARN
+                  - !Sub ${DynamoDBTableArn}/* # Includes all GSIs of the table
 
   # Transcribe Lambda Function
   TranscribeLambda:
@@ -48,6 +72,9 @@ Resources:
         S3Bucket: !Ref LambdasCodeS3BucketName
         S3Key: !Sub ${EnvironmentName}/transcribe-lambda.zip
       Runtime: nodejs20.x
+      Environment:
+        Variables:
+          DYNAMODB_TABLE_NAME: !Ref DynamoDBTableName
       LoggingConfig:
         LogGroup: !Ref TranscribeLambdaCloudWatchLogsGroup
     DeletionPolicy: Delete

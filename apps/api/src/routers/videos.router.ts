@@ -25,9 +25,7 @@ export const videos = router({
   publicVideos: publicProcedure.query(async () => {
     try {
       const { data: publicVideos } = await db.entities.videos.query
-        .publicVideos({
-          visibility: 'PUBLIC',
-        })
+        .publicVideos({ visibility: 'PUBLIC' })
         .go();
 
       return publicVideos;
@@ -80,6 +78,8 @@ export const videos = router({
             fileName: input.fileName,
             visibility: input.visibility,
             prompt: input.prompt,
+            userName: `${ctx.user.given_name} ${ctx.user.family_name}`,
+            userPicture: ctx.user.picture,
           })
           .go();
       } catch (error) {

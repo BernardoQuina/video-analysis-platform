@@ -85,6 +85,8 @@ const Videos = new Entity({
       required: true,
       default: () => Date.now(),
     },
+    userPicture: { type: 'string', required: true },
+    userName: { type: 'string', required: true },
     userId: { type: 'string', required: true },
   },
   // Mappings to dynamoDB table definitions
