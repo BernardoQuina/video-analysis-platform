@@ -108,13 +108,6 @@ export const handler = async (
         ])
         .output(tempThumbnailPath)
         .run();
-      // .screenshot({
-      //   count: 1,
-      //   timestamps: ['1'],
-      //   filename: path.basename(tempThumbnailPath),
-      //   folder: path.dirname(tempThumbnailPath),
-      //   size: '1920x1080',
-      // });
     });
 
     // Step 3: Upload the thumbnail to S3
