@@ -268,7 +268,7 @@ Resources:
               Value: !Ref AWS::Region
             - Name: DYNAMODB_TABLE_NAME
               Value: !Ref DynamoDBTableName
-            - Name: VIDEO_STORAGE_BUCKET_NAME
+            - Name: VIDEO_STORAGE_S3_BUCKET_NAME
               Value: !Ref VideoStorageS3BucketName
           LogConfiguration:
             LogDriver: awslogs
