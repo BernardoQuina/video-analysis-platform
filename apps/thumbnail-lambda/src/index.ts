@@ -93,12 +93,18 @@ export const handler = async (
           console.error('FFmpeg error:', err);
           reject(err);
         })
+        // Use force_original_aspect_ratio=increase to ensure the image covers the frame
+        .outputOptions([
+          'scale=1920:1080:force_original_aspect_ratio=increase',
+          // Then crop to exact dimensions while keeping centered
+          'crop=1920:1080',
+        ])
         .screenshot({
           count: 1,
           timestamps: ['1'],
           filename: path.basename(tempThumbnailPath),
           folder: path.dirname(tempThumbnailPath),
-          size: '320x240',
+          size: '1920x1080',
         });
     });
 

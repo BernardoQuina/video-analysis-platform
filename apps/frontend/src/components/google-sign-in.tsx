@@ -25,7 +25,9 @@ export function GoogleSignIn() {
 
   const [isRedirecting, setIsRedirecting] = useState(false);
 
-  const { data, isLoading, isFetching } = trpc.auth.me.useQuery();
+  const { data, isLoading, isFetching } = trpc.auth.me.useQuery(undefined, {
+    trpc: { context: { skipBatch: true } },
+  });
 
   const initiateGoogleSignIn = () => {
     setIsRedirecting(true);
