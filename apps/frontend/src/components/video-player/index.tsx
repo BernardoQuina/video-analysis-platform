@@ -58,7 +58,7 @@ export function VideoPlayer({ video }: VideoPlayerProps) {
   return (
     <MediaPlayer
       className={cn(
-        'ring-media-focus bg-background-dark max-h-[70vh] overflow-hidden rounded-md text-white shadow-md data-[focus]:ring-2',
+        'ring-media-focus bg-background-dark max-h-[70lvh] overflow-hidden rounded-md text-white shadow-md data-[focus]:ring-2',
         aspectClass,
       )}
       title={video.fileName}
