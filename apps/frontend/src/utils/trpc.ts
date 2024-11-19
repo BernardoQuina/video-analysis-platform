@@ -22,6 +22,9 @@ const linkOptions: HTTPLinkOptions<AppRouter['_def']['_config']['$types']> = {
 export const trpc = createTRPCNext<AppRouter>({
   config() {
     return {
+      queryClientConfig: {
+        defaultOptions: { queries: { staleTime: 1000 * 60 } },
+      },
       links: [
         splitLink({
           condition(op) {
