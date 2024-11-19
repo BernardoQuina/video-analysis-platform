@@ -53,14 +53,15 @@ export function VideoPlayer({ video }: VideoPlayerProps) {
     // ...
   }
 
-  const _aspectClass = `aspect-[${video.aspectRatio || 1.78}]`; // default to 16/9
+  const aspectClass = `aspect-[${video.aspectRatio || 1.78}]`; // default to 16/9
 
   return (
     <MediaPlayer
       className={cn(
-        'ring-media-focus bg-background-dark aspect-[0.67] max-h-[70vh] overflow-hidden rounded-md text-white shadow-md data-[focus]:ring-2',
-        // aspectClass,
+        aspectClass,
+        'ring-media-focus bg-background-dark max-h-[70vh] overflow-hidden rounded-md text-white shadow-md data-[focus]:ring-2',
       )}
+      aspectRatio={video.aspectRatio.toString()}
       title={video.fileName}
       src={`${mediaUrl}/${video.s3Key}`}
       crossOrigin
