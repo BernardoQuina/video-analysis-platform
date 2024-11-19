@@ -2,6 +2,7 @@ import { useRouter } from 'next/router';
 
 import { PageLayout } from '../../components/page-layout';
 import { trpc } from '../../utils/trpc';
+import { VideoPlayer } from '../../components/video-player';
 
 export default function Videos() {
   const router = useRouter();
@@ -18,7 +19,7 @@ export default function Videos() {
       pageTitle="Video Analysis Library"
       pageDescription="Discover and explore video analyses in the Video Analysis Library. Access your own videos insights and browse public analyses from other users"
     >
-      <div>{video ? video.fileName : 'loading...'}</div>
+      <div>{video ? <VideoPlayer video={video} /> : 'loading...'}</div>
     </PageLayout>
   );
 }

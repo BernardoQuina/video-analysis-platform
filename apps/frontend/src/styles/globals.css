@@ -97,6 +97,9 @@
     --dark-sidebar-accent-foreground: 240 4.8% 95.9%;
     --dark-sidebar-border: 240 3.7% 15.9%;
     --dark-sidebar-ring: 240 4.9% 83.9%;
+
+    --media-brand: 245 245 245;
+    --media-focus: 78 156 246;
   }
 
   .dark {
@@ -157,6 +160,11 @@
     display: flex;
     flex-direction: column;
     box-sizing: border-box; /* Helps with sizing consistency */
+  }
+
+  video {
+    background-color: hsl(240, 10%, 3.9%);
+    height: 100%;
   }
 }
 

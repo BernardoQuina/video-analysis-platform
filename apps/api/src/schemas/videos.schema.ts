@@ -24,6 +24,7 @@ export const initiateUploadSchema = z
     fileSize: z
       .number({ message: 'File size must be provided.' })
       .max(1024 * 1024 * 200, { message: 'File exceeds 200MB.' }),
+    aspectRatio: z.number({ message: 'Aspect ration must be provided.' }),
     visibility: z.enum(['PUBLIC', 'PRIVATE'], {
       message: 'Video visibility must be set either to public or private.',
     }),

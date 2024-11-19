@@ -1,10 +1,8 @@
 import { useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
-import { inferRouterOutputs } from '@trpc/server';
 
-import { AppRouter } from '../../../api/src/routers/index.router';
-import { trpc } from '../utils/trpc';
+import { RouterOutput, trpc } from '../utils/trpc';
 
 import { Button } from './ui/button';
 import { GoogleIcon } from './icons/google-icon';
@@ -82,7 +80,6 @@ export function GoogleSignIn() {
   );
 }
 
-type RouterOutput = inferRouterOutputs<AppRouter>;
 type Me = NonNullable<RouterOutput['auth']['me']>;
 
 function SignedInDropdown({ me }: { me: Me }) {

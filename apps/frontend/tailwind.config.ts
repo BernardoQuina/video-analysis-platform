@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 import type { Config } from 'tailwindcss';
 
 const config: Config = {
@@ -83,6 +84,8 @@ const config: Config = {
           '5': 'hsl(var(--chart-5))',
           '5-dark': 'hsl(var(--dark-chart-5))',
         },
+        'media-brand': 'rgb(var(--media-brand) / <alpha-value>)',
+        'media-focus': 'rgb(var(--media-focus) / <alpha-value>)',
       },
       borderRadius: {
         lg: 'var(--radius)',
@@ -136,6 +139,9 @@ const config: Config = {
       'spring-spin': 'spring-spin 5s ease-in-out infinite',
     },
   },
-  plugins: [require('tailwindcss-animate')],
+  plugins: [
+    require('tailwindcss-animate'),
+    require('@vidstack/react/tailwind.cjs')({ prefix: 'media' }),
+  ],
 };
 export default config;

@@ -6,6 +6,7 @@ import {
   HTTPBatchLinkOptions,
 } from '@trpc/client';
 import { createTRPCNext } from '@trpc/next';
+import { inferRouterOutputs } from '@trpc/server';
 
 import type { AppRouter } from '../../../api/src/routers/index.router';
 
@@ -45,3 +46,5 @@ export const trpc = createTRPCNext<AppRouter>({
   },
   ssr: false,
 });
+
+export type RouterOutput = inferRouterOutputs<AppRouter>;

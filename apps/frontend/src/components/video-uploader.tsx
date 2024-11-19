@@ -83,6 +83,11 @@ export function VideoUploader(props: VideoUploaderProps) {
           const canvas = document.createElement('canvas');
           canvas.width = videoElement.videoWidth;
           canvas.height = videoElement.videoHeight;
+
+          const ratio = videoElement.videoWidth / videoElement.videoHeight;
+
+          form.setValue('aspectRatio', Number(ratio.toFixed(2)));
+
           const ctx = canvas.getContext('2d')!;
           ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
 
