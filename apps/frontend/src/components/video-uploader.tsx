@@ -107,7 +107,7 @@ export function VideoUploader(props: VideoUploaderProps) {
       }
     },
 
-    [file, setFile],
+    [file, setFile, form],
   );
 
   function onRemove() {
