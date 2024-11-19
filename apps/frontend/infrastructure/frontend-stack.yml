@@ -107,11 +107,31 @@ Resources:
             const request = event.request;
             const uri = request.uri;
 
+            // Check if the URI is a dynamic path (e.g., /videos/something or /articles/something)
             if (uri !== '' && uri !== '/' && uri.indexOf('.') === -1) {
-                request.uri = uri + '.html';
+                const dynamicPathMatch = uri.match(/^(\/[^/]+\/)[^/]+$/);
+
+                if (dynamicPathMatch) {
+                    // Rewrite to /path/[id].html (e.g., /videos/[id].html or /articles/[id].html)
+                    request.uri = dynamicPathMatch[1] + '[id].html';
+                } else {
+                    // For all other non-dynamic paths, append .html
+                    request.uri = uri + '.html';
+                }
             }
+
             return request;
         }
+      # FunctionCode: |
+      #   function handler(event) {
+      #       const request = event.request;
+      #       const uri = request.uri;
+
+      #       if (uri !== '' && uri !== '/' && uri.indexOf('.') === -1) {
+      #           request.uri = uri + '.html';
+      #       }
+      #       return request;
+      #   }
       FunctionConfig:
         Comment: Handles SPA routing for CloudFront
         Runtime: cloudfront-js-2.0
