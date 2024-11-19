@@ -141,7 +141,7 @@ export function UploadDialog() {
       setOpen(false);
       setVideoFile(undefined);
       form.reset();
-      toast.success('Upload completed successfully.', {
+      toast.success('Upload completed successfully', {
         description:
           'Analysis jobs will start processing now. You can check their status on the video page.',
       });
