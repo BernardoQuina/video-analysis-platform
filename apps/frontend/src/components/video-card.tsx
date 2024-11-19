@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { inferProcedureOutput } from '@trpc/server';
 import moment from 'moment';
 import { Cpu, Eye } from 'lucide-react';
@@ -31,7 +32,10 @@ export function VideoCard({ video }: VideoCardProps) {
   }, [video]);
 
   return (
-    <div className="group relative aspect-video w-full justify-end overflow-hidden rounded-lg border bg-[url()] shadow-sm sm:w-[calc(50%-0.5rem)] lg:w-[calc(33.33%-0.69rem)]">
+    <Link
+      href={`/videos/${video.id}`}
+      className="group relative aspect-video w-full justify-end overflow-hidden rounded-lg border bg-[url()] shadow-sm sm:w-[calc(50%-0.5rem)] lg:w-[calc(33.33%-0.69rem)]"
+    >
       <Image
         className="absolute left-0 h-full w-full object-cover transition duration-300 ease-in-out group-hover:scale-105"
         alt={`${video.fileName} thumbnail`}
@@ -42,9 +46,9 @@ export function VideoCard({ video }: VideoCardProps) {
       <div className="supports-[backdrop-filter]:bg-background-dark/30 absolute left-4 top-3 z-10 flex-row items-center gap-1.5 rounded-full p-1 pr-2 backdrop-blur-md">
         <Avatar className="h-6 w-6 cursor-pointer">
           <AvatarImage src={video.userPicture} alt="user picture" />
-          <AvatarFallback>
-            {video.userName.split(' ')[0]}
-            {video.userName.split(' ')[1]}
+          <AvatarFallback className="text-xs">
+            {video.userName.split(' ')[0][0]}
+            {video.userName.split(' ')[1][0]}
           </AvatarFallback>
         </Avatar>
         <span className="text-primary-dark text-xs font-medium">
@@ -77,6 +81,6 @@ export function VideoCard({ video }: VideoCardProps) {
           </div>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }
