@@ -64,7 +64,6 @@ export const videos = router({
   singleVideo: publicProcedure
     .input(singleVideoSchema)
     .query(async ({ ctx, input }) => {
-      console.log('video id: ', input.videoId);
       try {
         const {
           data: [video],
@@ -75,8 +74,6 @@ export const videos = router({
         if (video.visibility === 'PUBLIC') return video;
 
         const userOrError = await authenticate(ctx);
-
-        console.log({ userOrError });
 
         // No signed in user and this video is private so we'll return 404
         if ('code' in userOrError) throw new Error('404');
@@ -108,8 +105,6 @@ export const videos = router({
   initiateUpload: protectedProcedure
     .input(initiateUploadSchema)
     .mutation(async ({ ctx, input }) => {
-      console.log('visibility: ', input.visibility);
-
       const videoId = randomUUID() as string;
 
       const baseName = path.basename(input.fileName);
