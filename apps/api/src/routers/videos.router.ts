@@ -16,12 +16,15 @@ import {
   completeUploadSchema,
   getUploadUrlSchema,
   initiateUploadSchema,
+  singleVideoSchema,
 } from '../schemas/videos.schema';
+import { authenticate } from '../utils/cognito-auth';
 
 const s3Client = new S3Client({ region: process.env.AWS_REGION });
 const bucketName = process.env.VIDEO_STORAGE_S3_BUCKET_NAME;
 
 export const videos = router({
+  // Get videos that are pubic (including from other users)
   publicVideos: publicProcedure.query(async () => {
     try {
       const { data: publicVideos } = await db.entities.videos.query
@@ -39,6 +42,7 @@ export const videos = router({
     }
   }),
 
+  // Get user specific videos (private or public)
   myVideos: protectedProcedure.query(async ({ ctx }) => {
     try {
       const { data: myVideos } = await db.entities.videos.query
@@ -56,10 +60,56 @@ export const videos = router({
     }
   }),
 
+  // Get single video by id
+  singleVideo: publicProcedure
+    .input(singleVideoSchema)
+    .query(async ({ ctx, input }) => {
+      console.log('video id: ', input.videoId);
+      try {
+        const {
+          data: [video],
+        } = await db.entities.videos.query.byVideo({ id: input.videoId }).go();
+
+        if (!video) throw new Error('404');
+
+        if (video.visibility === 'PUBLIC') return video;
+
+        const userOrError = await authenticate(ctx);
+
+        console.log({ userOrError });
+
+        // No signed in user and this video is private so we'll return 404
+        if ('code' in userOrError) throw new Error('404');
+
+        // User is signed in but its not their video
+        if (userOrError.sub !== video.userId) throw new Error('404');
+
+        return video;
+      } catch (err) {
+        const error = err as Error;
+
+        console.error('Error retrieving video: ', error.message);
+
+        if (error.message == '404') {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'No video with that id was found',
+          });
+        }
+
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: error.message,
+        });
+      }
+    }),
+
   // Initialize multipart upload
   initiateUpload: protectedProcedure
     .input(initiateUploadSchema)
     .mutation(async ({ ctx, input }) => {
+      console.log('visibility: ', input.visibility);
+
       const videoId = randomUUID() as string;
 
       const baseName = path.basename(input.fileName);

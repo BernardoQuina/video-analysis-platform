@@ -43,9 +43,12 @@ export const handler = async (
 
   const objectParams = { Bucket: bucketName, Key: objectKey };
 
-  const { videoid, userid } = (
-    await s3Client.send(new HeadObjectCommand(objectParams))
-  ).Metadata as Metadata;
+  const metadata = (await s3Client.send(new HeadObjectCommand(objectParams)))
+    .Metadata as Metadata;
+
+  const { userid, videoid } = metadata;
+
+  console.log({ metadata });
 
   try {
     // Get info from db

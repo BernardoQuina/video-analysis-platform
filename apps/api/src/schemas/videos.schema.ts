@@ -1,5 +1,11 @@
 import z from 'zod';
 
+export const singleVideoSchema = z
+  .object({
+    videoId: z.string({ message: 'Video id must be provided' }).uuid(),
+  })
+  .strict({ message: 'Only video id is allowed.' });
+
 export const initiateUploadSchema = z
   .object({
     fileName: z
@@ -42,7 +48,7 @@ export const getUploadUrlSchema = z
 
 export const completeUploadSchema = z
   .object({
-    videoId: z.string({ message: 'Video id must be provided' }),
+    videoId: z.string({ message: 'Video id must be provided' }).uuid(),
     uploadId: z.string({ message: 'Upload id must be provided.' }),
     s3Key: z.string({ message: 'S3 key must be provided.' }),
     parts: z.array(

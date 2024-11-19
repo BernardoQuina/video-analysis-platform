@@ -91,15 +91,20 @@ const Videos = new Entity({
   },
   // Mappings to dynamoDB table definitions
   indexes: {
+    byVideo: {
+      index: 'gsi1pk-gsi1sk-index',
+      pk: { field: 'gsi1pk', composite: ['id'], casing: 'none' },
+      sk: { field: 'gsi1sk', composite: ['userId'], casing: 'none' },
+    },
     byUser: {
-      pk: { field: 'pk', composite: ['userId'] },
-      sk: { field: 'sk', composite: ['id'] },
+      pk: { field: 'pk', composite: ['userId'], casing: 'none' },
+      sk: { field: 'sk', composite: ['id'], casing: 'none' },
       collection: 'user',
     },
     publicVideos: {
       index: 'gsi2pk-public-videos',
-      pk: { field: 'visibility', composite: ['visibility'] },
-      sk: { field: 'createdAt', composite: ['createdAt'] },
+      pk: { field: 'visibility', composite: ['visibility'], casing: 'none' },
+      sk: { field: 'createdAt', composite: ['createdAt'], casing: 'none' },
     },
   },
 });
@@ -130,8 +135,8 @@ const UserLimits = new Entity({
   // Mappings to dynamoDB table definitions
   indexes: {
     byUser: {
-      pk: { field: 'pk', composite: ['userId'] },
-      sk: { field: 'sk', composite: ['id'] },
+      pk: { field: 'pk', composite: ['userId'], casing: 'none' },
+      sk: { field: 'sk', composite: ['id'], casing: 'none' },
       collection: 'user',
     },
   },
@@ -163,13 +168,13 @@ const Sessions = new Entity({
   // Mappings to dynamoDB table definitions
   indexes: {
     primaryKey: {
-      pk: { field: 'pk', composite: ['id'] },
-      sk: { field: 'sk', composite: ['userId'] },
+      pk: { field: 'pk', composite: ['id'], casing: 'none' },
+      sk: { field: 'sk', composite: ['userId'], casing: 'none' },
     },
     byUser: {
       index: 'gsi1pk-gsi1sk-index',
-      pk: { field: 'gsi1pk', composite: ['userId'] },
-      sk: { field: 'gsi1sk', composite: ['id'] },
+      pk: { field: 'gsi1pk', composite: ['userId'], casing: 'none' },
+      sk: { field: 'gsi1sk', composite: ['id'], casing: 'none' },
       // collection: 'user', Not possible because it must be on same index
     },
   },

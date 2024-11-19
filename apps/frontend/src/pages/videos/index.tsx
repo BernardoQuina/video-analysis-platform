@@ -1,9 +1,9 @@
-import { PageLayout } from '../components/page-layout';
-import { trpc } from '../utils/trpc';
-import { Card, CardContent } from '../components/ui/card';
-import { Separator } from '../components/ui/separator';
-import { UploadDialog } from '../components/upload-dialog';
-import { VideoCard } from '../components/video-card';
+import { PageLayout } from '../../components/page-layout';
+import { trpc } from '../../utils/trpc';
+import { Card, CardContent } from '../../components/ui/card';
+import { Separator } from '../../components/ui/separator';
+import { UploadDialog } from '../../components/upload-dialog';
+import { VideoCard } from '../../components/video-card';
 
 export default function Videos() {
   const { data: publicVideos } = trpc.videos.publicVideos.useQuery();
