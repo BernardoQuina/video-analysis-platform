@@ -31,6 +31,7 @@ import {
 } from './ui/form';
 import { Input } from './ui/input';
 import { Checkbox } from './ui/checkbox';
+import { Tip } from './ui/tooltip';
 
 const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB chunks for multipart upload
 
@@ -46,6 +47,10 @@ export function UploadDialog() {
     defaultValues: { visibility: 'PUBLIC', prompt: '' },
   });
 
+  const { data: meData } = trpc.auth.me.useQuery(undefined, {
+    trpc: { context: { skipBatch: true } },
+  });
+
   const { initiateUpload, getUploadUrl, completeUpload } = trpc.videos;
 
   const { mutateAsync: initiateUploadAsync } = initiateUpload.useMutation();
@@ -55,7 +60,7 @@ export function UploadDialog() {
   async function onSubmit(values: z.infer<typeof initiateUploadSchema>) {
     setUploading(true);
 
-    // Slip file and prepare to upload parts
+    // Split file and prepare to upload parts
     const chunks = Math.ceil(values.fileSize / CHUNK_SIZE);
     const parts = Array.from({ length: chunks }, (_, i) => i + 1); // Part numbers array
     const eTags: { PartNumber: number; ETag: string }[] = [];
@@ -169,11 +174,16 @@ export function UploadDialog() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="rainbow">
-          <Upload /> Upload
-        </Button>
-      </DialogTrigger>
+      <Tip content="You'll have to sign in first!" disabled={!!meData}>
+        <DialogTrigger disabled={!meData}>
+          {/* This span allows the tooltip to be shown while the button is disabled */}
+          <span tabIndex={0}>
+            <Button variant="rainbow">
+              <Upload /> Upload
+            </Button>
+          </span>
+        </DialogTrigger>
+      </Tip>
       <DialogContent autoFocus={false}>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="gap-6">

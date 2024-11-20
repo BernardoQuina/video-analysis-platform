@@ -30,7 +30,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
             'group-[.toast]:bg-muted group-[.toast]:text-muted-foreground',
 
           closeButton:
-            'group-[.toast]:bg-background group-[.toast]:text-foreground group-[.toaster]:border-border group-[.toaster]:shadow-sm group-[.toast]:left-[unset] group-[.toast]:-right-[1.1rem]',
+            'group-[.toast]:bg-background group-[.toast]:text-foreground group-[.toaster]:border-border group-[.toaster]:shadow-sm group-[.toast]:-top-[0.2rem] group-[.toast]:left-[unset] group-[.toast]:-right-[1.1rem]',
         },
       }}
       icons={{

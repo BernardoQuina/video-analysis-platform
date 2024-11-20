@@ -9,12 +9,16 @@ import { AppRouter } from '../../../api/src/routers/index.router';
 import { cn } from '../utils/cn';
 
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import { Skeleton } from './ui/skeleton';
 
 type Video = inferProcedureOutput<AppRouter['videos']['myVideos']>[number];
 
 type VideoCardProps = {
   video: Video;
 };
+
+const shapeClass =
+  'aspect-video w-full border rounded-md border shadow-sm sm:w-[calc(50%-0.5rem)] lg:w-[calc(33.33%-0.69rem)]';
 
 export function VideoCard({ video }: VideoCardProps) {
   const formattedTime = useMemo(
@@ -34,7 +38,7 @@ export function VideoCard({ video }: VideoCardProps) {
   return (
     <Link
       href={`/videos/${video.id}`}
-      className="group relative aspect-video w-full justify-end overflow-hidden rounded-lg border bg-[url()] shadow-sm sm:w-[calc(50%-0.5rem)] lg:w-[calc(33.33%-0.69rem)]"
+      className={cn(shapeClass, 'group relative justify-end overflow-hidden')}
     >
       <Image
         className="absolute left-0 h-full w-full object-cover transition duration-300 ease-in-out group-hover:scale-105"
@@ -74,7 +78,7 @@ export function VideoCard({ video }: VideoCardProps) {
             {formattedTime}
           </span>
           <div className="flex-row items-center gap-0.5">
-            <Eye className="text-muted-foreground-dark h-3 w-3" size="sm" />
+            <Eye className="text-muted-foreground-dark h-3 w-3" />
             <span className="text-muted-foreground-dark text-xs font-medium">
               Public
             </span>
@@ -83,4 +87,8 @@ export function VideoCard({ video }: VideoCardProps) {
       </div>
     </Link>
   );
+}
+
+export function VideoCardSkeleton() {
+  return <Skeleton className={shapeClass} />;
 }

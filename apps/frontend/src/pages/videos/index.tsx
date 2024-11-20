@@ -1,13 +1,39 @@
+import { useEffect } from 'react';
+import { toast } from 'sonner';
+
 import { PageLayout } from '../../components/page-layout';
 import { trpc } from '../../utils/trpc';
 import { Card, CardContent } from '../../components/ui/card';
 import { Separator } from '../../components/ui/separator';
 import { UploadDialog } from '../../components/upload-dialog';
-import { VideoCard } from '../../components/video-card';
+import { VideoCard, VideoCardSkeleton } from '../../components/video-card';
 
 export default function Videos() {
-  const { data: publicVideos } = trpc.videos.publicVideos.useQuery();
-  const { data: myVideos } = trpc.videos.myVideos.useQuery();
+  const {
+    data: myVideos,
+    isLoading: loadingMyVideos,
+    error: myVideosError,
+  } = trpc.videos.myVideos.useQuery();
+
+  const {
+    data: publicVideos,
+    isLoading: loadingPublicVideos,
+    error: publicVideosError,
+  } = trpc.videos.publicVideos.useQuery();
+
+  useEffect(() => {
+    if (myVideosError && myVideosError.data?.code !== 'UNAUTHORIZED') {
+      toast.error('An error occurred while loading your videos', {
+        description: myVideosError.message,
+      });
+    }
+
+    if (publicVideosError) {
+      toast.error('An error occurred while loading public videos', {
+        description: publicVideosError.message,
+      });
+    }
+  }, [myVideosError, publicVideosError]);
 
   return (
     <PageLayout
@@ -22,7 +48,13 @@ export default function Videos() {
               Your video uploads and respective AI analyses.
             </p>
           </div>
-          {(myVideos ?? []).length === 0 ? (
+          {loadingMyVideos ? (
+            <div className="flex-row flex-wrap gap-4">
+              {new Array(6).fill(0).map((_, i) => (
+                <VideoCardSkeleton key={i} />
+              ))}
+            </div>
+          ) : (myVideos ?? []).length === 0 ? (
             <div className="items-center pt-8">
               <Card>
                 <CardContent className="flex-row items-center gap-4">
@@ -54,7 +86,13 @@ export default function Videos() {
               Discover and explore video analysis made public from other users.
             </p>
           </div>
-          {(publicVideos ?? []).length === 0 ? (
+          {loadingPublicVideos ? (
+            <div className="flex-row flex-wrap gap-4">
+              {new Array(6).fill(0).map((_, i) => (
+                <VideoCardSkeleton key={i} />
+              ))}
+            </div>
+          ) : (publicVideos ?? []).length === 0 ? (
             <div className="items-center pt-8">
               <Card>
                 <CardContent className="flex-row items-center gap-4">

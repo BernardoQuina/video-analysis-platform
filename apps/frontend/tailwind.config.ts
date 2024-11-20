@@ -96,6 +96,7 @@ const config: Config = {
         xs: '2px',
       },
       keyframes: {
+        pulse: { '0%, 100%': { opacity: '1' }, '50%': { opacity: '0.5' } },
         rainbow: {
           '0%': { 'background-position': '0%' },
           '100%': { 'background-position': '200%' },
@@ -134,6 +135,7 @@ const config: Config = {
       },
     },
     animation: {
+      pulse: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
       rainbow: 'rainbow 2s infinite ease-in-out',
       'rainbow-pulsate': 'rainbow-pulsate 2s infinite ease-in-out',
       'spring-spin': 'spring-spin 5s ease-in-out infinite',
