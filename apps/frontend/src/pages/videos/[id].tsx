@@ -93,7 +93,7 @@ function JobTabs({ video }: { video: Video }) {
         <Separator orientation="vertical" className="h-[50%]" />
         <TabsTrigger value="objectDetection">Object detection</TabsTrigger>
       </TabsList>
-      <TabsContent value="transcript" className="gap-4">
+      <TabsContent value="transcript" className="gap-4 pb-4">
         {video.transcriptResult ? null : (
           <>
             <PulsatingBorder>
@@ -114,7 +114,7 @@ function JobTabs({ video }: { video: Video }) {
           </>
         )}
       </TabsContent>
-      <TabsContent value="summary" className="gap-4">
+      <TabsContent value="summary" className="gap-4 pb-4">
         {video.analysisResult ? null : (
           <>
             <PulsatingBorder>
@@ -135,7 +135,7 @@ function JobTabs({ video }: { video: Video }) {
           </>
         )}
       </TabsContent>
-      <TabsContent value="prompt" className="gap-4">
+      <TabsContent value="prompt" className="gap-4 pb-4">
         {video.analysisResult ? null : (
           <>
             <PulsatingBorder>
@@ -156,7 +156,7 @@ function JobTabs({ video }: { video: Video }) {
           </>
         )}
       </TabsContent>
-      <TabsContent value="objectDetection" className="gap-4">
+      <TabsContent value="objectDetection" className="gap-4 pb-4">
         {video.rekognitionObjects ? null : (
           <>
             <PulsatingBorder>
