@@ -1,7 +1,8 @@
 import { useRouter } from 'next/router';
+import { Cpu } from 'lucide-react';
 
 import { PageLayout } from '../../components/page-layout';
-import { trpc } from '../../utils/trpc';
+import { RouterOutput, trpc } from '../../utils/trpc';
 import { VideoPlayer } from '../../components/video-player';
 import { VideoErrorBanner } from '../../components/video-error-banners';
 import { Skeleton } from '../../components/ui/skeleton';
@@ -12,6 +13,7 @@ import {
   TabsTrigger,
 } from '../../components/ui/tabs';
 import { Separator } from '../../components/ui/separator';
+import { PulsatingBorder } from '../../components/pulsating-border';
 
 export default function Videos() {
   const router = useRouter();
@@ -50,18 +52,18 @@ export default function Videos() {
           />
         </div>
       ) : video ? (
-        <div className="gap-6">
+        <div className="gap-4">
           <VideoPlayer video={video} />
           <div className="gap-2">
             <h1 className="text-2xl font-medium leading-none">
               {video.fileName}
             </h1>
-            <p className="text-muted-foreground text-md">
+            <p className="text-muted-foreground text-sm">
               Showcase of AI-driven analysis with AWS-powered services, offering
               transcriptions, object detection, and intelligent Q&A through
-              advanced cloud technology.
+              cloud technology.
             </p>
-            <JobTabs />
+            <JobTabs video={video} />
           </div>
         </div>
       ) : null}
@@ -77,7 +79,9 @@ function LoadingSkeleton() {
   );
 }
 
-function JobTabs() {
+type Video = RouterOutput['videos']['singleVideo'];
+
+function JobTabs({ video }: { video: Video }) {
   return (
     <Tabs defaultValue="transcript">
       <TabsList className="flex-row">
@@ -86,15 +90,91 @@ function JobTabs() {
         <TabsTrigger value="summary">Summary</TabsTrigger>
         <Separator orientation="vertical" className="h-[50%]" />
         <TabsTrigger value="prompt">Prompt</TabsTrigger>
+        <Separator orientation="vertical" className="h-[50%]" />
+        <TabsTrigger value="objectDetection">Object detection</TabsTrigger>
       </TabsList>
-      <TabsContent value="transcript">
-        <div>Transcript</div>
+      <TabsContent value="transcript" className="gap-4">
+        {video.transcriptResult ? null : (
+          <>
+            <PulsatingBorder>
+              <Cpu className="text-primary animate-spring-spin h-4 w-4" />
+              <span className="text-primary animate-pulse text-xs font-medium">
+                Processing transcription job
+              </span>
+            </PulsatingBorder>
+            <p className="text-muted-foreground text-sm">
+              <span className="text-primary font-medium">
+                [Takes about 1-3 minutes]
+              </span>{' '}
+              Amazon Transcribe is used to detect the language and convert
+              spoken words in your video into text. This feature is perfect for
+              extracting dialogues or speeches, making it easier to analyze,
+              search, or share what was said in your video.
+            </p>
+          </>
+        )}
       </TabsContent>
-      <TabsContent value="summary">
-        <div>Summary</div>
+      <TabsContent value="summary" className="gap-4">
+        {video.analysisResult ? null : (
+          <>
+            <PulsatingBorder>
+              <Cpu className="text-primary animate-spring-spin h-4 w-4" />
+              <span className="text-primary animate-pulse text-xs font-medium">
+                Processing summary job
+              </span>
+            </PulsatingBorder>
+            <p className="text-muted-foreground text-sm">
+              <span className="text-primary font-medium">
+                [Takes about 3-10 minutes depending on wether the cluster is
+                scaling from zero]
+              </span>{' '}
+              Using an open source AI model, Video-LLaVA, self hosted on a AWS
+              ECS Cluster, this job combines video and text analysis to
+              interpret what is happening as the video progresses.
+            </p>
+          </>
+        )}
       </TabsContent>
-      <TabsContent value="prompt">
-        <div>Prompt</div>
+      <TabsContent value="prompt" className="gap-4">
+        {video.analysisResult ? null : (
+          <>
+            <PulsatingBorder>
+              <Cpu className="text-primary animate-spring-spin h-4 w-4" />
+              <span className="text-primary animate-pulse text-xs font-medium">
+                Processing prompt job
+              </span>
+            </PulsatingBorder>
+            <p className="text-muted-foreground text-sm">
+              <span className="text-primary font-medium">
+                [Takes about 3-10 minutes depending on wether the cluster is
+                scaling from zero]
+              </span>{' '}
+              Using an open source AI model, Video-LLaVA, self hosted on a AWS
+              ECS Cluster, this job combines video and text analysis to answer
+              your questions about the video.
+            </p>
+          </>
+        )}
+      </TabsContent>
+      <TabsContent value="objectDetection">
+        {video.rekognitionObjects ? null : (
+          <>
+            <PulsatingBorder>
+              <Cpu className="text-primary animate-spring-spin h-4 w-4" />
+              <span className="text-primary animate-pulse text-xs font-medium">
+                Processing object detection job
+              </span>
+            </PulsatingBorder>
+            <p className="text-muted-foreground text-sm">
+              <span className="text-primary font-medium">
+                [Takes about 1-3 minutes]
+              </span>{' '}
+              Amazon Rekognition is used to identify objects, scenes, and
+              activities within your video. Each result is paired with
+              timestamps and levels of confidence.
+            </p>
+          </>
+        )}
       </TabsContent>
     </Tabs>
   );

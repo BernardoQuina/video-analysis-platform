@@ -112,25 +112,31 @@ const config: Config = {
           },
           '15%': {
             transform: 'rotate(405deg) scale(1.1)', // 1st rotation peak (over rotation)
+            opacity: '0.5',
           },
           '20%': {
             transform: 'rotate(360deg)', // 1st rotation end (start hold)
-          },
-          '45%': {
-            transform: 'scale(1)', // Continue holding rotation (pulsate start)
-          },
-          '50%': {
-            transform: 'scale(1.2)', // Continue holding rotation (pulsate peak)
-          },
-          '55%': {
-            transform: 'scale(1)', // Continue holding rotation (pulsate end)
+            opacity: '1',
           },
           '80%': {
             transform: 'rotate(360deg)', // 2nd rotation start
+            opacity: '1',
           },
           '95%': {
             transform: 'rotate(-90deg) scale(1.1)', // 2nd rotation peak (over rotation)
+            opacity: '0.5',
           },
+        },
+        rotate: {
+          '0%': { transform: 'rotate(0deg) scale(10)', opacity: '0' },
+          '20%': { opacity: '0' },
+          '30%': { opacity: '1' },
+          '40%': { opacity: '1' },
+          '50%': { opacity: '0' },
+          '60%': { opacity: '0' },
+          '70%': { opacity: '0' },
+          '80%': { opacity: '1' },
+          '100%': { transform: 'rotate(-360deg) scale(10)', opacity: '0' },
         },
       },
     },
@@ -138,7 +144,8 @@ const config: Config = {
       pulse: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
       rainbow: 'rainbow 2s infinite ease-in-out',
       'rainbow-pulsate': 'rainbow-pulsate 2s infinite ease-in-out',
-      'spring-spin': 'spring-spin 5s ease-in-out infinite',
+      'spring-spin': 'spring-spin 4s ease-in-out infinite',
+      rotate: 'rotate 5s linear infinite',
     },
   },
   plugins: [
