@@ -156,7 +156,7 @@ function JobTabs({ video }: { video: Video }) {
           </>
         )}
       </TabsContent>
-      <TabsContent value="objectDetection">
+      <TabsContent value="objectDetection" className="gap-4">
         {video.rekognitionObjects ? null : (
           <>
             <PulsatingBorder>
