@@ -59,7 +59,7 @@ export function VideoPlayer({ video }: VideoPlayerProps) {
     <MediaPlayer
       className={cn(
         aspectClass,
-        'ring-media-focus bg-background-dark -ml-4 -mt-4 max-h-[70vh] min-w-[calc(100%+2rem)] overflow-hidden text-white shadow-md data-[focus]:ring-2 md:ml-0 md:mt-0 md:min-w-full md:rounded-md',
+        'ring-media-focus bg-background-dark -ml-4 -mt-4 max-h-[60vh] min-w-[calc(100%+2rem)] overflow-hidden text-white shadow-md data-[focus]:ring-2 md:ml-0 md:mt-0 md:min-w-full md:rounded-md',
       )}
       aspectRatio={video.aspectRatio.toString()}
       title={video.fileName}
