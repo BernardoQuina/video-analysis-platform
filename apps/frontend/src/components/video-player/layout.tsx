@@ -23,7 +23,7 @@ export interface VideoLayoutProps {
 export function VideoLayout({ thumbnails }: VideoLayoutProps) {
   return (
     <>
-      <Gestures />
+      {/* <Gestures /> */}
       {/* <Captions
         className={`${captionStyles.captions} media-preview:opacity-0 media-controls:bottom-[85px] media-captions:opacity-100 absolute inset-0 bottom-2 z-10 select-none break-words opacity-0 transition-[opacity,bottom] duration-300`}
       /> */}
@@ -53,7 +53,7 @@ export function VideoLayout({ thumbnails }: VideoLayoutProps) {
   );
 }
 
-function Gestures() {
+function _Gestures() {
   return (
     <>
       <Gesture
