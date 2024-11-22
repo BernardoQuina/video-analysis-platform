@@ -166,11 +166,6 @@
     background-color: hsl(240, 10%, 3.9%);
     height: 100%;
   }
-
-  .media-player .media-controls {
-    max-height: 60vh;
-    overflow-y: visible;
-  }
 }
 
 @layer utilities {
