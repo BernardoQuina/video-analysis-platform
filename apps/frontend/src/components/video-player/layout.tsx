@@ -1,34 +1,33 @@
 // import captionStyles from './captions.module.css';
 
-// import * as Tooltip from '@radix-ui/react-tooltip';
+import * as Tooltip from '@radix-ui/react-tooltip';
 import {
   // Captions,
-  // Controls,
+  Controls,
   Gesture,
 } from '@vidstack/react';
 
-// import * as Buttons from './buttons';
+import * as Buttons from './buttons';
 // import * as Menus from './menus';
-// import * as Sliders from './sliders';
-// import { TimeGroup } from './time-group';
+import * as Sliders from './sliders';
+import { TimeGroup } from './time-group';
 // import { Title } from './title';
 
 // Offset tooltips/menus/slider previews in the lower controls group so they're clearly visible.
-// const popupOffset = 30;
+const popupOffset = 30;
 
 export interface VideoLayoutProps {
   thumbnails?: string;
 }
 
 export function VideoLayout({ thumbnails }: VideoLayoutProps) {
-  console.log(thumbnails);
   return (
     <>
-      {/* <Gestures /> */}
+      <Gestures />
       {/* <Captions
         className={`${captionStyles.captions} media-preview:opacity-0 media-controls:bottom-[85px] media-captions:opacity-100 absolute inset-0 bottom-2 z-10 select-none break-words opacity-0 transition-[opacity,bottom] duration-300`}
       /> */}
-      {/* <Controls.Root className="media-controls:opacity-100 absolute inset-0 z-10 flex h-full w-full flex-col bg-gradient-to-t from-black/50 via-black/0 to-transparent opacity-0 transition-opacity">
+      <Controls.Root className="media-controls:opacity-100 absolute inset-0 z-10 flex h-full w-full flex-col bg-red-500 bg-gradient-to-t from-black/50 via-black/0 to-transparent opacity-0 transition-opacity">
         <Tooltip.Provider>
           <div className="flex-1 flex-row" />
           <Controls.Group className="w-full flex-row items-center px-2">
@@ -38,23 +37,23 @@ export function VideoLayout({ thumbnails }: VideoLayoutProps) {
             <Buttons.Play tooltipAlign="start" tooltipOffset={popupOffset} />
             <Buttons.Mute tooltipOffset={popupOffset} />
             <Sliders.Volume />
-            <TimeGroup /> */}
-      {/* <Title /> */}
-      <div className="flex-1" />
-      {/* <Menus.Captions offset={popupOffset} tooltipOffset={popupOffset} /> */}
-      {/* <Buttons.PIP tooltipOffset={popupOffset} />
+            <TimeGroup />
+            {/* <Title /> */}
+            <div className="flex-1" />
+            {/* <Menus.Captions offset={popupOffset} tooltipOffset={popupOffset} /> */}
+            <Buttons.PIP tooltipOffset={popupOffset} />
             <Buttons.Fullscreen
               tooltipAlign="end"
               tooltipOffset={popupOffset}
             />
           </Controls.Group>
         </Tooltip.Provider>
-      </Controls.Root> */}
+      </Controls.Root>
     </>
   );
 }
 
-function _Gestures() {
+function Gestures() {
   return (
     <>
       <Gesture
