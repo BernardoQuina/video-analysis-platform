@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import * as Slider from '@radix-ui/react-slider';
 import {
-  formatTime,
-  Thumbnail,
+  // formatTime,
+  // Thumbnail,
   useMediaRemote,
   useMediaState,
-  useSliderPreview,
+  // useSliderPreview,
 } from '@vidstack/react';
 
 export function Volume() {
@@ -45,17 +45,17 @@ export function Time({ thumbnails }: TimeSliderProps) {
     seeking = useMediaState('seeking'),
     remote = useMediaRemote(),
     step = (1 / duration) * 100,
-    [value, setValue] = useState(0),
-    { previewRootRef, previewRef, previewValue } = useSliderPreview({
-      clamp: true,
-      offset: 6,
-      orientation: 'horizontal',
-    }),
-    previewTime = (previewValue / 100) * duration;
+    [value, setValue] = useState(0);
+  // { previewRootRef, previewRef, previewValue } = useSliderPreview({
+  //   clamp: true,
+  //   offset: 6,
+  //   orientation: 'horizontal',
+  // }),
+  // previewTime = (previewValue / 100) * duration;
 
   // Keep slider value in-sync with playback.
   useEffect(() => {
-    if (seeking) return;
+    if (seeking || !thumbnails) return;
     setValue((time / duration) * 100);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [time, duration]);
@@ -66,7 +66,7 @@ export function Time({ thumbnails }: TimeSliderProps) {
       value={[value]}
       disabled={!canSeek}
       step={Number.isFinite(step) ? step : 1}
-      ref={previewRootRef}
+      // ref={previewRootRef} // Was blocking scroll on mobile, couldn't figure it out
       onValueChange={([value]) => {
         setValue(value);
         remote.seeking((value / 100) * duration);
@@ -85,9 +85,9 @@ export function Time({ thumbnails }: TimeSliderProps) {
       />
 
       {/* Preview */}
-      <div
+      {/* <div
         className="pointer-events-none absolute flex flex-col items-center opacity-0 transition-opacity duration-200 will-change-[left] data-[visible]:opacity-100"
-        ref={previewRef}
+        // ref={previewRef}
       >
         {thumbnails ? (
           <Thumbnail.Root
@@ -99,7 +99,7 @@ export function Time({ thumbnails }: TimeSliderProps) {
           </Thumbnail.Root>
         ) : null}
         <span className="text-[13px]">{formatTime(previewTime)}</span>
-      </div>
+      </div> */}
     </Slider.Root>
   );
 }
