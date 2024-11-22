@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import {
   isHLSProvider,
   MediaPlayer,
-  MediaProvider,
+  // MediaProvider,
   // Poster,
   // Track,
   type MediaCanPlayDetail,
@@ -11,7 +11,7 @@ import {
   type MediaProviderAdapter,
   type MediaProviderChangeEvent,
 } from '@vidstack/react';
-// import '@vidstack/react/player/styles/base.css';
+import '@vidstack/react/player/styles/base.css';
 
 import { RouterOutput } from '../../utils/trpc';
 import { cn } from '../../utils/cn';
@@ -69,16 +69,16 @@ export function VideoPlayer({ video }: VideoPlayerProps) {
       onCanPlay={onCanPlay}
       ref={player}
     >
-      <MediaProvider>
-        {/* <Poster
+      {/* <MediaProvider> */}
+      {/* <Poster
           className="absolute inset-0 block h-full w-full rounded-md object-cover opacity-0 transition-opacity data-[visible]:opacity-100"
           src="https://files.vidstack.io/sprite-fight/poster.webp"
           alt="Girl walks into campfire with gnomes surrounding her friend ready for their next meal!"
         /> */}
-        {/* {textTracks.map((track) => (
+      {/* {textTracks.map((track) => (
           <Track {...track} key={track.src} />
         ))} */}
-      </MediaProvider>
+      {/* </MediaProvider> */}
       <VideoLayout />
     </MediaPlayer>
   );
