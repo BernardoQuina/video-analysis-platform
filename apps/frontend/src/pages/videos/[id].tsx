@@ -63,7 +63,29 @@ export default function Videos() {
               transcriptions, object detection, and intelligent Q&A through
               cloud technology.
             </p>
-            <JobTabs video={video} />
+            {/* <JobTabs video={video} /> */}
+
+            <p className="text-muted-foreground my-6 text-sm">
+              Scroll test paragraph
+            </p>
+            <p className="text-muted-foreground my-6 text-sm">
+              Scroll test paragraph
+            </p>
+            <p className="text-muted-foreground my-6 text-sm">
+              Scroll test paragraph
+            </p>
+            <p className="text-muted-foreground my-6 text-sm">
+              Scroll test paragraph
+            </p>
+            <p className="text-muted-foreground my-6 text-sm">
+              Scroll test paragraph
+            </p>
+            <p className="text-muted-foreground my-6 text-sm">
+              Scroll test paragraph
+            </p>
+            <p className="text-muted-foreground my-6 text-sm">
+              Scroll test paragraph
+            </p>
           </div>
         </div>
       ) : null}
@@ -81,7 +103,7 @@ function LoadingSkeleton() {
 
 type Video = RouterOutput['videos']['singleVideo'];
 
-function JobTabs({ video }: { video: Video }) {
+function _JobTabs({ video }: { video: Video }) {
   return (
     <Tabs defaultValue="transcript">
       <TabsList className="flex-row">
