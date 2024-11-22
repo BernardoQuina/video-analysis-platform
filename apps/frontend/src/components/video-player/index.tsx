@@ -11,7 +11,7 @@ import {
   type MediaProviderAdapter,
   type MediaProviderChangeEvent,
 } from '@vidstack/react';
-import '@vidstack/react/player/styles/base.css';
+// import '@vidstack/react/player/styles/base.css';
 
 import { RouterOutput } from '../../utils/trpc';
 import { cn } from '../../utils/cn';
