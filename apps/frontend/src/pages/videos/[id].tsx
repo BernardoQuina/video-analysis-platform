@@ -3,7 +3,7 @@ import { Cpu } from 'lucide-react';
 
 import { PageLayout } from '../../components/page-layout';
 import { RouterOutput, trpc } from '../../utils/trpc';
-import { VideoPlayer } from '../../components/video-player';
+// import { VideoPlayer } from '../../components/video-player';
 import { VideoErrorBanner } from '../../components/video-error-banners';
 import { Skeleton } from '../../components/ui/skeleton';
 import {
@@ -53,7 +53,7 @@ export default function Videos() {
         </div>
       ) : video ? (
         <div className="gap-4">
-          <VideoPlayer video={video} />
+          {/* <VideoPlayer video={video} /> */}
           <div className="gap-2">
             <h1 className="text-2xl font-medium leading-none">
               {video.fileName}
@@ -65,6 +65,36 @@ export default function Videos() {
             </p>
             {/* <JobTabs video={video} /> */}
 
+            <p className="text-muted-foreground my-6 text-sm">
+              Scroll test paragraph
+            </p>
+            <p className="text-muted-foreground my-6 text-sm">
+              Scroll test paragraph
+            </p>
+            <p className="text-muted-foreground my-6 text-sm">
+              Scroll test paragraph
+            </p>
+            <p className="text-muted-foreground my-6 text-sm">
+              Scroll test paragraph
+            </p>
+            <p className="text-muted-foreground my-6 text-sm">
+              Scroll test paragraph
+            </p>
+            <p className="text-muted-foreground my-6 text-sm">
+              Scroll test paragraph
+            </p>
+            <p className="text-muted-foreground my-6 text-sm">
+              Scroll test paragraph
+            </p>
+            <p className="text-muted-foreground my-6 text-sm">
+              Scroll test paragraph
+            </p>
+            <p className="text-muted-foreground my-6 text-sm">
+              Scroll test paragraph
+            </p>
+            <p className="text-muted-foreground my-6 text-sm">
+              Scroll test paragraph
+            </p>
             <p className="text-muted-foreground my-6 text-sm">
               Scroll test paragraph
             </p>
