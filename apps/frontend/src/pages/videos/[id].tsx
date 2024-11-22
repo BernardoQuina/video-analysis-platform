@@ -63,6 +63,46 @@ export default function Videos() {
               transcriptions, object detection, and intelligent Q&A through
               cloud technology.
             </p>
+            <p className="text-muted-foreground text-sm">
+              Showcase of AI-driven analysis with AWS-powered services, offering
+              transcriptions, object detection, and intelligent Q&A through
+              cloud technology.
+            </p>
+            <p className="text-muted-foreground text-sm">
+              Showcase of AI-driven analysis with AWS-powered services, offering
+              transcriptions, object detection, and intelligent Q&A through
+              cloud technology.
+            </p>
+            <p className="text-muted-foreground text-sm">
+              Showcase of AI-driven analysis with AWS-powered services, offering
+              transcriptions, object detection, and intelligent Q&A through
+              cloud technology.
+            </p>
+            <p className="text-muted-foreground text-sm">
+              Showcase of AI-driven analysis with AWS-powered services, offering
+              transcriptions, object detection, and intelligent Q&A through
+              cloud technology.
+            </p>
+            <p className="text-muted-foreground text-sm">
+              Showcase of AI-driven analysis with AWS-powered services, offering
+              transcriptions, object detection, and intelligent Q&A through
+              cloud technology.
+            </p>
+            <p className="text-muted-foreground text-sm">
+              Showcase of AI-driven analysis with AWS-powered services, offering
+              transcriptions, object detection, and intelligent Q&A through
+              cloud technology.
+            </p>
+            <p className="text-muted-foreground text-sm">
+              Showcase of AI-driven analysis with AWS-powered services, offering
+              transcriptions, object detection, and intelligent Q&A through
+              cloud technology.
+            </p>
+            <p className="text-muted-foreground text-sm">
+              Showcase of AI-driven analysis with AWS-powered services, offering
+              transcriptions, object detection, and intelligent Q&A through
+              cloud technology.
+            </p>
             <JobTabs video={video} />
           </div>
         </div>

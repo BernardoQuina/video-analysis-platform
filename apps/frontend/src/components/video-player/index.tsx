@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import {
   isHLSProvider,
   MediaPlayer,
-  // MediaProvider,
+  MediaProvider,
   // Poster,
   // Track,
   type MediaCanPlayDetail,
@@ -61,7 +61,7 @@ export function VideoPlayer({ video }: VideoPlayerProps) {
         aspectClass,
         'ring-media-focus bg-background-dark -ml-4 -mt-4 max-h-[60vh] min-w-[calc(100%+2rem)] overflow-hidden text-white shadow-md data-[focus]:ring-2 md:ml-0 md:mt-0 md:min-w-full md:rounded-md',
       )}
-      aspectRatio={video.aspectRatio.toString()}
+      // aspectRatio={video.aspectRatio.toString()}
       title={video.fileName}
       src={`${mediaUrl}/${video.s3Key}`}
       playsInline={false}
@@ -69,16 +69,16 @@ export function VideoPlayer({ video }: VideoPlayerProps) {
       onCanPlay={onCanPlay}
       ref={player}
     >
-      {/* <MediaProvider> */}
-      {/* <Poster
+      <MediaProvider>
+        {/* <Poster
           className="absolute inset-0 block h-full w-full rounded-md object-cover opacity-0 transition-opacity data-[visible]:opacity-100"
           src="https://files.vidstack.io/sprite-fight/poster.webp"
           alt="Girl walks into campfire with gnomes surrounding her friend ready for their next meal!"
         /> */}
-      {/* {textTracks.map((track) => (
+        {/* {textTracks.map((track) => (
           <Track {...track} key={track.src} />
         ))} */}
-      {/* </MediaProvider> */}
+      </MediaProvider>
       <VideoLayout />
     </MediaPlayer>
   );
