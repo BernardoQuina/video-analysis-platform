@@ -3,7 +3,7 @@ import { Cpu } from 'lucide-react';
 
 import { PageLayout } from '../../components/page-layout';
 import { RouterOutput, trpc } from '../../utils/trpc';
-// import { VideoPlayer } from '../../components/video-player';
+import { VideoPlayer } from '../../components/video-player';
 import { VideoErrorBanner } from '../../components/video-error-banners';
 import { Skeleton } from '../../components/ui/skeleton';
 import {
@@ -53,7 +53,7 @@ export default function Videos() {
         </div>
       ) : video ? (
         <div className="gap-4">
-          {/* <VideoPlayer video={video} /> */}
+          <VideoPlayer video={video} />
           <div className="gap-2">
             <h1 className="text-2xl font-medium leading-none">
               {video.fileName}
@@ -63,59 +63,7 @@ export default function Videos() {
               transcriptions, object detection, and intelligent Q&A through
               cloud technology.
             </p>
-            {/* <JobTabs video={video} /> */}
-
-            <p className="text-muted-foreground my-6 text-sm">
-              Scroll test paragraph
-            </p>
-            <p className="text-muted-foreground my-6 text-sm">
-              Scroll test paragraph
-            </p>
-            <p className="text-muted-foreground my-6 text-sm">
-              Scroll test paragraph
-            </p>
-            <p className="text-muted-foreground my-6 text-sm">
-              Scroll test paragraph
-            </p>
-            <p className="text-muted-foreground my-6 text-sm">
-              Scroll test paragraph
-            </p>
-            <p className="text-muted-foreground my-6 text-sm">
-              Scroll test paragraph
-            </p>
-            <p className="text-muted-foreground my-6 text-sm">
-              Scroll test paragraph
-            </p>
-            <p className="text-muted-foreground my-6 text-sm">
-              Scroll test paragraph
-            </p>
-            <p className="text-muted-foreground my-6 text-sm">
-              Scroll test paragraph
-            </p>
-            <p className="text-muted-foreground my-6 text-sm">
-              Scroll test paragraph
-            </p>
-            <p className="text-muted-foreground my-6 text-sm">
-              Scroll test paragraph
-            </p>
-            <p className="text-muted-foreground my-6 text-sm">
-              Scroll test paragraph
-            </p>
-            <p className="text-muted-foreground my-6 text-sm">
-              Scroll test paragraph
-            </p>
-            <p className="text-muted-foreground my-6 text-sm">
-              Scroll test paragraph
-            </p>
-            <p className="text-muted-foreground my-6 text-sm">
-              Scroll test paragraph
-            </p>
-            <p className="text-muted-foreground my-6 text-sm">
-              Scroll test paragraph
-            </p>
-            <p className="text-muted-foreground my-6 text-sm">
-              Scroll test paragraph
-            </p>
+            <JobTabs video={video} />
           </div>
         </div>
       ) : null}
@@ -133,7 +81,7 @@ function LoadingSkeleton() {
 
 type Video = RouterOutput['videos']['singleVideo'];
 
-function _JobTabs({ video }: { video: Video }) {
+function JobTabs({ video }: { video: Video }) {
   return (
     <Tabs defaultValue="transcript">
       <TabsList className="flex-row">

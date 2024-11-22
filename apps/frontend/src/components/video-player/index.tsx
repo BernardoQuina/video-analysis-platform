@@ -14,7 +14,7 @@ import {
 import '@vidstack/react/player/styles/base.css';
 
 import { RouterOutput } from '../../utils/trpc';
-import { cn } from '../../utils/cn';
+// import { cn } from '../../utils/cn';
 
 import { VideoLayout } from './layout';
 
@@ -53,14 +53,14 @@ export function VideoPlayer({ video }: VideoPlayerProps) {
     // ...
   }
 
-  const aspectClass = `aspect-[${video.aspectRatio || 1.78}]`; // default to 16/9
+  // const aspectClass = `aspect-[${video.aspectRatio || 1.78}]`; // default to 16/9
 
   return (
     <MediaPlayer
-      className={cn(
-        aspectClass,
-        'ring-media-focus bg-background-dark -ml-4 -mt-4 max-h-[60vh] min-w-[calc(100%+2rem)] overflow-hidden text-white shadow-md data-[focus]:ring-2 md:ml-0 md:mt-0 md:min-w-full md:rounded-md',
-      )}
+      // className={cn(
+      //   aspectClass,
+      //   'ring-media-focus bg-background-dark -ml-4 -mt-4 max-h-[60vh] min-w-[calc(100%+2rem)] overflow-hidden text-white shadow-md data-[focus]:ring-2 md:ml-0 md:mt-0 md:min-w-full md:rounded-md',
+      // )}
       aspectRatio={video.aspectRatio.toString()}
       title={video.fileName}
       src={`${mediaUrl}/${video.s3Key}`}
