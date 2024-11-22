@@ -64,7 +64,7 @@ export function VideoPlayer({ video }: VideoPlayerProps) {
       aspectRatio={video.aspectRatio.toString()}
       title={video.fileName}
       src={`${mediaUrl}/${video.s3Key}`}
-      playsInline={false}
+      playsInline
       onProviderChange={onProviderChange}
       onCanPlay={onCanPlay}
       ref={player}
