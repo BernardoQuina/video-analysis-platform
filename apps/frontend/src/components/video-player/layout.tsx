@@ -23,14 +23,11 @@ export interface VideoLayoutProps {
 export function VideoLayout({ thumbnails }: VideoLayoutProps) {
   return (
     <>
-      {/* <Gestures /> */}
+      <Gestures />
       {/* <Captions
         className={`${captionStyles.captions} media-preview:opacity-0 media-controls:bottom-[85px] media-captions:opacity-100 absolute inset-0 bottom-2 z-10 select-none break-words opacity-0 transition-[opacity,bottom] duration-300`}
       /> */}
-      <Controls.Root
-        className="media-controls:opacity-100 absolute bottom-0 z-10 flex h-fit w-full flex-col bg-gradient-to-t from-black/60 to-transparent opacity-0 transition-opacity"
-        style={{ touchAction: 'pan-y' }}
-      >
+      <Controls.Root className="media-controls:opacity-100 absolute bottom-0 z-10 flex h-fit w-full flex-col bg-gradient-to-t from-black/60 to-transparent opacity-0 transition-opacity">
         <Tooltip.Provider>
           <div className="flex-1 flex-row" />
           <Controls.Group className="w-full flex-row items-center px-2">
@@ -56,7 +53,7 @@ export function VideoLayout({ thumbnails }: VideoLayoutProps) {
   );
 }
 
-function _Gestures() {
+function Gestures() {
   return (
     <>
       <Gesture
