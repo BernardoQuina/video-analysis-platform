@@ -106,7 +106,7 @@ export const handler = async (
       }
     });
 
-    console.dir({ mergedSegments }, { depth: Infinity });
+    console.dir(results.audio_segments, { depth: Infinity });
 
     await db.entities.videos
       .update({ id: videoid, userId: userid })
