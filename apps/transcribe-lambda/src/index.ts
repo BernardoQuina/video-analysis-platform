@@ -88,21 +88,43 @@ export const handler = async (
       completedJob.Transcript?.TranscriptFileUri ?? '',
     );
 
-    const mergedSegments: { person: string; transcript: string }[] = [];
+    const mergedSegments: {
+      person: string;
+      transcript: string;
+      startTime: number;
+      endTime: number;
+    }[] = [];
+
+    // Count the number of unique speakers
+    const uniqueSpeakers = new Set(
+      results.audio_segments.map((segment) => segment.speaker_label),
+    ).size;
 
     results.audio_segments.forEach((segment) => {
       const personNumber = parseInt(segment.speaker_label.split('spk_')[1]) + 1;
       const person = `Person ${personNumber}`;
+      const segmentStartTime = parseFloat(segment.start_time!);
+      const segmentEndTime = parseFloat(segment.end_time!);
+
       if (
+        uniqueSpeakers > 1 && // Only merge if more than one speaker
         mergedSegments.length > 0 &&
-        mergedSegments[mergedSegments.length - 1].person === person
+        mergedSegments[mergedSegments.length - 1].person === person &&
+        segmentStartTime - mergedSegments[mergedSegments.length - 1].endTime <=
+          1 // Threshold for merging
       ) {
-        // Merge with the last segment in mergedSegments
+        // Merge with the last segment
         const lastSegment = mergedSegments[mergedSegments.length - 1];
         lastSegment.transcript += ' ' + segment.transcript;
+        lastSegment.endTime = segmentEndTime; // Update the endTime to the current segment's endTime
       } else {
-        // Otherwise, add as a new segment
-        mergedSegments.push({ person, transcript: segment.transcript });
+        // Add a new segment
+        mergedSegments.push({
+          person,
+          transcript: segment.transcript,
+          startTime: segmentStartTime,
+          endTime: segmentEndTime,
+        });
       }
     });
 

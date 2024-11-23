@@ -38,6 +38,8 @@ const Videos = new Entity({
         properties: {
           person: { type: 'string' },
           transcript: { type: 'string' },
+          startTime: { type: 'number' },
+          endTime: { type: 'number' },
         },
       },
     },
