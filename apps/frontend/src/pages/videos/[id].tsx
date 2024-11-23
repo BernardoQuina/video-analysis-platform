@@ -73,8 +73,23 @@ export default function Videos() {
 
 function LoadingSkeleton() {
   return (
-    <div>
+    <div className="gap-4">
       <Skeleton className="-ml-4 -mt-4 aspect-video max-h-[60vh] min-w-[calc(100%+2rem)] rounded-none text-white shadow-md md:ml-0 md:mt-0 md:min-w-full md:rounded-md" />
+
+      <div className="gap-2">
+        <Skeleton className="h-8 w-[60%]" />
+        <Skeleton className="h-4" />
+        <Skeleton className="h-4" />
+      </div>
+      <div className="gap-4 pt-4">
+        <Skeleton className="h-8 w-full max-w-[30rem]" />
+        <div className="gap-2">
+          <Skeleton className="h-4" />
+          <Skeleton className="h-4" />
+          <Skeleton className="h-4" />
+          <Skeleton className="h-4" />
+        </div>
+      </div>
     </div>
   );
 }
