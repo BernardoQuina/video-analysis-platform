@@ -11,6 +11,7 @@ import type {
   S3ObjectCreatedNotificationEventDetail,
   // eslint-disable-next-line node/no-missing-import
 } from 'aws-lambda';
+import { useDB } from '@repo/db';
 
 import { waitForTranscriptionJob } from './utils/wait-for-job';
 import { getTranscriptionResults } from './utils/get-job-results';
@@ -25,6 +26,11 @@ const transcribeClient = new TranscribeClient({
 });
 const s3Client = new S3Client({ region: process.env.AWS_REGION });
 
+const db = useDB({
+  region: process.env.AWS_REGION,
+  tableName: process.env.DYNAMODB_TABLE_NAME,
+});
+
 // Maximum time to wait for transcription (14 minutes)
 const MAX_WAIT_TIME = 14 * 60 * 1000;
 // Time between status checks (10 seconds)
@@ -37,16 +43,14 @@ export const handler = async (
   >,
 ): Promise<APIGatewayProxyResult> => {
   // TODO: remove to activate lambda
-  return { statusCode: 200, body: JSON.stringify({ message: 'Test' }) };
+  // return { statusCode: 200, body: JSON.stringify({ message: 'Test' }) };
   const { bucket, object } = event.detail;
 
-  const s3MetadataCommand = new HeadObjectCommand({
-    Bucket: bucket.name,
-    Key: object.key,
-  });
+  const objectParams = { Bucket: bucket.name, Key: object.key };
 
-  const { videoid, userid } = (await s3Client.send(s3MetadataCommand))
-    .Metadata as Metadata;
+  const { userid, videoid } = (
+    await s3Client.send(new HeadObjectCommand(objectParams))
+  ).Metadata as Metadata;
 
   const jobName = `Transcribe-${userid}-${videoid}`;
 
@@ -59,6 +63,13 @@ export const handler = async (
   };
 
   try {
+    // Get info from db
+    const { data: videoItem } = await db.entities.videos
+      .get({ id: videoid, userId: userid })
+      .go();
+
+    if (!videoItem) throw new Error('Video item not found in db.');
+
     const command = new StartTranscriptionJobCommand(params);
     await transcribeClient.send(command);
 
@@ -82,7 +93,6 @@ export const handler = async (
     results.audio_segments.forEach((segment) => {
       const personNumber = parseInt(segment.speaker_label.split('spk_')[1]) + 1;
       const person = `Person ${personNumber}`;
-
       if (
         mergedSegments.length > 0 &&
         mergedSegments[mergedSegments.length - 1].person === person
@@ -97,6 +107,11 @@ export const handler = async (
     });
 
     console.dir({ mergedSegments }, { depth: Infinity });
+
+    await db.entities.videos
+      .update({ id: videoid, userId: userid })
+      .set({ transcriptResult: mergedSegments })
+      .go();
 
     return { statusCode: 200, body: JSON.stringify(results) };
   } catch (error) {

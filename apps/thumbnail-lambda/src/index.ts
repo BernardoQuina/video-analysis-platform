@@ -24,6 +24,7 @@ type Metadata = {
 };
 
 const s3Client = new S3Client({ region: process.env.AWS_REGION });
+
 const db = useDB({
   region: process.env.AWS_REGION,
   tableName: process.env.DYNAMODB_TABLE_NAME,
@@ -36,12 +37,10 @@ export const handler = async (
   >,
 ): Promise<APIGatewayProxyResult> => {
   const { bucket, object } = event.detail;
-  const bucketName = bucket.name;
-  const objectKey = object.key;
   const tempVideoPath = path.join('/tmp', 'temp-video.mp4');
   const tempThumbnailPath = path.join('/tmp', 'thumbnail.jpg');
 
-  const objectParams = { Bucket: bucketName, Key: objectKey };
+  const objectParams = { Bucket: bucket.name, Key: object.key };
 
   const { userid, videoid } = (
     await s3Client.send(new HeadObjectCommand(objectParams))
@@ -118,7 +117,7 @@ export const handler = async (
 
     const fileContent = fs.readFileSync(tempThumbnailPath);
     const putObjectParams = {
-      Bucket: bucketName,
+      Bucket: bucket.name,
       Key: videoItem.thumbnailS3Key,
       Body: fileContent,
       ContentType: 'image/jpeg',
@@ -127,7 +126,7 @@ export const handler = async (
     await s3Client.send(new PutObjectCommand(putObjectParams));
 
     console.log(
-      `Successfully created and uploaded thumbnail for ${objectKey} at ${videoItem.thumbnailS3Key}`,
+      `Successfully created and uploaded thumbnail for ${object.key} at ${videoItem.thumbnailS3Key}`,
     );
 
     return {
