@@ -1,5 +1,8 @@
+import { RefObject, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import { Cpu } from 'lucide-react';
+import { MediaPlayerInstance, useMediaRemote } from '@vidstack/react';
+import moment from 'moment';
 
 import { PageLayout } from '../../components/page-layout';
 import { RouterOutput, trpc } from '../../utils/trpc';
@@ -29,6 +32,8 @@ export default function Videos() {
     { enabled: !!id },
   );
 
+  const playerRef = useRef<MediaPlayerInstance>(null);
+
   return (
     <PageLayout
       pageTitle="Video Analysis Library"
@@ -53,7 +58,7 @@ export default function Videos() {
         </div>
       ) : video ? (
         <div className="gap-4">
-          <VideoPlayer video={video} />
+          <VideoPlayer video={video} playerRef={playerRef} />
           <div className="gap-2">
             <h1 className="text-2xl font-medium leading-none">
               {video.fileName}
@@ -63,7 +68,7 @@ export default function Videos() {
               transcriptions, object detection, and intelligent Q&A through
               cloud technology.
             </p>
-            <JobTabs video={video} />
+            <JobTabs video={video} playerRef={playerRef} />
           </div>
         </div>
       ) : null}
@@ -96,20 +101,42 @@ function LoadingSkeleton() {
 
 type Video = RouterOutput['videos']['singleVideo'];
 
-function JobTabs({ video }: { video: Video }) {
+type JobTabsProps = {
+  video: Video;
+  playerRef: RefObject<MediaPlayerInstance>;
+};
+
+function JobTabs({ video, playerRef }: JobTabsProps) {
+  // Changed to controlled tab state on click because default on key down
+  // was causing problems with the video player (unwanted play click)
+  const [tab, setTab] = useState<
+    'transcript' | 'summary' | 'prompt' | 'objectDetection'
+  >('transcript');
+
   return (
-    <Tabs defaultValue="transcript">
-      <TabsList className="flex-row">
-        <TabsTrigger value="transcript">Transcript</TabsTrigger>
+    <Tabs value={tab} onPointerDown={(event) => event.preventDefault()}>
+      <TabsList className="bg-background sticky top-14 flex-row">
+        <TabsTrigger value="transcript" onClick={() => setTab('transcript')}>
+          Transcript
+        </TabsTrigger>
         <Separator orientation="vertical" className="h-[50%]" />
-        <TabsTrigger value="summary">Summary</TabsTrigger>
+        <TabsTrigger value="summary" onClick={() => setTab('summary')}>
+          Summary
+        </TabsTrigger>
         <Separator orientation="vertical" className="h-[50%]" />
-        <TabsTrigger value="prompt">Prompt</TabsTrigger>
+        <TabsTrigger value="prompt" onClick={() => setTab('prompt')}>
+          Prompt
+        </TabsTrigger>
         <Separator orientation="vertical" className="h-[50%]" />
-        <TabsTrigger value="objectDetection">Object detection</TabsTrigger>
+        <TabsTrigger
+          value="objectDetection"
+          onClick={() => setTab('objectDetection')}
+        >
+          Object detection
+        </TabsTrigger>
       </TabsList>
-      <TabsContent value="transcript" className="gap-4 pb-4">
-        {video.transcriptResult ? null : (
+      <TabsContent value="transcript" className="gap-4 pb-20">
+        {!video.transcriptResult ? (
           <>
             <PulsatingBorder>
               <Cpu className="text-primary animate-spring-spin h-4 w-4" />
@@ -127,9 +154,17 @@ function JobTabs({ video }: { video: Video }) {
               search, or share what was said in your video.
             </p>
           </>
+        ) : video.transcriptResult.length === 0 ? null : (
+          video.transcriptResult.map((segment) => (
+            <TranscriptSegment
+              key={segment.startTime}
+              segment={segment}
+              playerRef={playerRef}
+            />
+          ))
         )}
       </TabsContent>
-      <TabsContent value="summary" className="gap-4 pb-4">
+      <TabsContent value="summary" className="gap-4 pb-20">
         {video.analysisResult ? null : (
           <>
             <PulsatingBorder>
@@ -150,7 +185,7 @@ function JobTabs({ video }: { video: Video }) {
           </>
         )}
       </TabsContent>
-      <TabsContent value="prompt" className="gap-4 pb-4">
+      <TabsContent value="prompt" className="gap-4 pb-20">
         {video.analysisResult ? null : (
           <>
             <PulsatingBorder>
@@ -171,7 +206,7 @@ function JobTabs({ video }: { video: Video }) {
           </>
         )}
       </TabsContent>
-      <TabsContent value="objectDetection" className="gap-4 pb-4">
+      <TabsContent value="objectDetection" className="gap-4 pb-20">
         {video.rekognitionObjects ? null : (
           <>
             <PulsatingBorder>
@@ -192,5 +227,56 @@ function JobTabs({ video }: { video: Video }) {
         )}
       </TabsContent>
     </Tabs>
+  );
+}
+
+type Segment = NonNullable<Video['transcriptResult']>[number];
+
+type TranscriptSegmentProps = {
+  segment: Segment;
+  playerRef: RefObject<MediaPlayerInstance>;
+};
+
+function TranscriptSegment({ segment, playerRef }: TranscriptSegmentProps) {
+  const remote = useMediaRemote(playerRef);
+
+  const timestamp = useMemo(() => {
+    // Floor the input to ensure whole seconds
+    const flooredTime = Math.floor(segment.startTime);
+
+    // Use moment.duration to handle the time conversion
+    const duration = moment.duration(flooredTime, 'seconds');
+
+    // Format the duration as "MM:SS"
+    const formattedTime = moment.utc(duration.asMilliseconds()).format('mm:ss');
+
+    return formattedTime;
+  }, [segment]);
+
+  function jumpToSegment() {
+    remote.seek(segment.startTime);
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    remote.play();
+  }
+
+  return (
+    <>
+      <div className="flex-row gap-2">
+        <div>
+          <button
+            className="text-muted-foreground decoration-muted-foreground w-11 text-sm underline-offset-4 hover:underline"
+            onClick={jumpToSegment}
+          >
+            <span>{timestamp}</span>
+          </button>
+        </div>
+        <div className="gap-2">
+          <span className="text-sm font-bold">{segment.person}</span>
+          <p>{segment.transcript}</p>
+        </div>
+      </div>
+      <Separator />
+    </>
   );
 }

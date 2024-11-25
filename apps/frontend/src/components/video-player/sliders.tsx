@@ -55,10 +55,10 @@ export function Time({ thumbnails }: TimeSliderProps) {
 
   // Keep slider value in-sync with playback.
   useEffect(() => {
-    if (seeking || !thumbnails) return;
+    if (seeking) return;
     setValue((time / duration) * 100);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [time, duration]);
+  }, [time, duration, thumbnails]);
 
   return (
     <Slider.Root

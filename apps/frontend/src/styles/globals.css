@@ -165,6 +165,7 @@
   video {
     background-color: hsl(240, 10%, 3.9%);
     height: 100%;
+    transform: scale(1.002);
   }
 }
 

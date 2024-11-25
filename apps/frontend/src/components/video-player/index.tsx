@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { RefObject, useEffect } from 'react';
 import {
   isHLSProvider,
   MediaPlayer,
@@ -20,16 +20,15 @@ import { VideoLayout } from './layout';
 
 type VideoPlayerProps = {
   video: RouterOutput['videos']['singleVideo'];
+  playerRef: RefObject<MediaPlayerInstance>;
 };
 
 const mediaUrl = process.env.NEXT_PUBLIC_MEDIA_URL;
 
-export function VideoPlayer({ video }: VideoPlayerProps) {
-  const player = useRef<MediaPlayerInstance>(null);
-
+export function VideoPlayer({ video, playerRef }: VideoPlayerProps) {
   useEffect(() => {
     // Subscribe to state updates.
-    return player.current!.subscribe(() => {
+    return playerRef.current!.subscribe(() => {
       // console.log('is paused?', '->', state.paused);
       // console.log('is audio view?', '->', state.viewType === 'audio');
     });
@@ -59,7 +58,7 @@ export function VideoPlayer({ video }: VideoPlayerProps) {
     <MediaPlayer
       className={cn(
         aspectClass,
-        'ring-media-focus bg-background-dark relative -ml-4 -mt-4 max-h-[60vh] min-w-[calc(100%+2rem)] overflow-hidden text-white shadow-md data-[focus]:ring-2 md:ml-0 md:mt-0 md:min-w-full md:rounded-md',
+        'ring-media-focus relative -ml-4 -mt-4 max-h-[60vh] min-w-[calc(100%+2rem)] overflow-hidden text-white shadow-md data-[focus]:ring-2 md:ml-0 md:mt-0 md:min-w-full md:rounded-md',
       )}
       aspectRatio={video.aspectRatio.toString()}
       title={video.fileName}
@@ -67,7 +66,7 @@ export function VideoPlayer({ video }: VideoPlayerProps) {
       playsInline
       onProviderChange={onProviderChange}
       onCanPlay={onCanPlay}
-      ref={player}
+      ref={playerRef}
     >
       <MediaProvider>
         {/* <Poster

@@ -36,10 +36,10 @@ const Videos = new Entity({
       items: {
         type: 'map',
         properties: {
-          person: { type: 'string' },
-          transcript: { type: 'string' },
-          startTime: { type: 'number' },
-          endTime: { type: 'number' },
+          person: { type: 'string', required: true },
+          transcript: { type: 'string', required: true },
+          startTime: { type: 'number', required: true },
+          endTime: { type: 'number', required: true },
         },
       },
     },
