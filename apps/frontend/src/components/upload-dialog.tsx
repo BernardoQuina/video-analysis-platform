@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
 import { Focus, Loader2, Upload } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -46,6 +47,8 @@ export function UploadDialog() {
     resolver: zodResolver(initiateUploadSchema),
     defaultValues: { visibility: 'PUBLIC', prompt: '' },
   });
+
+  const router = useRouter();
 
   const { data: meData } = trpc.auth.me.useQuery(undefined, {
     trpc: { context: { skipBatch: true } },
@@ -148,8 +151,9 @@ export function UploadDialog() {
       form.reset();
       toast.success('Upload completed successfully', {
         description:
-          'Analysis jobs will start processing now. You can check their status on the video page.',
+          'Analysis jobs will start processing now. You can check their status on this video page.',
       });
+      router.push(`/videos/${videoId}`);
     } catch (error) {
       toast.error('An error occurred while uploading', {
         description: (error as Error).message,

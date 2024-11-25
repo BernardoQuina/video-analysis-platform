@@ -105,6 +105,21 @@ export const videos = router({
   initiateUpload: protectedProcedure
     .input(initiateUploadSchema)
     .mutation(async ({ ctx, input }) => {
+      // Check if user has uploaded to much this month
+      // This item has a default TTL of 30 days
+      const {
+        data: [userLimits],
+      } = await db.entities.userLimits.query
+        .byUser({ userId: ctx.user.sub })
+        .go();
+
+      if (userLimits?.videosProcessed >= 5) {
+        throw new TRPCError({
+          code: 'TOO_MANY_REQUESTS',
+          message: "You've reached the limit of 5 video uploads per month.",
+        });
+      }
+
       const videoId = randomUUID() as string;
 
       const baseName = path.basename(input.fileName);
@@ -204,11 +219,36 @@ export const videos = router({
 
         await s3Client.send(command);
 
-        // Update db
+        // Update video item
         await db.entities.videos
           .update({ id: input.videoId, userId: ctx.user.sub })
           .set({ uploadComplete: true })
           .go();
+
+        // update/create limits item
+        const {
+          data: [userLimits],
+        } = await db.entities.userLimits.query
+          .byUser({ userId: ctx.user.sub })
+          .go();
+
+        if (userLimits) {
+          await db.entities.userLimits
+            .update({
+              id: userLimits.id,
+              userId: ctx.user.sub,
+            })
+            .add({ videosProcessed: 1 }) // increment by 1
+            .go();
+        } else {
+          await db.entities.userLimits
+            .create({
+              id: randomUUID(),
+              userId: ctx.user.sub,
+              videosProcessed: 1,
+            })
+            .go();
+        }
 
         return { message: 'Upload completed successfully.' };
       } catch (error) {

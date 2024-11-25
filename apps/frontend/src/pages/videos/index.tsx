@@ -43,7 +43,10 @@ export default function Videos() {
       <div className="gap-6">
         <div className="gap-4">
           <div className="gap-1">
-            <h2 className="text-2xl font-medium">Your Videos</h2>
+            <div className="flex-row items-end justify-between">
+              <h2 className="text-2xl font-medium">Your Videos</h2>
+              {(myVideos?.length ?? 0) > 0 && <UploadDialog />}
+            </div>
             <p className="text-muted-foreground text-base">
               Your video uploads and respective AI analyses.
             </p>
