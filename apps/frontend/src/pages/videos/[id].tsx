@@ -115,7 +115,7 @@ function JobTabs({ video, playerRef }: JobTabsProps) {
 
   return (
     <Tabs value={tab} onPointerDown={(event) => event.preventDefault()}>
-      <TabsList className="bg-background sticky top-14 flex-row">
+      <TabsList className="bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-14 flex-row backdrop-blur">
         <TabsTrigger value="transcript" onClick={() => setTab('transcript')}>
           Transcript
         </TabsTrigger>
