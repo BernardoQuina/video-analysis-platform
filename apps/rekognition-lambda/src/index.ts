@@ -55,7 +55,7 @@ export const handler = async (
 
   const params: StartLabelDetectionCommandInput = {
     Video: { S3Object: { Bucket: bucket.name, Name: object.key } },
-    MinConfidence: 85,
+    MinConfidence: 95,
   };
 
   try {
