@@ -23,7 +23,7 @@ export function consolidateLabels(labels: LabelDetection[]) {
     if (labelMap.has(labelName)) {
       // Add timestamp and confidence to existing label
       labelMap.get(labelName)!.detections.push({
-        timestamp: item.Timestamp!,
+        timestamp: parseFloat((item.Timestamp! / 1000).toFixed(3)),
         confidence: item.Label.Confidence!,
       });
     } else {
