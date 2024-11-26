@@ -11,14 +11,25 @@ import type {
   S3ObjectCreatedNotificationEventDetail,
   // eslint-disable-next-line node/no-missing-import
 } from 'aws-lambda';
+import { useDB } from '@repo/db';
 
 import { waitForRekognitionJob } from './utils/wait-for-job';
 import { consolidateLabels } from './utils/consolidate-labels';
+
+type Metadata = {
+  videoid: string;
+  userid: string;
+};
 
 const rekognitionClient = new RekognitionClient({
   region: process.env.AWS_REGION,
 });
 const s3Client = new S3Client({ region: process.env.AWS_REGION });
+
+const db = useDB({
+  region: process.env.AWS_REGION,
+  tableName: process.env.DYNAMODB_TABLE_NAME,
+});
 
 // Maximum time to wait for rekognition job (14 minutes)
 const MAX_WAIT_TIME = 14 * 60 * 1000;
@@ -32,18 +43,15 @@ export const handler = async (
   >,
 ): Promise<APIGatewayProxyResult> => {
   // TODO: remove to activate lambda
-  return { statusCode: 200, body: JSON.stringify({ message: 'Test' }) };
+  // return { statusCode: 200, body: JSON.stringify({ message: 'Test' }) };
 
   const { bucket, object } = event.detail;
 
-  const s3MetadataCommand = new HeadObjectCommand({
-    Bucket: bucket.name,
-    Key: object.key,
-  });
+  const objectParams = { Bucket: bucket.name, Key: object.key };
 
-  const { Metadata } = await s3Client.send(s3MetadataCommand);
-
-  console.log({ Metadata });
+  const { userid, videoid } = (
+    await s3Client.send(new HeadObjectCommand(objectParams))
+  ).Metadata as Metadata;
 
   const params: StartLabelDetectionCommandInput = {
     Video: { S3Object: { Bucket: bucket.name, Name: object.key } },
@@ -51,6 +59,13 @@ export const handler = async (
   };
 
   try {
+    // Get info from db
+    const { data: videoItem } = await db.entities.videos
+      .get({ id: videoid, userId: userid })
+      .go();
+
+    if (!videoItem) throw new Error('Video item not found in db.');
+
     const command = new StartLabelDetectionCommand(params);
     const { JobId } = await rekognitionClient.send(command);
 
@@ -72,6 +87,11 @@ export const handler = async (
     const consolidatedLabels = consolidateLabels(completedJob.Labels ?? []);
 
     console.dir({ consolidatedLabels }, { depth: Infinity });
+
+    await db.entities.videos
+      .update({ id: videoid, userId: userid })
+      .set({ rekognitionObjects: consolidatedLabels })
+      .go();
 
     return { statusCode: 200, body: JSON.stringify(completedJob) };
   } catch (error) {

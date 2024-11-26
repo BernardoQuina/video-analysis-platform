@@ -1,14 +1,14 @@
 import type { LabelDetection } from '@aws-sdk/client-rekognition';
 
 type ConsolidatedLabel = {
-  Label: {
-    Name: string;
-    Categories: { Name?: string }[];
-    Parents: { Name?: string }[];
+  label: {
+    name: string;
+    categories: { name?: string }[];
+    parents: { name?: string }[];
   };
-  TimestampData: {
-    Timestamp: number;
-    Confidence: number;
+  detections: {
+    timestamp: number;
+    confidence: number;
   }[];
 };
 
@@ -22,23 +22,22 @@ export function consolidateLabels(labels: LabelDetection[]) {
 
     if (labelMap.has(labelName)) {
       // Add timestamp and confidence to existing label
-      labelMap.get(labelName)!.TimestampData.push({
-        Timestamp: item.Timestamp!,
-        Confidence: item.Label.Confidence!,
+      labelMap.get(labelName)!.detections.push({
+        timestamp: item.Timestamp!,
+        confidence: item.Label.Confidence!,
       });
     } else {
       // Create new consolidated label
       labelMap.set(labelName, {
-        Label: {
-          Name: item.Label.Name,
-          Categories: item.Label.Categories!,
-          Parents: item.Label.Parents!,
+        label: {
+          name: item.Label.Name,
+          categories: item.Label.Categories!.map((category) => ({
+            name: category.Name,
+          })),
+          parents: item.Label.Parents!.map((parent) => ({ name: parent.Name })),
         },
-        TimestampData: [
-          {
-            Timestamp: item.Timestamp!,
-            Confidence: item.Label.Confidence!,
-          },
+        detections: [
+          { timestamp: item.Timestamp!, confidence: item.Label.Confidence! },
         ],
       });
     }

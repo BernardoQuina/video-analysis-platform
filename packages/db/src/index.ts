@@ -49,31 +49,31 @@ const Videos = new Entity({
       items: {
         type: 'map',
         properties: {
-          Label: {
+          label: {
             type: 'map',
             properties: {
-              Name: { type: 'string' },
-              Categories: {
+              name: { type: 'string' },
+              categories: {
                 type: 'list',
                 items: {
                   type: 'map',
-                  properties: { Name: { type: 'string' } },
+                  properties: { name: { type: 'string' } },
                 },
               },
-              Parents: {
+              parents: {
                 type: 'list',
                 items: {
                   type: 'map',
-                  properties: { Name: { type: 'string' } },
+                  properties: { name: { type: 'string' } },
                 },
               },
-              TimestampData: {
+              detections: {
                 type: 'list',
                 items: {
                   type: 'map',
                   properties: {
-                    Timestamp: { type: 'number' },
-                    Confidence: { type: 'number' },
+                    timestamp: { type: 'number' },
+                    confidence: { type: 'number' },
                   },
                 },
               },
