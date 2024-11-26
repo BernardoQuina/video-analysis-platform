@@ -371,11 +371,13 @@ function RekognitionObject({ object, remote }: RekognitionObjectProps) {
             <Separator />
             <div className="h-[calc(50%-0.5px)] w-full flex-row items-center">
               <div className="w-[calc(50%-0.5px)] items-center">
-                <span className="font-medium">Timestamp</span>
+                <span className="block font-medium sm:hidden">Time</span>
+                <span className="hidden font-medium sm:block">Timestamp</span>
               </div>
               <Separator orientation="vertical" className="h-[50%]" />
               <div className="w-[calc(50%-0.5px)] items-center">
-                <span className="font-medium">Confidence</span>
+                <span className="block font-medium sm:hidden">Conf.</span>
+                <span className="hidden font-medium sm:block">Confidence</span>
               </div>
             </div>
           </div>
