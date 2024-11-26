@@ -67,15 +67,15 @@ const Videos = new Entity({
                   properties: { name: { type: 'string' } },
                 },
               },
-              detections: {
-                type: 'list',
-                items: {
-                  type: 'map',
-                  properties: {
-                    timestamp: { type: 'number' },
-                    confidence: { type: 'number' },
-                  },
-                },
+            },
+          },
+          detections: {
+            type: 'list',
+            items: {
+              type: 'map',
+              properties: {
+                timestamp: { type: 'number' },
+                confidence: { type: 'number' },
               },
             },
           },
