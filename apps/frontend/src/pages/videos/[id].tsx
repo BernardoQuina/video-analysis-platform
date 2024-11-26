@@ -1,6 +1,6 @@
 import { CSSProperties, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
-import { Cpu } from 'lucide-react';
+import { CheckCircle2, Cpu } from 'lucide-react';
 import {
   MediaPlayerInstance,
   MediaRemoteControl,
@@ -28,6 +28,7 @@ import {
   AccordionTrigger,
 } from '../../components/ui/accordion';
 import { cn } from '../../utils/cn';
+import { Tip } from '../../components/ui/tooltip';
 
 export default function Videos() {
   const [jobsComplete, setJobsComplete] = useState({
@@ -133,6 +134,17 @@ function LoadingSkeleton() {
   );
 }
 
+const jobDescriptions = {
+  transcript:
+    'Amazon Transcribe is used to detect the language and convert spoken words in your video into text. This feature is perfect for extracting dialogues or speeches, making it easier to analyze, search, or share what was said in your video.',
+  summary:
+    'Using an open source AI model, Video-LLaVA, self hosted on a AWS ECS Cluster, this job combines video and text analysis to interpret what is happening as the video progresses.',
+  prompt:
+    'Using an open source AI model, Video-LLaVA, self hosted on a AWS ECS Cluster, this job combines video and text analysis to answer your questions about the video.',
+  objectDetection:
+    'Amazon Rekognition is used to identify objects, scenes, and activities within your video. Each result is paired with timestamps and levels of confidence.',
+};
+
 type Video = RouterOutput['videos']['singleVideo'];
 
 type JobTabsProps = {
@@ -182,20 +194,47 @@ function JobTabs({ video, remote }: JobTabsProps) {
               <span className="text-primary font-medium">
                 [Takes about 1-3 minutes]
               </span>{' '}
-              Amazon Transcribe is used to detect the language and convert
-              spoken words in your video into text. This feature is perfect for
-              extracting dialogues or speeches, making it easier to analyze,
-              search, or share what was said in your video.
+              {jobDescriptions.transcript}
             </p>
           </>
-        ) : video.transcriptResult.length === 0 ? null : (
-          video.transcriptResult.map((segment) => (
-            <TranscriptSegment
-              key={segment.startTime}
-              segment={segment}
-              remote={remote}
-            />
-          ))
+        ) : video.transcriptResult.length === 0 ? (
+          <div className="gap-4">
+            <Tip
+              content={jobDescriptions.transcript}
+              contentClassName="max-w-[80vw] sm:max-w-[40rem]"
+              align="start"
+            >
+              <div className="w-fit flex-row gap-1.5 rounded-full border p-2">
+                <CheckCircle2 className="h-4 w-4 text-green-500" />
+                <span className="text-primary text-xs font-medium">
+                  Transcription job complete
+                </span>
+              </div>
+            </Tip>
+            <p>No dialog or speech was detected in the video.</p>
+          </div>
+        ) : (
+          <div className="gap-4">
+            <Tip
+              content={jobDescriptions.transcript}
+              contentClassName="max-w-[80vw] sm:max-w-[40rem]"
+              align="start"
+            >
+              <div className="w-fit flex-row gap-1.5 rounded-full border p-2">
+                <CheckCircle2 className="h-4 w-4 text-green-500" />
+                <span className="text-primary text-xs font-medium">
+                  Transcription job complete
+                </span>
+              </div>
+            </Tip>
+            {video.transcriptResult.map((segment) => (
+              <TranscriptSegment
+                key={segment.startTime}
+                segment={segment}
+                remote={remote}
+              />
+            ))}
+          </div>
         )}
       </TabsContent>
       <TabsContent value="summary" className="gap-4 pb-20">
@@ -212,9 +251,7 @@ function JobTabs({ video, remote }: JobTabsProps) {
                 [Takes about 3-10 minutes depending on wether the cluster is
                 scaling from zero]
               </span>{' '}
-              Using an open source AI model, Video-LLaVA, self hosted on a AWS
-              ECS Cluster, this job combines video and text analysis to
-              interpret what is happening as the video progresses.
+              {jobDescriptions.summary}
             </p>
           </>
         )}
@@ -233,19 +270,12 @@ function JobTabs({ video, remote }: JobTabsProps) {
                 [Takes about 3-10 minutes depending on wether the cluster is
                 scaling from zero]
               </span>{' '}
-              Using an open source AI model, Video-LLaVA, self hosted on a AWS
-              ECS Cluster, this job combines video and text analysis to answer
-              your questions about the video.
+              {jobDescriptions.prompt}
             </p>
           </>
         )}
       </TabsContent>
-      <TabsContent
-        value="objectDetection"
-        className={cn('gap-4 pb-20', {
-          'pt-0': (video.rekognitionObjects ?? []).length > 0,
-        })}
-      >
+      <TabsContent value="objectDetection" className={cn('gap-4 pb-20', {})}>
         {!video.rekognitionObjects ? (
           <>
             <PulsatingBorder>
@@ -258,21 +288,49 @@ function JobTabs({ video, remote }: JobTabsProps) {
               <span className="text-primary font-medium">
                 [Takes about 1-3 minutes]
               </span>{' '}
-              Amazon Rekognition is used to identify objects, scenes, and
-              activities within your video. Each result is paired with
-              timestamps and levels of confidence.
+              {jobDescriptions.objectDetection}
             </p>
           </>
-        ) : video.rekognitionObjects.length === 0 ? null : (
-          <Accordion type="multiple">
-            {video.rekognitionObjects.map((object) => (
-              <RekognitionObject
-                key={object.label.name}
-                object={object}
-                remote={remote}
-              />
-            ))}
-          </Accordion>
+        ) : video.rekognitionObjects.length === 0 ? (
+          <div className="gap-4">
+            <Tip
+              content={jobDescriptions.transcript}
+              contentClassName="max-w-[80vw] sm:max-w-[40rem]"
+              align="start"
+            >
+              <div className="w-fit flex-row gap-1.5 rounded-full border p-2">
+                <CheckCircle2 className="h-4 w-4 text-green-500" />
+                <span className="text-primary text-xs font-medium">
+                  Object detection job complete
+                </span>
+              </div>
+            </Tip>
+            <p>No objects could be detected in the video.</p>
+          </div>
+        ) : (
+          <div>
+            <Tip
+              content={jobDescriptions.objectDetection}
+              contentClassName="max-w-[80vw] sm:max-w-[40rem]"
+              align="start"
+            >
+              <div className="w-fit flex-row gap-1.5 rounded-full border p-2">
+                <CheckCircle2 className="h-4 w-4 text-green-500" />
+                <span className="text-primary text-xs font-medium">
+                  Object detection job complete
+                </span>
+              </div>
+            </Tip>
+            <Accordion type="multiple">
+              {video.rekognitionObjects.map((object) => (
+                <RekognitionObject
+                  key={object.label.name}
+                  object={object}
+                  remote={remote}
+                />
+              ))}
+            </Accordion>
+          </div>
         )}
       </TabsContent>
     </Tabs>

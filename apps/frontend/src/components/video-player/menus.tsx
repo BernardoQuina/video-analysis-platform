@@ -1,7 +1,7 @@
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import * as Tooltip from '@radix-ui/react-tooltip';
 import { useCaptionOptions, useMediaPlayer } from '@vidstack/react';
-import { CheckCircle, CircleIcon, SubtitlesIcon } from 'lucide-react';
+import { CheckCircle2, CircleIcon, SubtitlesIcon } from 'lucide-react';
 
 import { buttonClass, tooltipClass } from './buttons';
 
@@ -88,7 +88,7 @@ function Radio({
       {...props}
     >
       <CircleIcon className="h-4 w-4 text-white group-data-[state=checked]:hidden" />
-      <CheckCircle className="text-media-brand hidden h-4 w-4 group-data-[state=checked]:block" />
+      <CheckCircle2 className="text-media-brand hidden h-4 w-4 group-data-[state=checked]:block" />
       <span className="ml-2">{children}</span>
     </DropdownMenu.RadioItem>
   );

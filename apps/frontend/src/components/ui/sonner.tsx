@@ -1,6 +1,6 @@
 import {
   AlertTriangle,
-  CheckCircle,
+  CheckCircle2,
   Info,
   Loader,
   XCircle,
@@ -34,7 +34,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
         },
       }}
       icons={{
-        success: <CheckCircle className="mt-0.5 h-4 w-4 text-green-500" />,
+        success: <CheckCircle2 className="mt-0.5 h-4 w-4 text-green-500" />,
         info: <Info className="mt-0.5 h-4 w-4 text-blue-500" />,
         warning: <AlertTriangle className="mt-0.5 h-4 w-4 text-amber-500" />,
         error: <XCircle className="mt-0.5 h-4 w-4 text-red-500" />,

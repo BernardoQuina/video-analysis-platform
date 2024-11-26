@@ -35,10 +35,16 @@ function Tip({
   content,
   children,
   className,
+  contentClassName,
+  align,
+  side,
   disabled = false, // New prop to control tooltip
 }: React.PropsWithChildren<{
   content: string | React.ReactNode;
   className?: string;
+  contentClassName?: string;
+  align?: 'start' | 'center' | 'end';
+  side?: 'top' | 'right' | 'bottom' | 'left';
   disabled?: boolean;
 }>) {
   const [open, setOpen] = React.useState(false);
@@ -84,7 +90,7 @@ function Tip({
       <Tooltip open={!disabled && open}>
         <TooltipTrigger asChild>
           <div
-            className={cn('cursor-pointer', className)}
+            className={cn('w-fit cursor-pointer', className)}
             onClick={handleClickOpen}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
@@ -101,7 +107,11 @@ function Tip({
         </TooltipTrigger>
         {!disabled &&
           content && ( // Conditionally render TooltipContent
-            <TooltipContent className={!content ? 'hidden' : ''}>
+            <TooltipContent
+              className={cn({ hidden: !content }, contentClassName)}
+              align={align}
+              side={side}
+            >
               <span className="inline-block">{content}</span>
             </TooltipContent>
           )}
