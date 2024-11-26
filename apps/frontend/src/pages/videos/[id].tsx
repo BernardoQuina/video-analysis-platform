@@ -7,6 +7,7 @@ import {
   useMediaRemote,
 } from '@vidstack/react';
 import moment from 'moment';
+import { toast } from 'sonner';
 
 import { PageLayout } from '../../components/page-layout';
 import { RouterOutput, trpc } from '../../utils/trpc';
@@ -31,9 +32,9 @@ import { cn } from '../../utils/cn';
 import { Tip } from '../../components/ui/tooltip';
 
 export default function Videos() {
-  const [jobsComplete, setJobsComplete] = useState({
-    transcript: false,
-    objectDetection: false,
+  const [jobsStatus, setJobsStatus] = useState({
+    transcript: 'unknown',
+    objectDetection: 'unknown',
   });
 
   const router = useRouter();
@@ -49,10 +50,15 @@ export default function Videos() {
     {
       enabled: !!id,
       refetchInterval: () => {
-        if (jobsComplete.objectDetection && jobsComplete.transcript) {
+        if (
+          (jobsStatus.objectDetection === 'error' ||
+            jobsStatus.objectDetection === 'complete') &&
+          (jobsStatus.transcript === 'error' ||
+            jobsStatus.transcript === 'complete')
+        ) {
           return false;
         }
-        return 10000;
+        return 5000;
       },
     },
   );
@@ -62,10 +68,53 @@ export default function Videos() {
 
   useEffect(() => {
     if (video) {
-      setJobsComplete({
-        objectDetection: !!video.rekognitionObjects,
-        transcript: !!video.transcriptResult,
-      });
+      // Check transcript status
+      if (video.transcriptError) {
+        setJobsStatus((prev) => {
+          // If it was processing notify the user, otherwise just change status to stop refetching (polling for job completions)
+          if (prev.transcript === 'processing') {
+            toast.error('Transcription job failed', {
+              description: video.transcriptError,
+            });
+          }
+          return { ...prev, transcript: 'error' };
+        });
+      } else if (video.transcriptResult) {
+        setJobsStatus((prev) => {
+          // If it was processing notify the user, otherwise just change status to stop refetching (polling for job completions)
+          if (prev.transcript === 'processing') {
+            toast.success('Transcription job completed');
+          }
+          return { ...prev, transcript: 'complete' };
+        });
+      } else {
+        // In this case its still processing
+        setJobsStatus((prev) => ({ ...prev, transcript: 'processing' }));
+      }
+
+      // Check object detection status
+      if (video.rekognitionObjectsError) {
+        setJobsStatus((prev) => {
+          // If it was processing notify the user, otherwise just change status to stop refetching (polling for job completions)
+          if (prev.objectDetection === 'processing') {
+            toast.error('Object detection job failed', {
+              description: video.rekognitionObjectsError,
+            });
+          }
+          return { ...prev, objectDetection: 'error' };
+        });
+      } else if (video.rekognitionObjects) {
+        setJobsStatus((prev) => {
+          // If it was processing notify the user, otherwise just change status to stop refetching (polling for job completions)
+          if (prev.objectDetection === 'processing') {
+            toast.success('Object detection job completed');
+          }
+          return { ...prev, objectDetection: 'complete' };
+        });
+      } else {
+        // In this case its still processing
+        setJobsStatus((prev) => ({ ...prev, objectDetection: 'processing' }));
+      }
     }
   }, [video]);
 

@@ -182,9 +182,11 @@ export function UploadDialog() {
         <DialogTrigger disabled={!meData}>
           {/* This span allows the tooltip to be shown while the button is disabled */}
           <span tabIndex={0}>
-            <Button variant="rainbow">
-              <Upload /> Upload
-            </Button>
+            <object>
+              <Button variant="rainbow">
+                <Upload /> Upload
+              </Button>
+            </object>
           </span>
         </DialogTrigger>
       </Tip>

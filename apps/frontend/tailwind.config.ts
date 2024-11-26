@@ -194,6 +194,10 @@ const config: Config = {
             height: '0',
           },
         },
+        spin: {
+          from: { transform: 'rotate(0deg)' },
+          to: { transform: 'rotate(360deg)' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
@@ -206,6 +210,7 @@ const config: Config = {
       'rainbow-pulsate': 'rainbow-pulsate 2s infinite ease-in-out',
       'spring-spin': 'spring-spin 4s ease-in-out infinite',
       rotate: 'rotate 5s linear infinite',
+      spin: 'spin 1s linear infinite',
     },
   },
   plugins: [
