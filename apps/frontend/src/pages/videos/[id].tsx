@@ -1,7 +1,11 @@
-import { RefObject, useMemo, useRef, useState } from 'react';
+import { CSSProperties, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import { Cpu } from 'lucide-react';
-import { MediaPlayerInstance, useMediaRemote } from '@vidstack/react';
+import {
+  MediaPlayerInstance,
+  MediaRemoteControl,
+  useMediaRemote,
+} from '@vidstack/react';
 import moment from 'moment';
 
 import { PageLayout } from '../../components/page-layout';
@@ -17,8 +21,20 @@ import {
 } from '../../components/ui/tabs';
 import { Separator } from '../../components/ui/separator';
 import { PulsatingBorder } from '../../components/pulsating-border';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '../../components/ui/accordion';
+import { cn } from '../../utils/cn';
 
 export default function Videos() {
+  const [jobsComplete, setJobsComplete] = useState({
+    transcript: false,
+    objectDetection: false,
+  });
+
   const router = useRouter();
 
   const { id } = router.query;
@@ -29,10 +45,28 @@ export default function Videos() {
     isLoading,
   } = trpc.videos.singleVideo.useQuery(
     { videoId: id as string },
-    { enabled: !!id },
+    {
+      enabled: !!id,
+      refetchInterval: () => {
+        if (jobsComplete.objectDetection && jobsComplete.transcript) {
+          return false;
+        }
+        return 10000;
+      },
+    },
   );
 
   const playerRef = useRef<MediaPlayerInstance>(null);
+  const remote = useMediaRemote(playerRef);
+
+  useEffect(() => {
+    if (video) {
+      setJobsComplete({
+        objectDetection: !!video.rekognitionObjects,
+        transcript: !!video.transcriptResult,
+      });
+    }
+  }, [video]);
 
   return (
     <PageLayout
@@ -68,7 +102,7 @@ export default function Videos() {
               transcriptions, object detection, and intelligent Q&A through
               cloud technology.
             </p>
-            <JobTabs video={video} playerRef={playerRef} />
+            <JobTabs video={video} remote={remote} />
           </div>
         </div>
       ) : null}
@@ -103,10 +137,10 @@ type Video = RouterOutput['videos']['singleVideo'];
 
 type JobTabsProps = {
   video: Video;
-  playerRef: RefObject<MediaPlayerInstance>;
+  remote: MediaRemoteControl;
 };
 
-function JobTabs({ video, playerRef }: JobTabsProps) {
+function JobTabs({ video, remote }: JobTabsProps) {
   // Changed to controlled tab state on click because default on key down
   // was causing problems with the video player (unwanted play click)
   const [tab, setTab] = useState<
@@ -115,7 +149,7 @@ function JobTabs({ video, playerRef }: JobTabsProps) {
 
   return (
     <Tabs value={tab} onPointerDown={(event) => event.preventDefault()}>
-      <TabsList className="bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-14 flex-row backdrop-blur">
+      <TabsList className="bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-14 z-10 flex-row backdrop-blur">
         <TabsTrigger value="transcript" onClick={() => setTab('transcript')}>
           Transcript
         </TabsTrigger>
@@ -159,7 +193,7 @@ function JobTabs({ video, playerRef }: JobTabsProps) {
             <TranscriptSegment
               key={segment.startTime}
               segment={segment}
-              playerRef={playerRef}
+              remote={remote}
             />
           ))
         )}
@@ -206,8 +240,13 @@ function JobTabs({ video, playerRef }: JobTabsProps) {
           </>
         )}
       </TabsContent>
-      <TabsContent value="objectDetection" className="gap-4 pb-20">
-        {video.rekognitionObjects ? null : (
+      <TabsContent
+        value="objectDetection"
+        className={cn('gap-4 pb-20', {
+          'pt-0': (video.rekognitionObjects ?? []).length > 0,
+        })}
+      >
+        {!video.rekognitionObjects ? (
           <>
             <PulsatingBorder>
               <Cpu className="text-primary animate-spring-spin h-4 w-4" />
@@ -224,6 +263,16 @@ function JobTabs({ video, playerRef }: JobTabsProps) {
               timestamps and levels of confidence.
             </p>
           </>
+        ) : video.rekognitionObjects.length === 0 ? null : (
+          <Accordion type="multiple">
+            {video.rekognitionObjects.map((object) => (
+              <RekognitionObject
+                key={object.label.name}
+                object={object}
+                remote={remote}
+              />
+            ))}
+          </Accordion>
         )}
       </TabsContent>
     </Tabs>
@@ -234,12 +283,10 @@ type Segment = NonNullable<Video['transcriptResult']>[number];
 
 type TranscriptSegmentProps = {
   segment: Segment;
-  playerRef: RefObject<MediaPlayerInstance>;
+  remote: MediaRemoteControl;
 };
 
-function TranscriptSegment({ segment, playerRef }: TranscriptSegmentProps) {
-  const remote = useMediaRemote(playerRef);
-
+function TranscriptSegment({ segment, remote }: TranscriptSegmentProps) {
   const timestamp = useMemo(() => {
     // Floor the input to ensure whole seconds
     const flooredTime = Math.floor(segment.startTime);
@@ -277,6 +324,175 @@ function TranscriptSegment({ segment, playerRef }: TranscriptSegmentProps) {
         </div>
       </div>
       <Separator />
+    </>
+  );
+}
+
+type RekognitionObject = NonNullable<Video['rekognitionObjects']>[number];
+
+type RekognitionObjectProps = {
+  object: RekognitionObject;
+  remote: MediaRemoteControl;
+};
+
+function RekognitionObject({ object, remote }: RekognitionObjectProps) {
+  const remHeight = useMemo(() => {
+    // default 2 rem per row of detection
+    if (object.detections.length > 1) return object.detections.length * 2;
+
+    // If 1 or less but categories or parents occupy some space give 2rem
+    if (object.label.categories.length > 3 || object.label.parents.length > 3) {
+      return 4; // 4rem (64px)
+    }
+
+    if (
+      object.label.categories.length > 1 ||
+      object.label.categories[0]?.name.length > 10 ||
+      object.label.parents.length > 1 ||
+      object.label.parents[0]?.name.length > 10
+    ) {
+      return 3; // 3rem (48px)
+    }
+
+    return object.detections.length * 2;
+  }, [object]);
+
+  return (
+    <AccordionItem value={object.label.name}>
+      <AccordionTrigger className="bg-background/95 supports-[backdrop-filter]:bg-background/60 px-0 backdrop-blur sm:px-6">
+        <span>{object.label.name}</span>
+      </AccordionTrigger>
+      <AccordionContent>
+        <div className="bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-[9.45rem] h-16 flex-row items-center border-y backdrop-blur">
+          <div className="h-full w-[40%] items-center">
+            <div className="h-[calc(50%-0.5px)] justify-center">
+              <span className="font-medium">Occurrences</span>
+            </div>
+            <Separator />
+            <div className="h-[calc(50%-0.5px)] w-full flex-row items-center">
+              <div className="w-[calc(50%-0.5px)] items-center">
+                <span className="font-medium">Timestamp</span>
+              </div>
+              <Separator orientation="vertical" className="h-[50%]" />
+              <div className="w-[calc(50%-0.5px)] items-center">
+                <span className="font-medium">Confidence</span>
+              </div>
+            </div>
+          </div>
+          <Separator orientation="vertical" className="h-[50%]" />
+          <div className="w-[calc(30%-1px)] items-center">
+            <span className="font-medium">Categories</span>
+          </div>
+          <Separator orientation="vertical" className="h-[50%]" />
+          <div className="w-[calc(30%-1px)] items-center">
+            <span className="font-medium">Parents</span>
+          </div>
+        </div>
+        <div
+          style={
+            {
+              '--base-height': `${remHeight}rem`,
+              '--sm-height': `${object.detections.length * 2}rem`,
+            } as CSSProperties
+          }
+          className="h-[var(--base-height)] flex-row items-center sm:h-[var(--sm-height)]"
+        >
+          <div className="w-[40%] items-center">
+            {object.detections.map((detection, i) => (
+              <DetectionItem
+                key={detection.timestamp}
+                detection={detection}
+                isLast={i === object.detections.length - 1}
+                remote={remote}
+              />
+            ))}
+          </div>
+          <Separator
+            orientation="vertical"
+            className={
+              object.detections.length > 1 ? 'h-[calc(100%-2rem)]' : 'h-[50%]'
+            }
+          />
+          <div className="w-[calc(30%-1px)] items-center p-1">
+            {object.label.categories.length === 0 ? (
+              <span className="text-muted-foreground">N/A</span>
+            ) : (
+              object.label.categories.map((category, i) => (
+                <span className="text-center" key={category.name}>
+                  {category.name}
+                  {i !== object.label.categories.length - 1 ? ', ' : ''}
+                </span>
+              ))
+            )}
+          </div>
+          <Separator orientation="vertical" className="h-[calc(100%-2rem)]" />
+          <div className="w-[calc(30%-1px)] items-center p-1">
+            <span>
+              {object.label.parents.length === 0 ? (
+                <span className="text-muted-foreground">N/A</span>
+              ) : (
+                object.label.parents.map((parent, i) => (
+                  <span className="text-center" key={parent.name}>
+                    {parent.name}
+                    {i !== object.label.parents.length - 1 ? ', ' : ''}
+                  </span>
+                ))
+              )}
+            </span>
+          </div>
+        </div>
+      </AccordionContent>
+    </AccordionItem>
+  );
+}
+
+type Detection = RekognitionObject['detections'][number];
+
+type DetectionItemProps = {
+  detection: Detection;
+  isLast: boolean;
+  remote: MediaRemoteControl;
+};
+
+function DetectionItem({ detection, isLast, remote }: DetectionItemProps) {
+  const timestamp = useMemo(() => {
+    // Floor the input to ensure whole seconds
+    const flooredTime = Math.floor(detection.timestamp);
+
+    // Use moment.duration to handle the time conversion
+    const duration = moment.duration(flooredTime, 'seconds');
+
+    // Format the duration as "MM:SS"
+    const formattedTime = moment.utc(duration.asMilliseconds()).format('mm:ss');
+
+    return formattedTime;
+  }, [detection]);
+
+  function jumpToSegment() {
+    remote.seek(detection.timestamp);
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    remote.play();
+  }
+
+  return (
+    <>
+      <div
+        key={detection.timestamp}
+        className="h-8 w-full flex-row items-center"
+      >
+        <button
+          className="text-muted-foreground decoration-muted-foreground w-[calc(50%-0.5px)] items-center text-sm underline-offset-4 hover:underline"
+          onClick={jumpToSegment}
+        >
+          <span>{timestamp}</span>
+        </button>
+        <Separator orientation="vertical" className="h-[50%]" />
+        <div className="w-[calc(50%-0.5px)] items-center">
+          <span>{parseFloat(detection.confidence.toFixed(2)).toString()}%</span>
+        </div>
+      </div>
+      {!isLast && <Separator />}
     </>
   );
 }

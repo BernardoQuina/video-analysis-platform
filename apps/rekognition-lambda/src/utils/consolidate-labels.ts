@@ -3,8 +3,8 @@ import type { LabelDetection } from '@aws-sdk/client-rekognition';
 type ConsolidatedLabel = {
   label: {
     name: string;
-    categories: { name?: string }[];
-    parents: { name?: string }[];
+    categories: { name: string }[];
+    parents: { name: string }[];
   };
   detections: {
     timestamp: number;
@@ -32,12 +32,17 @@ export function consolidateLabels(labels: LabelDetection[]) {
         label: {
           name: item.Label.Name,
           categories: item.Label.Categories!.map((category) => ({
-            name: category.Name,
+            name: category.Name!,
           })),
-          parents: item.Label.Parents!.map((parent) => ({ name: parent.Name })),
+          parents: item.Label.Parents!.map((parent) => ({
+            name: parent.Name!,
+          })),
         },
         detections: [
-          { timestamp: item.Timestamp!, confidence: item.Label.Confidence! },
+          {
+            timestamp: parseFloat((item.Timestamp! / 1000).toFixed(3)),
+            confidence: item.Label.Confidence!,
+          },
         ],
       });
     }

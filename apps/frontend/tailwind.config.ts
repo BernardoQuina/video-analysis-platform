@@ -74,14 +74,14 @@ const config: Config = {
         },
         chart: {
           '1': 'hsl(var(--chart-1))',
-          '1-dark': 'hsl(var(--dark-chart-1))',
           '2': 'hsl(var(--chart-2))',
-          '2-dark': 'hsl(var(--dark-chart-2))',
           '3': 'hsl(var(--chart-3))',
-          '3-dark': 'hsl(var(--dark-chart-3))',
           '4': 'hsl(var(--chart-4))',
-          '4-dark': 'hsl(var(--dark-chart-4))',
           '5': 'hsl(var(--chart-5))',
+          '1-dark': 'hsl(var(--dark-chart-1))',
+          '2-dark': 'hsl(var(--dark-chart-2))',
+          '3-dark': 'hsl(var(--dark-chart-3))',
+          '4-dark': 'hsl(var(--dark-chart-4))',
           '5-dark': 'hsl(var(--dark-chart-5))',
         },
         'media-brand': 'rgb(var(--media-brand) / <alpha-value>)',
@@ -96,48 +96,108 @@ const config: Config = {
         xs: '2px',
       },
       keyframes: {
-        pulse: { '0%, 100%': { opacity: '1' }, '50%': { opacity: '0.5' } },
+        pulse: {
+          '0%, 100%': {
+            opacity: '1',
+          },
+          '50%': {
+            opacity: '0.5',
+          },
+        },
         rainbow: {
-          '0%': { 'background-position': '0%' },
-          '100%': { 'background-position': '200%' },
+          '0%': {
+            'background-position': '0%',
+          },
+          '100%': {
+            'background-position': '200%',
+          },
         },
         'rainbow-pulsate': {
-          '0%': { 'background-position': '0%', filter: 'blur(4px)' },
-          '50%': { 'background-position': '100%', filter: 'blur(0px)' },
-          '100%': { 'background-position': '200%', filter: 'blur(4px)' },
+          '0%': {
+            'background-position': '0%',
+            filter: 'blur(4px)',
+          },
+          '50%': {
+            'background-position': '100%',
+            filter: 'blur(0px)',
+          },
+          '100%': {
+            'background-position': '200%',
+            filter: 'blur(4px)',
+          },
         },
         'spring-spin': {
           '0%, 100%': {
-            transform: 'rotate(0deg)', // 1st Rotation start (and 2nd rotation end)
+            transform: 'rotate(0deg)',
           },
           '15%': {
-            transform: 'rotate(405deg) scale(1.1)', // 1st rotation peak (over rotation)
+            transform: 'rotate(405deg) scale(1.1)',
             opacity: '0.5',
           },
           '20%': {
-            transform: 'rotate(360deg)', // 1st rotation end (start hold)
+            transform: 'rotate(360deg)',
             opacity: '1',
           },
           '80%': {
-            transform: 'rotate(360deg)', // 2nd rotation start
+            transform: 'rotate(360deg)',
             opacity: '1',
           },
           '95%': {
-            transform: 'rotate(-90deg) scale(1.1)', // 2nd rotation peak (over rotation)
+            transform: 'rotate(-90deg) scale(1.1)',
             opacity: '0.5',
           },
         },
         rotate: {
-          '0%': { transform: 'rotate(0deg) scale(10)', opacity: '0' },
-          '20%': { opacity: '0' },
-          '30%': { opacity: '1' },
-          '40%': { opacity: '1' },
-          '50%': { opacity: '0' },
-          '60%': { opacity: '0' },
-          '70%': { opacity: '0' },
-          '80%': { opacity: '1' },
-          '100%': { transform: 'rotate(-360deg) scale(10)', opacity: '0' },
+          '0%': {
+            transform: 'rotate(0deg) scale(10)',
+            opacity: '0',
+          },
+          '20%': {
+            opacity: '0',
+          },
+          '30%': {
+            opacity: '1',
+          },
+          '40%': {
+            opacity: '1',
+          },
+          '50%': {
+            opacity: '0',
+          },
+          '60%': {
+            opacity: '0',
+          },
+          '70%': {
+            opacity: '0',
+          },
+          '80%': {
+            opacity: '1',
+          },
+          '100%': {
+            transform: 'rotate(-360deg) scale(10)',
+            opacity: '0',
+          },
         },
+        'accordion-down': {
+          from: {
+            height: '0',
+          },
+          to: {
+            height: 'var(--radix-accordion-content-height)',
+          },
+        },
+        'accordion-up': {
+          from: {
+            height: 'var(--radix-accordion-content-height)',
+          },
+          to: {
+            height: '0',
+          },
+        },
+      },
+      animation: {
+        'accordion-down': 'accordion-down 0.2s ease-out',
+        'accordion-up': 'accordion-up 0.2s ease-out',
       },
     },
     animation: {
