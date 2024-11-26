@@ -338,7 +338,7 @@ type RekognitionObjectProps = {
 function RekognitionObject({ object, remote }: RekognitionObjectProps) {
   const remHeight = useMemo(() => {
     // default 2 rem per row of detection
-    if (object.detections.length > 1) return object.detections.length * 2;
+    if (object.detections.length > 1) return object.detections.length * 2.063;
 
     // If 1 or less but categories or parents occupy some space give 2rem
     if (object.label.categories.length > 3 || object.label.parents.length > 3) {
@@ -394,7 +394,7 @@ function RekognitionObject({ object, remote }: RekognitionObjectProps) {
           style={
             {
               '--base-height': `${remHeight}rem`,
-              '--sm-height': `${object.detections.length * 2}rem`,
+              '--sm-height': `${object.detections.length * 2.063}rem`,
             } as CSSProperties
           }
           className="h-[var(--base-height)] flex-row items-center sm:h-[var(--sm-height)]"
