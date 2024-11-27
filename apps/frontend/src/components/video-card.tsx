@@ -74,12 +74,12 @@ export function VideoCard({ video }: VideoCardProps) {
           {video.fileName}
         </h3>
         <div className="flex-row items-center gap-4">
-          <span className="text-muted-foreground-dark text-xs font-medium">
+          <span className="text-primary-dark text-xs font-medium">
             {formattedTime}
           </span>
           <div className="flex-row items-center gap-0.5">
-            <Eye className="text-muted-foreground-dark h-3 w-3" />
-            <span className="text-muted-foreground-dark text-xs font-medium">
+            <Eye className="text-primary-dark h-3 w-3" />
+            <span className="text-primary-dark text-xs font-medium">
               Public
             </span>
           </div>
