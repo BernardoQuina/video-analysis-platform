@@ -70,6 +70,11 @@ export const handler = async (
 
     if (!videoItem) throw new Error('Video item not found in db.');
 
+    // Test error (TODO: remove)
+    throw new Error(
+      'Could not process transcription job due to corrupted input file.',
+    );
+
     const command = new StartTranscriptionJobCommand(params);
     await transcribeClient.send(command);
 
@@ -134,11 +139,19 @@ export const handler = async (
       .go();
 
     return { statusCode: 200, body: JSON.stringify(results) };
-  } catch (error) {
+  } catch (err) {
+    const error = err as Error;
     console.error('Error during transcription job:', error);
+
+    // Save error in db video item
+    await db.entities.videos
+      .update({ id: videoid, userId: userid })
+      .set({ transcriptError: error.message })
+      .go();
+
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: (error as Error).message }),
+      body: JSON.stringify({ error: error.message }),
     };
   }
 };

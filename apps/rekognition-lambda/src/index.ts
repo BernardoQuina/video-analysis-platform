@@ -94,11 +94,19 @@ export const handler = async (
       .go();
 
     return { statusCode: 200, body: JSON.stringify(completedJob) };
-  } catch (error) {
+  } catch (err) {
+    const error = err as Error;
     console.error('Error during rekognition job:', error);
+
+    // Save error in db video item
+    await db.entities.videos
+      .update({ id: videoid, userId: userid })
+      .set({ transcriptError: error.message })
+      .go();
+
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: (error as Error).message }),
+      body: JSON.stringify({ error: error.message }),
     };
   }
 };
