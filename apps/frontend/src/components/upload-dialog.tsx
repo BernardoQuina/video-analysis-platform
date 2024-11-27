@@ -179,15 +179,10 @@ export function UploadDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <Tip content="You'll have to sign in first!" disabled={!!meData}>
-        <DialogTrigger disabled={!meData}>
-          {/* This span allows the tooltip to be shown while the button is disabled */}
-          <span tabIndex={0}>
-            <object>
-              <Button variant="rainbow">
-                <Upload /> Upload
-              </Button>
-            </object>
-          </span>
+        <DialogTrigger asChild>
+          <Button variant="rainbow" disabled={!meData}>
+            <Upload /> Upload
+          </Button>
         </DialogTrigger>
       </Tip>
       <DialogContent autoFocus={false}>
