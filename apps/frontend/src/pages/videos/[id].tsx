@@ -4,6 +4,7 @@ import { MediaPlayerInstance, useMediaRemote } from '@vidstack/react';
 import { toast } from 'sonner';
 import moment from 'moment';
 import { inferProcedureOutput } from '@trpc/server';
+import { TRPCClientError } from '@trpc/client';
 import {
   CheckCircle2,
   Cpu,
@@ -36,7 +37,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '../../components/ui/popover';
-import { TRPCClientError } from '@trpc/client';
 
 export default function Videos() {
   const [jobsStatus, setJobsStatus] = useState({
