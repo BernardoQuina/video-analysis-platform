@@ -13,7 +13,9 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { protectedProcedure, publicProcedure, router } from '../utils/trpc';
 import { db } from '../utils/db';
 import {
+  changeVisibilitySchema,
   completeUploadSchema,
+  deleteSchema,
   getUploadUrlSchema,
   initiateUploadSchema,
   singleVideoSchema,
@@ -257,6 +259,86 @@ export const videos = router({
         throw new TRPCError({
           code: 'INTERNAL_SERVER_ERROR',
           message: 'Failed to complete upload.',
+        });
+      }
+    }),
+
+  // Change video visibility (private or public)
+  changeVisibility: protectedProcedure
+    .input(changeVisibilitySchema)
+    .mutation(async ({ ctx, input }) => {
+      try {
+        const {
+          data: [video],
+        } = await db.entities.videos.query.byVideo({ id: input.videoId }).go();
+
+        if (!video) {
+          throw new Error(
+            `Could not set video to ${input.visibility.toLowerCase()} because video was not found.`,
+          );
+        }
+
+        if (ctx.user.sub !== video.userId) {
+          throw new Error(
+            'You can only change visibility of videos that belong to you.',
+          );
+        }
+
+        // update video visibility
+        await db.entities.videos
+          .update({ id: input.videoId, userId: ctx.user.sub })
+          .set({ visibility: input.visibility })
+          .go();
+
+        return { message: `Video set to ${input.visibility.toLowerCase()}.` };
+      } catch (err) {
+        const error = err as Error;
+
+        console.error(
+          `Error setting video to ${input.visibility}: `,
+          error.message,
+        );
+
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: error.message,
+        });
+      }
+    }),
+
+  // Delete video permanently
+  delete: protectedProcedure
+    .input(deleteSchema)
+    .mutation(async ({ ctx, input }) => {
+      try {
+        const {
+          data: [video],
+        } = await db.entities.videos.query.byVideo({ id: input.videoId }).go();
+
+        if (!video) {
+          throw new Error(
+            'Could not delete video because video was not found.',
+          );
+        }
+
+        if (ctx.user.sub !== video.userId) {
+          throw new Error('You can only delete videos that belong to you.');
+        }
+
+        // Delete video
+        await db.entities.videos
+          .delete({ id: input.videoId, userId: ctx.user.sub })
+          .go();
+
+        return { message: 'Video deleted successfully' };
+      } catch (err) {
+        const error = err as Error;
+
+        console.error('Error deleting video: ', error.message);
+
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: error.message,
         });
       }
     }),

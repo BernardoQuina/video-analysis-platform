@@ -90,7 +90,7 @@ function Tip({
       <Tooltip open={!disabled && open}>
         <TooltipTrigger asChild>
           <div
-            className={cn('w-fit cursor-pointer', className)}
+            className={cn('w-fit', className)}
             onClick={handleClickOpen}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}

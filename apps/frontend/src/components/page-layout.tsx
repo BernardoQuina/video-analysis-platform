@@ -19,7 +19,7 @@ export function PageLayout({
         <meta name="description" content={pageDescription} />
       </Head>
       <Header />
-      <main className="w-full max-w-[80rem] px-4 py-4 lg:px-8">{children}</main>
+      <main className="w-full max-w-[70rem] px-4 py-4 lg:px-8">{children}</main>
     </div>
   );
 }

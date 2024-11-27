@@ -50,7 +50,9 @@ export function UploadDialog() {
 
   const router = useRouter();
 
-  const { data: meData } = trpc.auth.me.useQuery(undefined, {
+  const utils = trpc.useUtils();
+
+  const { data: me } = trpc.auth.me.useQuery(undefined, {
     trpc: { context: { skipBatch: true } },
   });
 
@@ -154,6 +156,8 @@ export function UploadDialog() {
           'Analysis jobs will start processing now. You can check their status on this video page.',
       });
       router.push(`/videos/${videoId}`);
+      utils.videos.myVideos.invalidate();
+      utils.videos.publicVideos.invalidate();
     } catch (error) {
       toast.error('An error occurred while uploading', {
         description: (error as Error).message,
@@ -178,9 +182,9 @@ export function UploadDialog() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <Tip content="You'll have to sign in first!" disabled={!!meData}>
+      <Tip content="You'll have to sign in first!" disabled={!!me}>
         <DialogTrigger asChild>
-          <Button variant="rainbow" disabled={!meData}>
+          <Button variant="rainbow" disabled={!me}>
             <Upload /> Upload
           </Button>
         </DialogTrigger>

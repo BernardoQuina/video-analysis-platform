@@ -70,3 +70,18 @@ export const completeUploadSchema = z
   .strict({
     message: 'Only upload id, s3 key and part number are allowed.',
   });
+
+export const changeVisibilitySchema = z
+  .object({
+    videoId: z.string({ message: 'Video id must be provided' }).uuid(),
+    visibility: z.enum(['PUBLIC', 'PRIVATE'], {
+      message: 'Video visibility must be set either to public or private.',
+    }),
+  })
+  .strict({ message: 'Only video and visibility are allowed.' });
+
+export const deleteSchema = z
+  .object({
+    videoId: z.string({ message: 'Video id must be provided' }).uuid(),
+  })
+  .strict({ message: 'Only video id is allowed.' });
