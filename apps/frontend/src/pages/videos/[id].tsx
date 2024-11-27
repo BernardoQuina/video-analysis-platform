@@ -1,6 +1,6 @@
 import { CSSProperties, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
-import { CheckCircle2, Cpu } from 'lucide-react';
+import { CheckCircle2, Cpu, XCircle } from 'lucide-react';
 import {
   MediaPlayerInstance,
   MediaRemoteControl,
@@ -231,7 +231,17 @@ function JobTabs({ video, remote }: JobTabsProps) {
         </TabsTrigger>
       </TabsList>
       <TabsContent value="transcript" className="gap-4 pb-20">
-        {!video.transcriptResult ? (
+        {video.transcriptError ? (
+          <div className="gap-4">
+            <div className="w-fit flex-row gap-1.5 rounded-full border p-2">
+              <XCircle className="text-destructive h-4 w-4" />
+              <span className="text-primary text-xs font-medium">
+                Transcription job failed
+              </span>
+            </div>
+            <p>{video.transcriptError}</p>
+          </div>
+        ) : !video.transcriptResult ? (
           <>
             <PulsatingBorder>
               <Cpu className="text-primary animate-spring-spin h-4 w-4" />
@@ -325,7 +335,17 @@ function JobTabs({ video, remote }: JobTabsProps) {
         )}
       </TabsContent>
       <TabsContent value="objectDetection" className={cn('gap-4 pb-20', {})}>
-        {!video.rekognitionObjects ? (
+        {video.rekognitionObjectsError ? (
+          <div className="gap-4">
+            <div className="w-fit flex-row gap-1.5 rounded-full border p-2">
+              <XCircle className="text-destructive h-4 w-4" />
+              <span className="text-primary text-xs font-medium">
+                Object detection job failed
+              </span>
+            </div>
+            <p>{video.rekognitionObjectsError}</p>
+          </div>
+        ) : !video.rekognitionObjects ? (
           <>
             <PulsatingBorder>
               <Cpu className="text-primary animate-spring-spin h-4 w-4" />

@@ -70,11 +70,6 @@ export const handler = async (
 
     if (!videoItem) throw new Error('Video item not found in db.');
 
-    // Test error (TODO: remove)
-    throw new Error(
-      'Could not process transcription job due to corrupted input file.',
-    );
-
     const command = new StartTranscriptionJobCommand(params);
     await transcribeClient.send(command);
 

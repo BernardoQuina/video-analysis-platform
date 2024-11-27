@@ -37,7 +37,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
         success: <CheckCircle2 className="mt-0.5 h-4 w-4 text-green-500" />,
         info: <Info className="mt-0.5 h-4 w-4 text-blue-500" />,
         warning: <AlertTriangle className="mt-0.5 h-4 w-4 text-amber-500" />,
-        error: <XCircle className="mt-0.5 h-4 w-4 text-red-500" />,
+        error: <XCircle className="text-destructive mt-0.5 h-4 w-4" />,
         loading: (
           <Loader className="mt-0.5 h-4 w-4 animate-spin text-gray-500" />
         ),
