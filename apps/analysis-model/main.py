@@ -111,19 +111,17 @@ def main():
     if not config.SQS_QUEUE_URL:
         raise ValueError("SQS_QUEUE_URL environment variable is required")
 
-    print("here 1")
-
+    print("Initializing aws clients...")
     # Initialize AWS clients
     sqs, s3, dynamodb = get_aws_clients()
 
-    print("here 2")
-
+    print("Initializing model and processor...")
     # Initialize model and processor
     processor, model = initialize_model_and_processor()
 
     while True:
         try:
-            print("here 3")
+            print("Polling...")
 
             message = receive_message(sqs)
 
