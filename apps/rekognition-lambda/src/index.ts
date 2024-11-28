@@ -43,7 +43,7 @@ export const handler = async (
   >,
 ): Promise<APIGatewayProxyResult> => {
   // TODO: remove to activate lambda
-  // return { statusCode: 200, body: JSON.stringify({ message: 'Test' }) };
+  return { statusCode: 200, body: JSON.stringify({ message: 'Test' }) };
 
   const { bucket, object } = event.detail;
 
