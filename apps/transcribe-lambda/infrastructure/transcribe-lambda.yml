@@ -17,6 +17,9 @@ Parameters:
   CustomAnalysisQueueUrl:
     Type: String
     Description: URL of the Custom Analysis SQS Queue
+  CustomAnalysisQueueArn:
+    Type: String
+    Description: Arn of the Custom Analysis SQS Queue
   StackName:
     Type: String
     Description: Name of the parent stack
@@ -62,6 +65,15 @@ Resources:
                 Resource:
                   - !Ref DynamoDBTableArn # Main table ARN
                   - !Sub ${DynamoDBTableArn}/* # Includes all GSIs of the table
+        - PolicyName: SendSQSMessage
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - sqs:sendmessage
+                Resource:
+                  - !Ref CustomAnalysisQueueArn
 
   # Transcribe Lambda Function
   TranscribeLambda:
