@@ -175,6 +175,7 @@ Resources:
         EnvironmentName: !Ref EnvironmentName
         DynamoDBTableName: !Ref DynamoDBTableName
         DynamoDBTableArn: !GetAtt DynamoDBTable.Outputs.DynamoDBTableArn
+        CustomAnalysisQueueUrl: !GetAtt CustomAnalysisSQSQueue.Outputs.CustomAnalysisQueueUrl
         StackName: !Ref AWS::StackName
 
   # Rekognition Lambda Stack (triggered by S3 video upload)

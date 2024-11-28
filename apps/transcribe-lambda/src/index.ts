@@ -5,6 +5,7 @@ import {
   StartTranscriptionJobCommand,
   StartTranscriptionJobCommandInput,
 } from '@aws-sdk/client-transcribe';
+import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
 import type {
   APIGatewayProxyResult,
   EventBridgeEvent,
@@ -25,6 +26,7 @@ const transcribeClient = new TranscribeClient({
   region: process.env.AWS_REGION,
 });
 const s3Client = new S3Client({ region: process.env.AWS_REGION });
+const sqsClient = new SQSClient({ region: process.env.AWS_REGION });
 
 const db = useDB({
   region: process.env.AWS_REGION,
@@ -132,6 +134,28 @@ export const handler = async (
       .update({ id: videoid, userId: userid })
       .set({ transcriptResult: mergedSegments })
       .go();
+
+    // Send message to sqs for analysis model to answer prompt
+    const video_s3_uri = `s3://${bucket.name}/${object.key}`;
+
+    let transcript = 'TRANSCRIPT:\n';
+
+    mergedSegments.forEach((segment) => {
+      transcript += `${segment.person} [${segment.startTime.toFixed(2)}s]: ${segment.transcript}\n`;
+    });
+
+    const sqsMessage = {
+      video_s3_uri,
+      prompt: `${videoItem.prompt}${transcript !== 'TRANSCRIPT:\n' ? `\n${transcript}` : ''}`,
+    };
+
+    const sendMessageCommand = new SendMessageCommand({
+      QueueUrl: process.env.SQS_QUEUE_URL!,
+      MessageBody: JSON.stringify(sqsMessage),
+    });
+
+    await sqsClient.send(sendMessageCommand);
+    console.log('Message sent to SQS:', sqsMessage);
 
     return { statusCode: 200, body: JSON.stringify(results) };
   } catch (err) {

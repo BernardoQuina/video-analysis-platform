@@ -14,6 +14,9 @@ Parameters:
   DynamoDBTableArn:
     Type: String
     Description: Arn of the DynamoDB Table
+  CustomAnalysisQueueUrl:
+    Type: String
+    Description: URL of the Custom Analysis SQS Queue
   StackName:
     Type: String
     Description: Name of the parent stack
@@ -75,6 +78,7 @@ Resources:
       Environment:
         Variables:
           DYNAMODB_TABLE_NAME: !Ref DynamoDBTableName
+          SQS_QUEUE_URL: !Ref CustomAnalysisQueueUrl
       LoggingConfig:
         LogGroup: !Ref TranscribeLambdaCloudWatchLogsGroup
     DeletionPolicy: Delete

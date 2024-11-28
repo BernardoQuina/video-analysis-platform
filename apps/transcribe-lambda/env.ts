@@ -4,6 +4,7 @@ import { z } from 'zod';
 const envVariables = z.object({
   AWS_REGION: z.string(),
   DYNAMODB_TABLE_NAME: z.string(),
+  SQS_QUEUE_URL: z.string(),
 });
 
 envVariables.parse(process.env);
