@@ -54,24 +54,40 @@ def get_s3_metadata(s3, bucket, key):
     return metadata
 
 
-def save_to_dynamodb(dynamodb, table_name, userid, videoid, result):
+def save_to_dynamodb(dynamodb, table_name, userid, videoid, field_name, field_value):
     """
-    Save the processed result to DynamoDB.
+    Save or update a specific field in DynamoDB for a given userid and videoid without overwriting other fields.
+
+    :param dynamodb: DynamoDB client
+    :param table_name: Name of the DynamoDB table
+    :param userid: User ID
+    :param videoid: Video ID
+    :param field_name: Name of the field to update
+    :param field_value: Value of the field to update
     """
     try:
-        # Construct pk and sk based on electrodb format
+        # Construct pk and sk based on the specified format
         pk = f"$main#userId_{userid}"
         sk = f"$user#videos_1#id_{videoid}"
 
-        dynamodb.put_item(
+        # Perform an update operation to set the specified field
+        dynamodb.update_item(
             TableName=table_name,
-            Item={
+            Key={
                 "pk": {"S": pk},
                 "sk": {"S": sk},
-                "analysisResult": {"S": result},
+            },
+            UpdateExpression="SET #field = :value",
+            ExpressionAttributeNames={
+                "#field": field_name,  # Field to update
+            },
+            ExpressionAttributeValues={
+                ":value": {"S": field_value},  # New value for the field
             },
         )
-        print(f"Result successfully saved to DynamoDB for videoid: {videoid}")
+        print(
+            f"Field '{field_name}' successfully updated in DynamoDB for pk: {pk}, sk: {sk}"
+        )
     except Exception as e:
-        print(f"Error saving to DynamoDB: {str(e)}")
+        print(f"Error updating DynamoDB: {str(e)}")
         raise

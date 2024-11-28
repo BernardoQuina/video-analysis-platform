@@ -62,7 +62,12 @@ def process_message(message, sqs, s3, dynamodb, processor, model):
 
             # Save to DynamoDB
             save_to_dynamodb(
-                dynamodb, config.DYNAMODB_TABLE_NAME, userid, videoid, result
+                dynamodb=dynamodb,
+                table_name=config.DYNAMODB_TABLE_NAME,
+                userid=userid,
+                videoid=videoid,
+                field_name="analysisResult",
+                field_value=result,
             )
 
         finally:
