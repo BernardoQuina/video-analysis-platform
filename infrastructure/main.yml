@@ -306,4 +306,6 @@ Resources:
         CustomAnalysisQueueName: !GetAtt CustomAnalysisSQSQueue.Outputs.CustomAnalysisQueueName
         CustomAnalysisQueueArn: !GetAtt CustomAnalysisSQSQueue.Outputs.CustomAnalysisQueueArn
         VideoStorageS3BucketArn: !GetAtt VideoStorageS3BucketStack.Outputs.VideoStorageS3BucketArn
+        DynamoDBTableName: !Ref DynamoDBTableName
+        DynamoDBTableArn: !GetAtt DynamoDBTable.Outputs.DynamoDBTableArn
         StackName: !Ref AWS::StackName

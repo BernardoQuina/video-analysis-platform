@@ -2,7 +2,15 @@ import json
 import os
 import time
 from video_llava import initialize_model_and_processor, process_video
-from aws_utils import get_aws_clients, receive_message, delete_message, download_from_s3
+from aws_utils import (
+    get_aws_clients,
+    receive_message,
+    delete_message,
+    parse_s3_uri,
+    get_s3_metadata,
+    download_from_s3,
+    save_to_dynamodb,
+)
 import config
 
 
@@ -30,18 +38,33 @@ def process_message_body(message_body):
         raise ValueError("Invalid JSON in message")
 
 
-def process_message(message, sqs, s3, processor, model):
+def process_message(message, sqs, s3, dynamodb, processor, model):
     try:
         video_s3_uri, formatted_prompt = process_message_body(message["Body"])
-        temp_video_path = download_from_s3(s3, video_s3_uri)
+        temp_video_path = None
 
         try:
+            # Parse S3 URI
+            bucket, key = parse_s3_uri(video_s3_uri)
+
+            # Extract metadata
+            userid, videoid = get_s3_metadata(s3, bucket, key)
+
+            # Download video
+            temp_video_path = download_from_s3(s3, bucket, key)
+
+            # Process video
             result = process_video(temp_video_path, formatted_prompt, processor, model)
             print(f"Processed video result: {result}")
 
+            # Save to DynamoDB
+            save_to_dynamodb(
+                dynamodb, config.DYNAMODB_TABLE_NAME, userid, videoid, result
+            )
+
         finally:
             # Clean up temporary file
-            if os.path.exists(temp_video_path):
+            if temp_video_path and os.path.exists(temp_video_path):
                 os.unlink(temp_video_path)
 
         # Delete message after successful processing
@@ -55,29 +78,26 @@ def main():
     if not config.SQS_QUEUE_URL:
         raise ValueError("SQS_QUEUE_URL environment variable is required")
 
-    print('here 1')
+    print("here 1")
 
     # Initialize AWS clients
-    sqs, s3 = get_aws_clients()
+    sqs, s3, dynamodb = get_aws_clients()
 
-    print('here 2')
+    print("here 2")
 
     # Initialize model and processor
     processor, model = initialize_model_and_processor()
 
     while True:
         try:
-
-            print('here 3')
+            print("here 3")
 
             message = receive_message(sqs)
 
             print("message: ", message)
 
             if message is not None:
-                result = process_message(message, sqs, s3, processor, model)
-
-                print("result: ", result)
+                process_message(message, sqs, s3, dynamodb, processor, model)
 
         except Exception as e:
             print(f"Error in main loop: {str(e)}")

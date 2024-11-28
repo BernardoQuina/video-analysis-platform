@@ -7,7 +7,8 @@ import config
 def get_aws_clients():
     sqs = boto3.client("sqs", region_name=config.AWS_REGION)
     s3 = boto3.client("s3", region_name=config.AWS_REGION)
-    return sqs, s3
+    dynamodb = boto3.client("dynamodb", region_name=config.AWS_REGION)
+    return sqs, s3, dynamodb
 
 
 def receive_message(sqs):
@@ -33,8 +34,7 @@ def parse_s3_uri(s3_uri):
     return bucket, key
 
 
-def download_from_s3(s3, s3_uri):
-    bucket, key = parse_s3_uri(s3_uri)
+def download_from_s3(s3, bucket, key):
     temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".mp4")
 
     try:
@@ -43,3 +43,35 @@ def download_from_s3(s3, s3_uri):
     except Exception as e:
         os.unlink(temp_file.name)
         raise e
+
+
+def get_s3_metadata(s3, bucket, key):
+    """
+    Retrieve metadata from the S3 object.
+    """
+    response = s3.head_object(Bucket=bucket, Key=key)
+    metadata = response.get("Metadata", {})
+    return metadata
+
+
+def save_to_dynamodb(dynamodb, table_name, userid, videoid, result):
+    """
+    Save the processed result to DynamoDB.
+    """
+    try:
+        # Construct pk and sk based on electrodb format
+        pk = f"$main#userId_{userid}"
+        sk = f"$user#videos_1#id_{videoid}"
+
+        dynamodb.put_item(
+            TableName=table_name,
+            Item={
+                "pk": {"S": pk},
+                "sk": {"S": sk},
+                "analysisResult": {"S": result},
+            },
+        )
+        print(f"Result successfully saved to DynamoDB for videoid: {videoid}")
+    except Exception as e:
+        print(f"Error saving to DynamoDB: {str(e)}")
+        raise

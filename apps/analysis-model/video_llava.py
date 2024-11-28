@@ -2,7 +2,11 @@ import os
 import av
 import numpy as np
 import torch
-from transformers import VideoLlavaProcessor, VideoLlavaForConditionalGeneration, BitsAndBytesConfig
+from transformers import (
+    VideoLlavaProcessor,
+    VideoLlavaForConditionalGeneration,
+    BitsAndBytesConfig,
+)
 import config
 
 
@@ -80,12 +84,15 @@ def process_video(video_path, prompt, processor, model):
                 eos_token_id=processor.tokenizer.eos_token_id,
             )
 
-        # Decode and return result
+        # Decode and extract response
         result = processor.batch_decode(
             generate_ids, skip_special_tokens=True, clean_up_tokenization_spaces=False
         )[0]
 
-        return result
+        # Keep only the part after "ASSISTANT:"
+        response = result.split("ASSISTANT:", 1)[-1].strip()
+
+        return response
     finally:
         # Clean up
         container.close()
