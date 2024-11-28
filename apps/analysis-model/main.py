@@ -26,6 +26,7 @@ def process_message_body(message_body):
         data = json.loads(message_body)
         video_s3_uri = data.get("video_s3_uri")
         prompt = data.get("prompt")
+        field_name = data.get("field_name")
 
         if not video_s3_uri or not prompt:
             raise ValueError("Missing required fields in message")
@@ -33,14 +34,18 @@ def process_message_body(message_body):
         # Format the prompt with required prefix and suffix
         formatted_prompt = format_prompt(prompt)
 
-        return video_s3_uri, formatted_prompt
+        return video_s3_uri, formatted_prompt, field_name
     except json.JSONDecodeError:
         raise ValueError("Invalid JSON in message")
 
 
 def process_message(message, sqs, s3, dynamodb, processor, model):
+    field_name = None
+
     try:
-        video_s3_uri, formatted_prompt = process_message_body(message["Body"])
+        video_s3_uri, formatted_prompt, field_name = process_message_body(
+            message["Body"]
+        )
         temp_video_path = None
 
         try:
@@ -66,7 +71,7 @@ def process_message(message, sqs, s3, dynamodb, processor, model):
                 table_name=config.DYNAMODB_TABLE_NAME,
                 userid=userid,
                 videoid=videoid,
-                field_name="analysisResult",
+                field_name=field_name,
                 field_value=result,
             )
 
@@ -80,6 +85,26 @@ def process_message(message, sqs, s3, dynamodb, processor, model):
 
     except Exception as e:
         print(f"Error processing message: {str(e)}")
+
+        if field_name:
+            # Determine the appropriate error field based on the provided field_name
+            error_field_name = (
+                "promptError"
+                if field_name == "promptResult"
+                else "summaryError"
+                if field_name == "summaryResult"
+                else None
+            )
+
+            # Save error to DynamoDB
+            save_to_dynamodb(
+                dynamodb=dynamodb,
+                table_name=config.DYNAMODB_TABLE_NAME,
+                userid=userid,
+                videoid=videoid,
+                field_name=error_field_name,
+                field_value=str(e),
+            )
 
 
 def main():

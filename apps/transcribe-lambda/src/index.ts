@@ -135,7 +135,8 @@ export const handler = async (
       .set({ transcriptResult: mergedSegments })
       .go();
 
-    // Send message to sqs for analysis model to answer prompt
+    // Send 2 message to sqs for analysis model:
+    // 1 to answer prompt and another to generate summary
     const video_s3_uri = `s3://${bucket.name}/${object.key}`;
 
     let transcript = 'START OF TRANSCRIPT:\n';
@@ -147,18 +148,37 @@ export const handler = async (
         transcript += 'END OF TRANSCRIPT\nPROMPT:\n';
     });
 
-    const sqsMessage = {
+    const hasTranscript = transcript !== 'TRANSCRIPT:\n';
+
+    // Prompt message
+    const sqsPromptMessage = {
       video_s3_uri,
-      prompt: `${transcript !== 'TRANSCRIPT:\n' ? `\n${transcript}` : ''}${videoItem.prompt}`,
+      prompt: `${hasTranscript ? `\n${transcript}Answer the following prompt taking the transcript into account:\n` : ''}${videoItem.prompt}`,
+      field_name: 'promptResult', // for dynamodb field storage
     };
 
-    const sendMessageCommand = new SendMessageCommand({
+    const sendPromptMessageCommand = new SendMessageCommand({
       QueueUrl: process.env.SQS_QUEUE_URL!,
-      MessageBody: JSON.stringify(sqsMessage),
+      MessageBody: JSON.stringify(sqsPromptMessage),
     });
 
-    await sqsClient.send(sendMessageCommand);
-    console.log('Message sent to SQS:', sqsMessage);
+    await sqsClient.send(sendPromptMessageCommand);
+    console.log('Prompt message sent to SQS:', sqsPromptMessage);
+
+    // Summary message
+    const sqsSummaryMessage = {
+      video_s3_uri,
+      prompt: `${hasTranscript ? `\n${transcript}` : ''} Summarize the content of the video into bullet points, be very detailed and extensive${hasTranscript ? ' and take the transcript into account' : ''}.`,
+      field_name: 'summaryResult',
+    };
+
+    const sendSummaryMessageCommand = new SendMessageCommand({
+      QueueUrl: process.env.SQS_QUEUE_URL!,
+      MessageBody: JSON.stringify(sqsSummaryMessage),
+    });
+
+    await sqsClient.send(sendSummaryMessageCommand);
+    console.log('Summary message sent to SQS:', sqsSummaryMessage);
 
     return { statusCode: 200, body: JSON.stringify(results) };
   } catch (err) {
