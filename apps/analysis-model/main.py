@@ -48,7 +48,10 @@ def process_message(message, sqs, s3, dynamodb, processor, model):
             bucket, key = parse_s3_uri(video_s3_uri)
 
             # Extract metadata
-            userid, videoid = get_s3_metadata(s3, bucket, key)
+            metadata = get_s3_metadata(s3, bucket, key)
+
+            userid = metadata.get("userid", None)
+            videoid = metadata.get("videoid", None)
 
             # Download video
             temp_video_path = download_from_s3(s3, bucket, key)
