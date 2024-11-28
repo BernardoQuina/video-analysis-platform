@@ -397,7 +397,7 @@ function Options({ video }: OptionsProps) {
         )}
         <Button
           variant="ghost"
-          className="text-destructive hover:text-destructive h-8 font-normal hover:bg-red-100"
+          className="text-destructive hover:text-destructive h-8 font-normal hover:bg-red-500/20"
           onClick={handleDelete}
           disabled={isDeleting}
         >
