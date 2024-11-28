@@ -146,7 +146,7 @@ export const handler = async (
 
     const sqsMessage = {
       video_s3_uri,
-      prompt: `${videoItem.prompt}${transcript !== 'TRANSCRIPT:\n' ? `\n${transcript}` : ''}`,
+      prompt: `${transcript !== 'TRANSCRIPT:\n' ? `\n${transcript}` : ''}${videoItem.prompt}`,
     };
 
     const sendMessageCommand = new SendMessageCommand({
