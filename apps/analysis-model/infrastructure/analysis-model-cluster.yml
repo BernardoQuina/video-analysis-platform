@@ -125,7 +125,7 @@ Resources:
               # VolumeType: io2
               # Iops: 12000
               VolumeType: gp3
-              Iops: 6000
+              Iops: 16000
               DeleteOnTermination: true
         UserData:
           Fn::Base64: !Sub |
