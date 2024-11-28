@@ -138,10 +138,13 @@ export const handler = async (
     // Send message to sqs for analysis model to answer prompt
     const video_s3_uri = `s3://${bucket.name}/${object.key}`;
 
-    let transcript = 'TRANSCRIPT:\n';
+    let transcript = 'START OF TRANSCRIPT:\n';
 
-    mergedSegments.forEach((segment) => {
+    mergedSegments.forEach((segment, i) => {
       transcript += `${segment.person} [${segment.startTime.toFixed(2)}s]: ${segment.transcript}\n`;
+
+      if (i === mergedSegments.length - 1)
+        transcript += 'END OF TRANSCRIPT\nUSER PROMPT:\n';
     });
 
     const sqsMessage = {
