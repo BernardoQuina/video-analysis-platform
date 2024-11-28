@@ -144,7 +144,7 @@ export const handler = async (
       transcript += `${segment.person} [${segment.startTime.toFixed(2)}s]: ${segment.transcript}\n`;
 
       if (i === mergedSegments.length - 1)
-        transcript += 'END OF TRANSCRIPT\nUSER PROMPT:\n';
+        transcript += 'END OF TRANSCRIPT\nPROMPT:\n';
     });
 
     const sqsMessage = {
