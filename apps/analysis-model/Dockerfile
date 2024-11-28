@@ -28,7 +28,6 @@ RUN pip3 install --no-cache-dir -r requirements.txt
 # Copy remaining files
 COPY config.py .
 COPY aws_utils.py .
-COPY download_model.py .
 COPY video_llava.py .
 COPY main.py .
 
