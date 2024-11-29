@@ -42,9 +42,6 @@ export const handler = async (
     S3ObjectCreatedNotificationEventDetail
   >,
 ): Promise<APIGatewayProxyResult> => {
-  // TODO: remove to activate lambda
-  return { statusCode: 200, body: JSON.stringify({ message: 'Test' }) };
-
   const { bucket, object } = event.detail;
 
   const objectParams = { Bucket: bucket.name, Key: object.key };
