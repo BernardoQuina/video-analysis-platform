@@ -58,7 +58,7 @@ export default function Videos() {
               ))}
             </div>
           ) : (myVideos ?? []).length === 0 ? (
-            <div className="items-center pt-8">
+            <div className="items-center pt-2">
               <Card>
                 <CardContent className="flex-row items-center gap-4">
                   <div className="gap-1">
@@ -96,7 +96,7 @@ export default function Videos() {
               ))}
             </div>
           ) : (publicVideos ?? []).length === 0 ? (
-            <div className="items-center pt-8">
+            <div className="items-center pt-2">
               <Card>
                 <CardContent className="flex-row items-center gap-4">
                   <div className="gap-1">
@@ -113,12 +113,13 @@ export default function Videos() {
               </Card>
             </div>
           ) : (
-            <div className="flex-row flex-wrap gap-x-4 gap-y-8 pb-8">
-              {publicVideos!.map((video) => (
-                <VideoCard key={video.id} video={video} />
-              ))}
-
-              <div className="bg-muted-foreground/60 mx-auto h-2 w-2 rounded-full"></div>
+            <div className="items-center gap-8 pb-8">
+              <div className="flex-row flex-wrap gap-x-4 gap-y-8">
+                {publicVideos!.map((video) => (
+                  <VideoCard key={video.id} video={video} />
+                ))}
+              </div>
+              <div className="bg-muted-foreground/60 h-2 w-2 rounded-full"></div>
             </div>
           )}
         </div>
