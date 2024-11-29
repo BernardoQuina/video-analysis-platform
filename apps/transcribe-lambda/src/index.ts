@@ -166,7 +166,7 @@ export const handler = async (
     // Summary message
     const sqsSummaryMessage = {
       video_s3_uri,
-      prompt: `${hasTranscript ? `\n${transcript}` : ''} Summarize the content of the video into bullet points using hyphens (-), breaking line between them, be very detailed and extensive${hasTranscript ? ' and take the transcript into account' : ''}.`,
+      prompt: `${hasTranscript ? `\n${transcript}` : ''} Summarize the content of the video into bullet points, breaking line between them, be very detailed and extensive${hasTranscript ? ' and take the transcript into account' : ''}.`,
       field_name: 'summaryResult',
     };
 
