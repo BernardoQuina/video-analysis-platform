@@ -152,7 +152,7 @@ export function JobTabs({ video, remote }: JobTabsProps) {
             </PulsatingBorder>
             <p className="text-muted-foreground text-sm">
               <span className="text-primary font-medium">
-                [Takes about 3-10 minutes depending on wether the cluster is
+                [Takes about 3-15 minutes depending on wether the cluster is
                 scaling from zero]
               </span>{' '}
               {jobDescriptions.summary}
@@ -202,7 +202,7 @@ export function JobTabs({ video, remote }: JobTabsProps) {
             </PulsatingBorder>
             <p className="text-muted-foreground text-sm">
               <span className="text-primary font-medium">
-                [Takes about 3-10 minutes depending on wether the cluster is
+                [Takes about 3-15 minutes depending on wether the cluster is
                 scaling from zero]
               </span>{' '}
               {jobDescriptions.prompt}
