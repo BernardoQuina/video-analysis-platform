@@ -132,23 +132,6 @@ export function JobTabs({ video, remote }: JobTabsProps) {
         )}
       </TabsContent>
       <TabsContent value="summary" className="gap-4 pb-20">
-        {video.summaryResult ? null : (
-          <>
-            <PulsatingBorder>
-              <Cpu className="text-primary animate-spring-spin h-4 w-4" />
-              <span className="text-primary animate-pulse text-xs font-medium">
-                Processing summary job
-              </span>
-            </PulsatingBorder>
-            <p className="text-muted-foreground text-sm">
-              <span className="text-primary font-medium">
-                [Takes about 3-10 minutes depending on wether the cluster is
-                scaling from zero]
-              </span>{' '}
-              {jobDescriptions.summary}
-            </p>
-          </>
-        )}
         {video.summaryError ? (
           <div className="gap-4">
             <div className="w-fit flex-row gap-1.5 rounded-full border p-2">
