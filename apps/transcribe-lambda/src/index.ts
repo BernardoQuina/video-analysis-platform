@@ -146,7 +146,7 @@ export const handler = async (
         transcript += 'END OF TRANSCRIPT\nPROMPT:\n';
     });
 
-    const hasTranscript = transcript !== 'TRANSCRIPT:\n';
+    const hasTranscript = transcript !== 'START OF TRANSCRIPT:\n';
 
     // Prompt message
     const sqsPromptMessage = {

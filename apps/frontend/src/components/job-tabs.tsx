@@ -175,7 +175,7 @@ export function JobTabs({ video, remote }: JobTabsProps) {
             <VideoLlavaChat
               userPicture={video.userPicture}
               userName={video.userName}
-              prompt="Summarize the content of this video into bullet points."
+              prompt="Summarize the content of this video."
               answer={video.summaryResult}
             />
           </div>
