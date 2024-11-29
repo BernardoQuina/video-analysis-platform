@@ -74,7 +74,7 @@ export default function Videos() {
               </Card>
             </div>
           ) : (
-            <div className="flex-row flex-wrap gap-x-4 gap-y-8">
+            <div className="flex-row flex-wrap gap-x-4 gap-y-8 pb-4">
               {myVideos!.map((video) => (
                 <VideoCard key={video.id} video={video} isMyVideos />
               ))}
@@ -113,10 +113,12 @@ export default function Videos() {
               </Card>
             </div>
           ) : (
-            <div className="flex-row flex-wrap gap-x-4 gap-y-8">
+            <div className="flex-row flex-wrap gap-x-4 gap-y-8 pb-8">
               {publicVideos!.map((video) => (
                 <VideoCard key={video.id} video={video} />
               ))}
+
+              <div className="bg-muted-foreground/60 mx-auto h-2 w-2 rounded-full"></div>
             </div>
           )}
         </div>
