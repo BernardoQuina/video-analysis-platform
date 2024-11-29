@@ -139,6 +139,7 @@ export const videos = router({
             thumbnailS3Key,
             fileName: input.fileName,
             aspectRatio: input.aspectRatio,
+            duration: input.duration,
             visibility: input.visibility,
             prompt: input.prompt,
             userName: `${ctx.user.given_name} ${ctx.user.family_name}`,

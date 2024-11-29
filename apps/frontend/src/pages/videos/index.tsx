@@ -76,7 +76,7 @@ export default function Videos() {
           ) : (
             <div className="flex-row flex-wrap gap-4">
               {myVideos!.map((video) => (
-                <VideoCard key={video.id} video={video} />
+                <VideoCard key={video.id} video={video} isMyVideos />
               ))}
             </div>
           )}
@@ -113,7 +113,7 @@ export default function Videos() {
               </Card>
             </div>
           ) : (
-            <div className="flex-row flex-wrap gap-2">
+            <div className="flex-row flex-wrap gap-4">
               {publicVideos!.map((video) => (
                 <VideoCard key={video.id} video={video} />
               ))}

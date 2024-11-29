@@ -25,6 +25,7 @@ export const initiateUploadSchema = z
       .number({ message: 'File size must be provided.' })
       .max(1024 * 1024 * 200, { message: 'File exceeds 200MB.' }),
     aspectRatio: z.number({ message: 'Aspect ration must be provided.' }),
+    duration: z.number({ message: 'Duration must be provided.' }),
     visibility: z.enum(['PUBLIC', 'PRIVATE'], {
       message: 'Video visibility must be set either to public or private.',
     }),
@@ -34,7 +35,7 @@ export const initiateUploadSchema = z
   })
   .strict({
     message:
-      'Only file name, file type, file size, visibility and prompt are allowed.',
+      'Only file name, file type, file size, aspect ratio, duration, visibility and prompt are allowed.',
   });
 
 export const getUploadUrlSchema = z
