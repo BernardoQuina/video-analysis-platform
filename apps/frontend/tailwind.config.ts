@@ -216,6 +216,7 @@ const config: Config = {
   plugins: [
     require('tailwindcss-animate'),
     require('@vidstack/react/tailwind.cjs')({ prefix: 'media' }),
+    require('@tailwindcss/typography'),
   ],
 };
 export default config;

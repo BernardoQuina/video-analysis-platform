@@ -29,8 +29,10 @@ const Videos = new Entity({
       required: true,
       default: 'Explain what is happening in this video',
     },
-    analysisResult: { type: 'string' },
-    analysisError: { type: 'string' },
+    promptResult: { type: 'string' },
+    promptError: { type: 'string' },
+    summaryResult: { type: 'string' },
+    summaryError: { type: 'string' },
     transcriptResult: {
       type: 'list',
       items: {

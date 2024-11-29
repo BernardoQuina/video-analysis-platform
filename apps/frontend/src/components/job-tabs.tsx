@@ -16,6 +16,7 @@ import {
 } from './ui/accordion';
 import { Tip } from './ui/tooltip';
 import { PulsatingBorder } from './pulsating-border';
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 
 const jobDescriptions = {
   transcript:
@@ -131,7 +132,7 @@ export function JobTabs({ video, remote }: JobTabsProps) {
         )}
       </TabsContent>
       <TabsContent value="summary" className="gap-4 pb-20">
-        {video.analysisResult ? null : (
+        {video.summaryResult ? null : (
           <>
             <PulsatingBorder>
               <Cpu className="text-primary animate-spring-spin h-4 w-4" />
@@ -148,9 +149,67 @@ export function JobTabs({ video, remote }: JobTabsProps) {
             </p>
           </>
         )}
+        {video.summaryError ? (
+          <div className="gap-4">
+            <div className="w-fit flex-row gap-1.5 rounded-full border p-2">
+              <XCircle className="text-destructive h-4 w-4" />
+              <span className="text-primary text-xs font-medium">
+                Summary job failed
+              </span>
+            </div>
+            <p>{video.summaryError}</p>
+          </div>
+        ) : !video.summaryResult ? (
+          <>
+            <PulsatingBorder>
+              <Cpu className="text-primary animate-spring-spin h-4 w-4" />
+              <span className="text-primary animate-pulse text-xs font-medium">
+                Processing summary job
+              </span>
+            </PulsatingBorder>
+            <p className="text-muted-foreground text-sm">
+              <span className="text-primary font-medium">
+                [Takes about 3-10 minutes depending on wether the cluster is
+                scaling from zero]
+              </span>{' '}
+              {jobDescriptions.summary}
+            </p>
+          </>
+        ) : (
+          <div className="gap-4">
+            <Tip
+              content={jobDescriptions.summary}
+              contentClassName="max-w-[80vw] sm:max-w-[40rem]"
+              align="start"
+            >
+              <div className="w-fit flex-row gap-1.5 rounded-full border p-2">
+                <CheckCircle2 className="h-4 w-4 text-green-500" />
+                <span className="text-primary text-xs font-medium">
+                  Summary job complete
+                </span>
+              </div>
+            </Tip>
+            <VideoLlavaChat
+              userPicture={video.userPicture}
+              userName={video.userName}
+              prompt="Summarize the content of this video into bullet points."
+              answer={video.summaryResult}
+            />
+          </div>
+        )}
       </TabsContent>
       <TabsContent value="prompt" className="gap-4 pb-20">
-        {video.analysisResult ? null : (
+        {video.promptError ? (
+          <div className="gap-4">
+            <div className="w-fit flex-row gap-1.5 rounded-full border p-2">
+              <XCircle className="text-destructive h-4 w-4" />
+              <span className="text-primary text-xs font-medium">
+                Prompt job failed
+              </span>
+            </div>
+            <p>{video.promptError}</p>
+          </div>
+        ) : !video.promptResult ? (
           <>
             <PulsatingBorder>
               <Cpu className="text-primary animate-spring-spin h-4 w-4" />
@@ -166,6 +225,27 @@ export function JobTabs({ video, remote }: JobTabsProps) {
               {jobDescriptions.prompt}
             </p>
           </>
+        ) : (
+          <div className="gap-4">
+            <Tip
+              content={jobDescriptions.prompt}
+              contentClassName="max-w-[80vw] sm:max-w-[40rem]"
+              align="start"
+            >
+              <div className="w-fit flex-row gap-1.5 rounded-full border p-2">
+                <CheckCircle2 className="h-4 w-4 text-green-500" />
+                <span className="text-primary text-xs font-medium">
+                  Prompt job complete
+                </span>
+              </div>
+            </Tip>
+            <VideoLlavaChat
+              userPicture={video.userPicture}
+              userName={video.userName}
+              prompt={video.prompt}
+              answer={video.promptResult}
+            />
+          </div>
         )}
       </TabsContent>
       <TabsContent value="objectDetection" className={cn('gap-4 pb-20', {})}>
@@ -457,5 +537,57 @@ function DetectionItem({ detection, isLast, remote }: DetectionItemProps) {
       </div>
       {!isLast && <Separator />}
     </>
+  );
+}
+
+const mediaUrl = process.env.NEXT_PUBLIC_MEDIA_URL;
+
+type VideoLlavaChatProps = {
+  userPicture: Video['userPicture'];
+  userName: Video['userName'];
+  prompt: string;
+  answer: string;
+};
+
+function VideoLlavaChat({
+  userPicture,
+  userName,
+  prompt,
+  answer,
+}: VideoLlavaChatProps) {
+  return (
+    <div className="gap-4">
+      <div className="dark:bg-muted/30 flex-row gap-2 rounded-xl border px-4 py-3 shadow-sm">
+        <Tip content={userName}>
+          <Avatar className="h-7 w-7 cursor-pointer">
+            <AvatarImage src={userPicture} alt="user picture" />
+            <AvatarFallback className="text-sm">
+              {userName.split(' ')[0][0]}
+              {userName.split(' ')[1][0]}
+            </AvatarFallback>
+          </Avatar>
+        </Tip>
+        <div className="pt-0.5">
+          <p className="whitespace-pre-line">{prompt}</p>
+        </div>
+      </div>
+      <div className="dark:bg-muted/30 flex-row gap-2 rounded-xl border px-4 py-3 shadow-sm">
+        <Tip content="Video-LLaVA">
+          <Avatar className="h-7 w-7 cursor-pointer">
+            <AvatarImage
+              src={`${mediaUrl}/llava-avatar.png`}
+              alt="user picture"
+            />
+            <AvatarFallback className="text-sm">
+              {userName.split(' ')[0][0]}
+              {userName.split(' ')[1][0]}
+            </AvatarFallback>
+          </Avatar>
+        </Tip>
+        <div className="pt-0.5">
+          <p className="whitespace-pre-line leading-7">{answer}</p>
+        </div>
+      </div>
+    </div>
   );
 }

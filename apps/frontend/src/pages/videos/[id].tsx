@@ -41,6 +41,8 @@ import {
 export default function Videos() {
   const [jobsStatus, setJobsStatus] = useState({
     transcript: 'unknown',
+    summary: 'unknown',
+    prompt: 'unknown',
     objectDetection: 'unknown',
   });
 
@@ -60,6 +62,9 @@ export default function Videos() {
         if (
           (jobsStatus.objectDetection === 'error' ||
             jobsStatus.objectDetection === 'complete') &&
+          (jobsStatus.summary === 'error' ||
+            jobsStatus.summary === 'complete') &&
+          (jobsStatus.prompt === 'error' || jobsStatus.prompt === 'complete') &&
           (jobsStatus.transcript === 'error' ||
             jobsStatus.transcript === 'complete')
         ) {
@@ -97,6 +102,54 @@ export default function Videos() {
       } else {
         // In this case its still processing
         setJobsStatus((prev) => ({ ...prev, transcript: 'processing' }));
+      }
+
+      // Check summary status
+      if (video.summaryError) {
+        setJobsStatus((prev) => {
+          // If it was processing notify the user, otherwise just change status to stop refetching (polling for job completions)
+          if (prev.summary === 'processing') {
+            toast.error('Summary job failed', {
+              description: video.summaryError,
+            });
+          }
+          return { ...prev, summary: 'error' };
+        });
+      } else if (video.summaryResult) {
+        setJobsStatus((prev) => {
+          // If it was processing notify the user, otherwise just change status to stop refetching (polling for job completions)
+          if (prev.summary === 'processing') {
+            toast.success('Summary job completed');
+          }
+          return { ...prev, summary: 'complete' };
+        });
+      } else {
+        // In this case its still processing
+        setJobsStatus((prev) => ({ ...prev, summary: 'processing' }));
+      }
+
+      // Check prompt status
+      if (video.promptError) {
+        setJobsStatus((prev) => {
+          // If it was processing notify the user, otherwise just change status to stop refetching (polling for job completions)
+          if (prev.prompt === 'processing') {
+            toast.error('Prompt job failed', {
+              description: video.promptError,
+            });
+          }
+          return { ...prev, prompt: 'error' };
+        });
+      } else if (video.promptResult) {
+        setJobsStatus((prev) => {
+          // If it was processing notify the user, otherwise just change status to stop refetching (polling for job completions)
+          if (prev.prompt === 'processing') {
+            toast.success('Prompt job completed');
+          }
+          return { ...prev, prompt: 'complete' };
+        });
+      } else {
+        // In this case its still processing
+        setJobsStatus((prev) => ({ ...prev, prompt: 'processing' }));
       }
 
       // Check object detection status
@@ -198,8 +251,9 @@ function InfoAndOptions({ video }: InfoAndOptionsProps) {
     let count = 0;
 
     if (video.transcriptResult) count++;
+    if (video.summaryResult) count++;
+    if (video.promptResult) count++;
     if (video.rekognitionObjects) count++;
-    if (video.analysisResult) count++;
 
     return count;
   }, [video]);
@@ -231,28 +285,29 @@ function InfoAndOptions({ video }: InfoAndOptionsProps) {
         )}
       </Tip>
       {video.transcriptError ||
-      video.rekognitionObjectsError ||
-      video.analysisError ? (
+      video.summaryError ||
+      video.promptError ||
+      video.rekognitionObjectsError ? (
         <Tip content="Check for errors on each job tab">
           <div className="w-fit flex-row gap-1.5 rounded-full border py-1.5 pl-1.5 pr-2">
             <XCircle className="text-destructive h-4 w-4" />
             <span className="text-primary text-xs font-medium">
-              {completedJobs}/3 jobs
+              {completedJobs}/4 jobs
             </span>
           </div>
         </Tip>
-      ) : completedJobs === 3 ? (
+      ) : completedJobs === 4 ? (
         <div className="w-fit flex-row gap-1.5 rounded-full border py-1.5 pl-1.5 pr-2">
           <CheckCircle2 className="h-4 w-4 text-green-500" />
           <span className="text-primary text-xs font-medium">
-            {completedJobs}/3 jobs
+            {completedJobs}/4 jobs
           </span>
         </div>
       ) : (
         <PulsatingBorder className="py-1.5 pl-1.5 pr-2">
           <Cpu className="text-primary animate-spring-spin h-4 w-4" />
           <span className="text-primary animate-pulse text-xs font-medium">
-            {completedJobs}/3 jobs
+            {completedJobs}/4 jobs
           </span>
         </PulsatingBorder>
       )}
