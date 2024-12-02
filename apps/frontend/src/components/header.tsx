@@ -7,7 +7,7 @@ import { ThemeToggle } from './theme-toggle';
 export function Header() {
   return (
     <header className="border-border/40 bg-background/95 supports-[backdrop-filter]:bg-background/60 dark:border-border sticky top-0 z-50 h-14 w-full items-center justify-center border-b backdrop-blur">
-      <div className="w-full max-w-[70rem] flex-row justify-between px-4 lg:px-8">
+      <div className="w-full max-w-[75rem] flex-row justify-between px-4 lg:px-8">
         <Link href="/" className="flex-row items-center gap-2">
           <Focus />
           <h1 className="text-sm font-bold">VIDEO ANALYSIS DEMO</h1>
