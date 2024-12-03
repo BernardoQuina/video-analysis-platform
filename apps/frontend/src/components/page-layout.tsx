@@ -13,7 +13,7 @@ export function PageLayout({
   pageDescription: string;
 }) {
   return (
-    <div className="items-center">
+    <div className="items-center overflow-x-clip">
       <Head>
         <title>{pageTitle}</title>
         <meta name="description" content={pageDescription} />
