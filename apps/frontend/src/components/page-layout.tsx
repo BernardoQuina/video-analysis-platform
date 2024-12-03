@@ -26,8 +26,8 @@ export function PageLayout({
         <>
           <div className="bg-background/95 supports-[backdrop-filter]:bg-background/50 dark:supports-[backdrop-filter]:bg-background/70 fixed -z-10 h-full w-full backdrop-blur-3xl"></div>
 
-          <div className="blob animate-blob1 fixed left-1/3 top-1/3 -z-20 h-[50vw] w-[50vw] -translate-x-1/2 -translate-y-1/2 bg-gradient-to-r from-red-400 via-purple-500 to-blue-500 opacity-50 sm:top-1/2 dark:from-red-600 dark:via-purple-700 dark:to-blue-700"></div>
-          <div className="blob animate-blob2 fixed bottom-[60%] right-1/3 -z-20 h-[50vw] w-[50vw] translate-x-1/2 translate-y-1/2 bg-gradient-to-r from-blue-400 via-purple-500 to-cyan-400 opacity-50 dark:from-blue-600 dark:via-purple-700 dark:to-cyan-600"></div>
+          <div className="blob animate-blob1 fixed left-1/3 top-1/3 -z-20 h-[50vw] max-h-[600px] w-[50vw] max-w-[600px] -translate-x-1/2 -translate-y-1/2 bg-gradient-to-r from-red-400 via-purple-500 to-blue-500 opacity-50 sm:top-1/2 dark:from-red-600 dark:via-purple-700 dark:to-blue-700"></div>
+          <div className="blob animate-blob2 fixed bottom-[60%] right-1/3 -z-20 h-[50vw] max-h-[600px] w-[50vw] max-w-[600px] translate-x-1/2 translate-y-1/2 bg-gradient-to-r from-blue-400 via-purple-500 to-cyan-400 opacity-50 dark:from-blue-600 dark:via-purple-700 dark:to-cyan-600"></div>
         </>
       )}
     </div>
