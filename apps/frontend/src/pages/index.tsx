@@ -86,7 +86,7 @@ export default function Home() {
           <div className="linear-gradient-horizontal dark:linear-gradient-horizontal-dark absolute bottom-[-95px] left-[50%] h-[1px] w-[250%] translate-x-[-50%]"></div>
           <div className="linear-gradient-blur-horizontal dark:linear-gradient-blur-horizontal-dark absolute bottom-[-95px] left-[50%] h-[1px] w-[250%] translate-x-[-50%] blur-[2px]"></div>
 
-          <h1 className="text-center text-3xl font-medium sm:text-3xl md:text-4xl lg:text-5xl">
+          <h1 className="xs:text-4xl text-center text-3xl font-medium md:text-5xl lg:text-5xl">
             AI Video Analysis Demo <br /> powered by AWS
           </h1>
         </div>
