@@ -235,6 +235,53 @@
       rgba(0, 0, 0, 0) 100%
     );
   }
+
+  .animate-blob1 {
+    animation: blob1 25s infinite ease-in-out;
+  }
+  .animate-blob2 {
+    animation: blob2 30s infinite ease-in-out;
+  }
+
+  @keyframes blob1 {
+    0%,
+    100% {
+      transform: translate(-50%, -50%) scale(1) rotate(0deg);
+      border-radius: 60% 40% 30% 70% / 90% 30% 70% 40%;
+    }
+    25% {
+      transform: translate(-40%, -60%) scale(1.1) rotate(90deg);
+      border-radius: 30% 70% 90% 40% / 50% 80% 30% 60%;
+    }
+    50% {
+      transform: translate(-60%, -40%) scale(0.9) rotate(180deg);
+      border-radius: 50% 80% 30% 60% / 30% 40% 90% 50%;
+    }
+    75% {
+      transform: translate(-30%, -70%) scale(1.05) rotate(270deg);
+      border-radius: 40% 30% 80% 50% / 90% 70% 40% 30%;
+    }
+  }
+
+  @keyframes blob2 {
+    0%,
+    100% {
+      transform: translate(50%, 50%) scale(1) rotate(0deg);
+      border-radius: 40% 60% 90% 30% / 50% 40% 60% 90%;
+    }
+    25% {
+      transform: translate(60%, 40%) scale(0.95) rotate(-90deg);
+      border-radius: 90% 30% 50% 80% / 30% 90% 40% 60%;
+    }
+    50% {
+      transform: translate(40%, 60%) scale(1.1) rotate(-180deg);
+      border-radius: 30% 90% 40% 60% / 80% 50% 90% 30%;
+    }
+    75% {
+      transform: translate(70%, 30%) scale(1) rotate(-270deg);
+      border-radius: 80% 40% 30% 90% / 40% 60% 50% 80%;
+    }
+  }
 }
 
 @layer utilities {

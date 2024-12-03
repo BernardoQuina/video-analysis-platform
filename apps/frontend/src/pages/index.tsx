@@ -37,10 +37,11 @@ export default function Home() {
     <PageLayout
       pageTitle="Video Analysis Demo"
       pageDescription="This is a demo project showcasing how you can deploy complex applications on AWS infrastructure, making use of multiple services like S3, CloudFront, ECS, SQS, DynamoDB and more while still being cost efficient and having a simple but well-rounded CI/CD."
+      backgroundEffects
     >
       <div className="items-center gap-8 self-center pt-32">
         <Button
-          className="flex-row items-center gap-1 rounded-full text-sm"
+          className="flex-row items-center rounded-full text-sm"
           variant="outline"
           asChild
         >
@@ -49,9 +50,8 @@ export default function Home() {
             target="_blank"
             rel="noreferrer"
           >
-            <span className="text-sm">Made by</span>
-            Bernardo Quina
-            <ExternalLink className="ml-2" />
+            Made by Bernardo Quina
+            <ExternalLink />
           </a>
         </Button>
         <div className="relative overflow-visible">
