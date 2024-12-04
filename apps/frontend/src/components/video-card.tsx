@@ -57,11 +57,7 @@ export function VideoCard({ video, isMyVideos }: VideoCardProps) {
   }, [video]);
 
   return (
-    <Link
-      href={`/videos/${video.id}`}
-      className={cn(shapeClass, 'group')}
-      scroll={false}
-    >
+    <Link href={`/videos/${video.id}`} className={cn(shapeClass, 'group')}>
       <div className="relative aspect-video w-full overflow-hidden rounded-lg shadow-md">
         <Image
           className="h-full w-full object-cover transition duration-300 ease-in-out group-hover:scale-105"
