@@ -74,7 +74,7 @@ export default function Videos() {
               </Card>
             </div>
           ) : (
-            <div className="flex-row flex-wrap gap-x-4 gap-y-8 pb-4">
+            <div className="w-full flex-row flex-wrap gap-x-4 gap-y-8 pb-4">
               {myVideos!.map((video) => (
                 <VideoCard key={video.id} video={video} isMyVideos />
               ))}
@@ -114,7 +114,7 @@ export default function Videos() {
             </div>
           ) : (
             <div className="items-center gap-8 pb-8">
-              <div className="flex-row flex-wrap gap-x-4 gap-y-8">
+              <div className="w-full flex-row flex-wrap gap-x-4 gap-y-8">
                 {publicVideos!.map((video) => (
                   <VideoCard key={video.id} video={video} />
                 ))}
