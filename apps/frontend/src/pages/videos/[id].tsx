@@ -183,9 +183,6 @@ export default function Videos() {
       pageTitle="Video Analysis Library"
       pageDescription="Discover and explore video analyses in the Video Analysis Library. Access your own videos insights and browse public analyses from other users"
     >
-      <div className="h-0 text-transparent" aria-hidden="true">
-        Scroll fix
-      </div>
       {isLoading ? (
         <LoadingSkeleton />
       ) : error ? (
