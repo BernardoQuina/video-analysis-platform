@@ -60,7 +60,7 @@ export function VideoCard({ video, isMyVideos }: VideoCardProps) {
     <Link
       href={`/videos/${video.id}`}
       className={cn(shapeClass, 'group')}
-      scroll
+      scroll={false}
     >
       <div className="relative aspect-video w-full overflow-hidden rounded-lg shadow-md">
         <Image
