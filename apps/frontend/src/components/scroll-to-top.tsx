@@ -11,6 +11,7 @@ export function ScrollToTop() {
 
   useEffect(() => {
     const handleRouteChange = () => {
+      alert('route change');
       window.scrollTo(0, 0);
     };
 
