@@ -11,8 +11,8 @@ export function ScrollToTop() {
 
   useEffect(() => {
     const handleRouteChange = () => {
-      alert('route change');
-      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0; // For most browsers
+      document.body.scrollTop = 0; // For Safari
     };
 
     router.events.on('routeChangeComplete', handleRouteChange);
