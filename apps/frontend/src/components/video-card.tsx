@@ -147,5 +147,19 @@ export function VideoCard({ video, isMyVideos }: VideoCardProps) {
 }
 
 export function VideoCardSkeleton() {
-  return <Skeleton className={shapeClass} />;
+  return (
+    <div className={shapeClass}>
+      <Skeleton className="aspect-video w-full" />
+      <Skeleton className="h-4 w-[90%]" />
+      <div className="flex-row items-center gap-2">
+        <Skeleton className="h-8 w-8 rounded-full" />
+        <div className="w-[50%] justify-center gap-2">
+          <Skeleton className="h-2 w-full" />
+          <Skeleton className="h-2 w-[60%]" />
+        </div>
+
+        <Skeleton className="ml-auto h-6 w-14 rounded-full" />
+      </div>
+    </div>
+  );
 }
