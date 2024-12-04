@@ -13,7 +13,7 @@ export function ScrollToTop() {
   useEffect(() => {
     setTimeout(() => {
       window.scroll(0, 0);
-    }, 5000);
+    }, 1000);
   }, [pathname]);
   return <></>;
 }
