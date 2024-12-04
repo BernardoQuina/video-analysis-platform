@@ -9,8 +9,11 @@ export function ScrollToTop() {
   // GitHub issue: https://github.com/vercel/next.js/discussions/64435
 
   const pathname = usePathname();
+
   useEffect(() => {
-    window.scroll(0, 0);
+    setTimeout(() => {
+      window.scroll(0, 0);
+    }, 100);
   }, [pathname]);
   return <></>;
 }
