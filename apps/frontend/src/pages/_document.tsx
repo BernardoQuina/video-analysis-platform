@@ -1,8 +1,11 @@
 import { Html, Head, Main, NextScript } from 'next/document';
 
+import { ScrollToTop } from '../components/scroll-to-top';
+
 export default function Document() {
   return (
     <Html lang="en">
+      <ScrollToTop /> {/* See comments in this component file */}
       <Head>
         <meta
           name="theme-color"
