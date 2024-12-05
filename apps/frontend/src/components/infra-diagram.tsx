@@ -36,14 +36,13 @@ export default function InfraDiagram() {
   const { resolvedTheme } = useTheme();
 
   return (
-    <div className="h-[80vh] w-[100vw]">
+    <div className="h-[80dvh] w-[100vw]">
       <ReactFlow
         colorMode={resolvedTheme as ColorMode}
         style={{ background: 'transparent' }}
         nodes={nodes}
         edges={edges}
         proOptions={{ hideAttribution: true }}
-        // zoomOnScroll={false}
         preventScrolling={false}
         className="div-with-opacity-gradient"
       >
@@ -55,7 +54,7 @@ export default function InfraDiagram() {
               ? 'rgba(255, 255, 255, 0.15)'
               : 'rgba(0, 0, 0, 0.15)'
           }
-          gap={90}
+          gap={85}
         />
         <Background
           variant={BackgroundVariant.Lines}
@@ -66,7 +65,7 @@ export default function InfraDiagram() {
               : 'rgba(0, 0, 0, 0.3)'
           }
           className="blur-[2px]"
-          gap={90}
+          gap={85}
         />
       </ReactFlow>
     </div>
