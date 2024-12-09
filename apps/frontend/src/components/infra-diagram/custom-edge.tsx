@@ -72,7 +72,6 @@ export function CustomEdge({
             pointerEvents: 'all',
           }}
           className="nodrag nopan group absolute h-fit w-fit cursor-pointer"
-          onClick={() => console.log('here')}
         >
           {data?.label && (
             <div className="bg-background/50 supports-[backdrop-filter]:bg-background/01 group-hover:scale-05 transform rounded-md px-1.5 py-0.5 backdrop-blur-sm">
