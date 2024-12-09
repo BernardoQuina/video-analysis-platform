@@ -307,9 +307,10 @@
   }
 }
 
+/* Changed to svg filter on custom edge component (better performance) */
 /* Default (Light Mode) */
-.react-flow__edge-path {
-  stroke: rgba(0, 0, 0, 0.4); /* Fainter stroke for light mode */
+/* .react-flow__edge-path {
+  stroke: rgba(0, 0, 0, 0.4);
   stroke-width: 2px;
   filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.5))
     drop-shadow(0 0 3px rgba(0, 0, 0, 0.3))
@@ -317,12 +318,12 @@
 }
 
 .dark .react-flow__edge-path {
-  stroke: rgba(255, 255, 255, 0.4); /* Fainter base stroke */
-  stroke-width: 2px; /* Adjust thickness as needed */
+  stroke: rgba(255, 255, 255, 0.4);
+  stroke-width: 2px;
   filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.5))
     drop-shadow(0 0 3px rgba(255, 255, 255, 0.5))
     drop-shadow(0 0 4px rgba(255, 255, 255, 0.4));
-}
+} */
 
 @layer utilities {
   .text-balance {

@@ -1,11 +1,12 @@
 import {
   getBezierPath,
   EdgeLabelRenderer,
-  BaseEdge,
+  // BaseEdge,
   EdgeProps,
   Edge,
   Position,
 } from '@xyflow/react';
+import { useTheme } from 'next-themes';
 
 export type CustomEdge = Edge<
   {
@@ -35,9 +36,37 @@ export function CustomEdge({
     targetPosition: data?.perceivedTargetPosition ?? targetPosition,
   });
 
+  const { resolvedTheme } = useTheme();
+
   return (
     <>
-      <BaseEdge id={id} path={edgePath} />
+      {/* <BaseEdge id={id} path={edgePath} /> */}
+      <svg>
+        {/* Define SVG filters */}
+        <defs>
+          <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="2" result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
+        {/* Render edge path with filter */}
+        <path
+          id={id}
+          d={edgePath}
+          className="react-flow__edge-path"
+          style={{
+            filter: `url(#glow)`,
+            stroke:
+              resolvedTheme === 'light'
+                ? 'rgba(0, 0, 0, 0.4)'
+                : 'rgba(255,255,255, 0.5)',
+            strokeWidth: 1.5,
+          }}
+        />
+      </svg>
       <EdgeLabelRenderer>
         <div
           style={{
