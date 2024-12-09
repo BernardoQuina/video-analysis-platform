@@ -221,5 +221,11 @@ const config: Config = {
     require('@vidstack/react/tailwind.cjs')({ prefix: 'media' }),
     require('@tailwindcss/typography'),
   ],
+  variants: {
+    extend: {
+      scale: ['group-hover'],
+      transform: ['group-hover'],
+    },
+  },
 };
 export default config;
