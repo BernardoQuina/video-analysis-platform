@@ -30,7 +30,7 @@ export const initialNodes: Node<
   {
     id: 'frontend-distribution',
     type: 'customNode',
-    position: { x: getMiddleOfScreen() - 300, y: 200 },
+    position: { x: getMiddleOfScreen() - 400, y: 100 },
     data: {
       label: 'Frontend Distribution',
       icon: <CloudFront />,
@@ -40,7 +40,7 @@ export const initialNodes: Node<
   {
     id: 'frontend-bucket',
     type: 'customNode',
-    position: { x: getMiddleOfScreen() - 500, y: 350 },
+    position: { x: getMiddleOfScreen() - 387, y: 280 },
     data: {
       label: 'Frontend Bucket',
       icon: <S3 />,
@@ -48,9 +48,29 @@ export const initialNodes: Node<
     },
   },
   {
+    id: 'media-distribution',
+    type: 'customNode',
+    position: { x: getMiddleOfScreen() + 280, y: 100 },
+    data: {
+      label: 'Media Distribution',
+      icon: <CloudFront />,
+      description: 'Distributes media globally',
+    },
+  },
+  {
+    id: 'media-bucket',
+    type: 'customNode',
+    position: { x: getMiddleOfScreen() + 265, y: 280 },
+    data: {
+      label: 'Media Bucket',
+      icon: <S3 />,
+      description: 'Stores video and thumbnail files',
+    },
+  },
+  {
     id: 'igw',
     type: 'customNode',
-    position: { x: getMiddleOfScreen() + 20, y: 210 },
+    position: { x: getMiddleOfScreen() - 87, y: 200 },
     data: {
       label: 'Internet Gateway',
       icon: <Igw />,
@@ -65,8 +85,8 @@ export const initialNodes: Node<
       label: 'Virtual Private Cloud',
       icon: <Vpc className="h-8 w-8" />,
       sourcePosition: Position.Top,
-      sourceClassName: 'left-[85%] translate-x-[-50%]',
-      targetClassName: 'left-[85%] translate-x-[-50%]',
+      sourceClassName: 'left-[75%] translate-x-[-50%]',
+      targetClassName: 'left-[75%] translate-x-[-50%]',
     },
     style: {
       zIndex: -1,
@@ -120,7 +140,7 @@ export const initialEdges: Edge<NonNullable<CustomEdge['data']>>[] = [
     source: 'user',
     target: 'frontend-distribution',
     animated: true,
-    data: { label: 'Requests site' },
+    data: { label: 'Site requests' },
   },
   {
     id: 'user-igw',
@@ -131,12 +151,36 @@ export const initialEdges: Edge<NonNullable<CustomEdge['data']>>[] = [
     data: { label: 'Api requests' },
   },
   {
+    id: 'user-media-distribution',
+    type: 'customEdge',
+    source: 'user',
+    target: 'media-distribution',
+    animated: true,
+    data: { label: 'Media requests' },
+  },
+  {
+    id: 'user-media-bucket',
+    type: 'customEdge',
+    source: 'user',
+    target: 'media-bucket',
+    animated: true,
+    data: { label: 'Multipart upload (via signed urls)' },
+  },
+  {
     id: 'frontend-distribution-frontend-bucket',
     type: 'customEdge',
     source: 'frontend-distribution',
     target: 'frontend-bucket',
     animated: true,
-    data: { label: 'Requests (and caches) files' },
+    data: { label: 'Site requests' },
+  },
+  {
+    id: 'media-distribution-media-bucket',
+    type: 'customEdge',
+    source: 'media-distribution',
+    target: 'media-bucket',
+    animated: true,
+    data: { label: 'Media requests' },
   },
   {
     id: 'igw-vpc',
