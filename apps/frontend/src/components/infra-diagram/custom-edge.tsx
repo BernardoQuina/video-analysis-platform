@@ -71,10 +71,10 @@ export function CustomEdge({
             transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
             pointerEvents: 'all',
           }}
-          className="nodrag nopan group absolute h-fit w-fit cursor-pointer"
+          className="nodrag nopan absolute h-fit w-fit"
         >
           {data?.label && (
-            <div className="bg-background/50 supports-[backdrop-filter]:bg-background/01 group-hover:scale-05 transform rounded-md px-1.5 py-0.5 backdrop-blur-sm">
+            <div className="bg-background/50 supports-[backdrop-filter]:bg-background/30 transform rounded-md px-1.5 py-0.5 backdrop-blur-[1px]">
               <span className="whitespace-pre-line text-center text-xs">
                 {data?.label}
               </span>

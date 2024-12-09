@@ -14,6 +14,8 @@ export default function Document() {
           media="(prefers-color-scheme: dark)"
           content="black"
         />
+        {/* Todo: remove when development is done */}
+        {/* <script src="https://unpkg.com/react-scan/dist/auto.global.js"></script> */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
