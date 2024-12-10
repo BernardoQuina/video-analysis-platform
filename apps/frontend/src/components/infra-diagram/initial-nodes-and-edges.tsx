@@ -169,7 +169,7 @@ export const initialNodes: Node<
       label: 'Amazon Transcribe',
       icon: <Transcribe />,
       description:
-        'Converts speech and dialog in\nvideo into a text transcript',
+        'Converts speech and dialog\nin video into a text transcript',
       sources: [{ id: 'default' }],
       targets: [{ id: 'default' }],
     },
