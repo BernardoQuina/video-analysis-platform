@@ -89,13 +89,13 @@ export default function InfraDiagram() {
         <Background
           variant={BackgroundVariant.Dots}
           bgColor="transparent"
-          color={
-            resolvedTheme === 'dark'
-              ? 'rgba(255, 255, 255, 0.3)'
-              : 'rgba(0, 0, 0, 0.4)'
-          }
+          // color={
+          //   resolvedTheme === 'dark'
+          //     ? 'rgba(255, 255, 255, 0.3)'
+          //     : 'rgba(0, 0, 0, 0.4)'
+          // }
         />
-        <Background
+        {/* <Background
           variant={BackgroundVariant.Dots}
           bgColor="transparent"
           color={
@@ -104,7 +104,7 @@ export default function InfraDiagram() {
               : 'rgba(0, 0, 0, 0.8)'
           }
           className="blur-[2px]"
-        />
+        /> */}
       </ReactFlow>
     </div>
   );
