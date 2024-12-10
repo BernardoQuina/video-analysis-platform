@@ -1,7 +1,13 @@
-export function GoogleIcon() {
+import { cn } from '../../utils/cn';
+
+type Props = {
+  className?: string;
+};
+
+export function Google({ className }: Props) {
   return (
     <svg
-      className="h-6 w-6"
+      className={cn('h-6 w-6', className)}
       xmlns="http://www.w3.org/2000/svg"
       xmlnsXlink="http://www.w3.org/1999/xlink"
       viewBox="0 0 48 48"

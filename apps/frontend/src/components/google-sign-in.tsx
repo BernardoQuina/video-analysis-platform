@@ -5,7 +5,7 @@ import { Loader2 } from 'lucide-react';
 import { RouterOutput, trpc } from '../utils/trpc';
 
 import { Button } from './ui/button';
-import { GoogleIcon } from './icons/google-icon';
+import { Google } from './icons/google';
 import { Skeleton } from './ui/skeleton';
 import {
   DropdownMenu,
@@ -64,7 +64,7 @@ export function GoogleSignIn() {
       {isRedirecting ? (
         <Loader2 className="h-4 w-4 animate-spin" />
       ) : (
-        <GoogleIcon />
+        <Google />
       )}
       <p className="sm:w-32">
         {isRedirecting ? (

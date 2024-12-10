@@ -1,7 +1,8 @@
 import { Node, Edge, Position } from '@xyflow/react';
 import { UserRound } from 'lucide-react';
 
-import { Alb, CloudFront, Ecs, Igw, S3, Vpc } from '../icons/aws';
+import { Alb, CloudFront, Cognito, Ecs, Igw, S3, Vpc } from '../icons/aws';
+import { Google } from '../icons/google';
 
 import { CustomGroupNode, CustomNode } from './custom-nodes';
 import { CustomEdge } from './custom-edge';
@@ -25,6 +26,7 @@ export const initialNodes: Node<
       label: 'User Client',
       icon: <UserRound className="stroke-[1.5]" />,
       description: 'Sends requests and uploads files',
+      targetPosition: Position.Bottom,
     },
   },
   {
@@ -40,7 +42,7 @@ export const initialNodes: Node<
   {
     id: 'frontend-bucket',
     type: 'customNode',
-    position: { x: getMiddleOfScreen() - 387, y: 280 },
+    position: { x: getMiddleOfScreen() - 550, y: 280 },
     data: {
       label: 'Frontend Bucket',
       icon: <S3 />,
@@ -60,7 +62,7 @@ export const initialNodes: Node<
   {
     id: 'media-bucket',
     type: 'customNode',
-    position: { x: getMiddleOfScreen() + 265, y: 280 },
+    position: { x: getMiddleOfScreen() + 300, y: 280 },
     data: {
       label: 'Media Bucket',
       icon: <S3 />,
@@ -68,9 +70,30 @@ export const initialNodes: Node<
     },
   },
   {
+    id: 'google-oauth',
+    type: 'customNode',
+    position: { x: getMiddleOfScreen() - 350, y: 280 },
+    data: {
+      label: 'Google OAuth',
+      icon: <Google className="h-8 w-8" />,
+      description: 'Authenticates users',
+    },
+  },
+  {
+    id: 'cognito',
+    type: 'customNode',
+    position: { x: getMiddleOfScreen() - 230, y: 400 },
+    data: {
+      label: 'Cognito',
+      icon: <Cognito />,
+      description: 'Manages User Pool\n and authentication tokens',
+      sourcePosition: Position.Top,
+    },
+  },
+  {
     id: 'igw',
     type: 'customNode',
-    position: { x: getMiddleOfScreen() - 87, y: 200 },
+    position: { x: getMiddleOfScreen() + 20, y: 280 },
     data: {
       label: 'Internet Gateway',
       icon: <Igw />,
@@ -80,7 +103,7 @@ export const initialNodes: Node<
   {
     id: 'vpc',
     type: 'customGroupNode',
-    position: { x: getMiddleOfScreen() - 200, y: 320 },
+    position: { x: getMiddleOfScreen() - 80, y: 400 },
     data: {
       label: 'Virtual Private Cloud',
       icon: <Vpc className="h-8 w-8" />,
@@ -167,6 +190,38 @@ export const initialEdges: Edge<NonNullable<CustomEdge['data']>>[] = [
     data: { label: 'Multipart upload (via signed urls)' },
   },
   {
+    id: 'user-google-oauth',
+    type: 'customEdge',
+    source: 'user',
+    target: 'google-oauth',
+    animated: true,
+    data: { label: 'Google Sign in' },
+  },
+  {
+    id: 'cognito-user',
+    type: 'customEdge',
+    source: 'cognito',
+    target: 'user',
+    animated: true,
+    data: { label: 'Code grant' },
+  },
+  {
+    id: 'cognito-igw',
+    type: 'customEdge',
+    source: 'cognito',
+    target: 'igw',
+    animated: true,
+    data: { label: 'Token exchange' },
+  },
+  {
+    id: 'google-oauth-cognito',
+    type: 'customEdge',
+    source: 'google-oauth',
+    target: 'cognito',
+    animated: true,
+    data: { label: 'User info' },
+  },
+  {
     id: 'frontend-distribution-frontend-bucket',
     type: 'customEdge',
     source: 'frontend-distribution',
@@ -214,6 +269,6 @@ export const initialEdges: Edge<NonNullable<CustomEdge['data']>>[] = [
     source: 'alb',
     target: 'api-cluster',
     animated: true,
-    data: { label: 'Api requests' },
+    data: { label: 'Api requests,\n Token exchange' },
   },
 ];
