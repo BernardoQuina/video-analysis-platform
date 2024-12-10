@@ -49,7 +49,7 @@ export default function InfraDiagram() {
   const { resolvedTheme } = useTheme();
 
   return (
-    <div className="h-[80dvh] w-[100vw]">
+    <div className="bg-background/50 h-[80dvh] w-[100vw] border-y">
       <ReactFlow
         colorMode={resolvedTheme as ColorMode}
         style={{ background: 'transparent' }}
