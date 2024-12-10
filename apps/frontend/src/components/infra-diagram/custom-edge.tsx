@@ -69,12 +69,12 @@ export function CustomEdge({
         <div
           style={{
             transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
-            pointerEvents: 'all',
+            // pointerEvents: 'all',
           }}
           className="nodrag nopan absolute h-fit w-fit"
         >
           {data?.label && (
-            <div className="bg-background/50 supports-[backdrop-filter]:bg-background/30 transform rounded-md px-1.5 py-0.5 backdrop-blur-[1px]">
+            <div className="bg-background/70 transform rounded-md px-1.5 py-0.5">
               <span className="whitespace-pre-line text-center text-xs">
                 {data?.label}
               </span>

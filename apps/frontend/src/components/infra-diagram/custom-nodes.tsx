@@ -7,15 +7,13 @@ export type CustomGroupNode = Node<
     label: string;
     icon?: JSX.Element;
     description?: string;
-    sourcePosition?: Position;
-    sourceClassName?: string;
-    targetPosition?: Position;
-    targetClassName?: string;
+    sources: { id: string; position?: Position; className?: string }[];
+    targets: { id: string; position?: Position; className?: string }[];
   },
   'customGroupNode'
 >;
 
-export function CustomGroupNode({ data }: NodeProps<CustomGroupNode>) {
+export function CustomGroupNode({ data, id }: NodeProps<CustomGroupNode>) {
   return (
     <div className="bg-background/95 supports-[backdrop-filter]:bg-background/70 h-full w-full flex-row gap-2 rounded-xl border px-4 py-3 shadow-sm backdrop-blur-lg">
       <div>
@@ -26,17 +24,24 @@ export function CustomGroupNode({ data }: NodeProps<CustomGroupNode>) {
           </span>
         </div>
       </div>
-      <Handle
-        type="source"
-        position={data.sourcePosition ?? Position.Bottom}
-        className={cn('border-none bg-transparent', data.sourceClassName)}
-        id="b"
-      />
-      <Handle
-        type="target"
-        position={data.targetPosition ?? Position.Top}
-        className={cn('border-none bg-transparent', data.targetClassName)}
-      />
+      {data.sources.map((source) => (
+        <Handle
+          key={`${id}-source-${source.id}`}
+          id={`${id}-source-${source.id}`}
+          type="source"
+          position={source.position ?? Position.Bottom}
+          className={cn('border-none bg-transparent', source.className)}
+        />
+      ))}
+      {data.targets.map((target) => (
+        <Handle
+          key={`${id}-target-${target.id}`}
+          id={`${id}-target-${target.id}`}
+          type="target"
+          position={target.position ?? Position.Top}
+          className={cn('border-none bg-transparent', target.className)}
+        />
+      ))}
     </div>
   );
 }
@@ -46,15 +51,13 @@ export type CustomNode = Node<
     label: string;
     icon?: JSX.Element;
     description?: string;
-    sourcePosition?: Position;
-    sourceClassName?: string;
-    targetPosition?: Position;
-    targetClassName?: string;
+    sources: { id: string; position?: Position; className?: string }[];
+    targets: { id: string; position?: Position; className?: string }[];
   },
   'customNode'
 >;
 
-export function CustomNode({ data }: NodeProps<CustomNode>) {
+export function CustomNode({ data, id }: NodeProps<CustomNode>) {
   return (
     <div className="group h-full w-full cursor-pointer items-center gap-2 py-1">
       <div className="group-hover:scale-110">{data.icon}</div>
@@ -66,17 +69,24 @@ export function CustomNode({ data }: NodeProps<CustomNode>) {
           </span>
         )}
       </div>
-      <Handle
-        type="source"
-        position={data.sourcePosition ?? Position.Bottom}
-        id="b"
-        className={cn('border-none bg-transparent', data.sourceClassName)}
-      />
-      <Handle
-        type="target"
-        position={data.targetPosition ?? Position.Top}
-        className={cn('border-none bg-transparent', data.targetClassName)}
-      />
+      {data.sources.map((source) => (
+        <Handle
+          key={`${id}-source-${source.id}`}
+          id={`${id}-source-${source.id}`}
+          type="source"
+          position={source.position ?? Position.Bottom}
+          className={cn('border-none bg-transparent', source.className)}
+        />
+      ))}
+      {data.targets.map((target) => (
+        <Handle
+          key={`${id}-target-${target.id}`}
+          id={`${id}-target-${target.id}`}
+          type="target"
+          position={target.position ?? Position.Top}
+          className={cn('border-none bg-transparent', target.className)}
+        />
+      ))}
     </div>
   );
 }
