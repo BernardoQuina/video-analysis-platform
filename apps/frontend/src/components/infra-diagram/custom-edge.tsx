@@ -8,11 +8,14 @@ import {
 } from '@xyflow/react';
 // import { useTheme } from 'next-themes';
 
+import { cn } from '../../utils/cn';
+
 export type CustomEdge = Edge<
   {
     label?: string;
     perceiveSourcePosition?: Position; // To influence the path starting angle
     perceivedTargetPosition?: Position; // To influence the path ending angle
+    className?: string;
   },
   'customEdge'
 >;
@@ -71,7 +74,7 @@ export function CustomEdge({
             transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
             // pointerEvents: 'all',
           }}
-          className="nodrag nopan absolute h-fit w-fit"
+          className={cn('nodrag nopan absolute h-fit w-fit', data?.className)}
         >
           {data?.label && (
             <div className="bg-background/70 transform rounded-md px-1.5 py-0.5">

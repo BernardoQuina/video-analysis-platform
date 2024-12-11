@@ -5,11 +5,13 @@ import {
   Alb,
   CloudFront,
   Cognito,
+  DynamoDB,
   Ecs,
   EventBridge,
   Igw,
   Lambda,
   S3,
+  SQS,
   Transcribe,
   Vpc,
 } from '../icons/aws';
@@ -112,7 +114,7 @@ export const initialNodes: Node<
   {
     id: 'media-bucket',
     type: 'customNode',
-    position: { x: getMiddleOfScreen() + 100, y: 250 },
+    position: { x: getMiddleOfScreen() + 120, y: 200 },
     data: {
       label: 'Media Bucket',
       icon: <S3 />,
@@ -121,7 +123,7 @@ export const initialNodes: Node<
         {
           id: 'default',
           position: Position.Right,
-          className: 'right-14 top-6',
+          className: 'right-[3.75rem] top-6',
         },
       ],
       targets: [{ id: 'default' }],
@@ -154,7 +156,7 @@ export const initialNodes: Node<
   {
     id: 'event-bridge-rule',
     type: 'customNode',
-    position: { x: getMiddleOfScreen() + 430, y: 250 },
+    position: { x: getMiddleOfScreen() + 500, y: 250 },
     data: {
       label: 'Event Bridge Rule',
       icon: <EventBridge />,
@@ -165,7 +167,7 @@ export const initialNodes: Node<
         { id: 'to-rekognition-lambda' },
       ],
       targets: [
-        { id: 'default', position: Position.Left, className: 'left-14 top-6' },
+        { id: 'default', position: Position.Left, className: 'left-16 top-6' },
       ],
     },
   },
@@ -189,7 +191,14 @@ export const initialNodes: Node<
       label: 'Transcribe Lambda',
       icon: <Lambda />,
       description: 'Handles Transcribe job',
-      sources: [{ id: 'default' }],
+      sources: [
+        { id: 'default' },
+        {
+          id: 'to-analysis-queue',
+          position: Position.Left,
+          className: 'top-6 left-10',
+        },
+      ],
       targets: [{ id: 'default' }],
     },
   },
@@ -231,6 +240,55 @@ export const initialNodes: Node<
     },
   },
   {
+    id: 'analysis-queue',
+    type: 'customNode',
+    position: { x: getMiddleOfScreen() - 60, y: 260 },
+    data: {
+      label: 'Analysis SQS Queue',
+      icon: <SQS />,
+      description:
+        'Signals video readiness for analysis\nmodel (transcript is available)',
+      sources: [
+        {
+          id: 'default',
+          position: Position.Left,
+          className: 'top-6 left-[4.25rem]',
+        },
+      ],
+      targets: [
+        {
+          id: 'default',
+          position: Position.Bottom,
+          // className: 'top-6 right-[4.25rem]',
+        },
+      ],
+    },
+  },
+  {
+    id: 'dynamodb-table',
+    type: 'customNode',
+    position: { x: getMiddleOfScreen() + 80, y: 550 },
+    data: {
+      label: 'DynamoDB Table',
+      icon: <DynamoDB />,
+      description: 'Stores videos, sessions and user limits',
+      sources: [{ id: 'default' }],
+      targets: [
+        { id: 'default' },
+        {
+          id: 'from-rekognition-lambda',
+          position: Position.Right,
+          className: 'top-6 right-20',
+        },
+        {
+          id: 'from-igw',
+          position: Position.Left,
+          className: 'top-6 left-20',
+        },
+      ],
+    },
+  },
+  {
     id: 'igw',
     type: 'customNode',
     position: { x: getMiddleOfScreen() - 280, y: 380 },
@@ -238,7 +296,14 @@ export const initialNodes: Node<
       label: 'Internet Gateway',
       icon: <Igw />,
       description: 'Internet access for VPC resources',
-      sources: [{ id: 'default' }],
+      sources: [
+        { id: 'default' },
+        {
+          id: 'to-dynamodb-table',
+          position: Position.Right,
+          className: 'top-6 right-16',
+        },
+      ],
       targets: [{ id: 'default' }],
     },
   },
@@ -298,7 +363,7 @@ export const initialNodes: Node<
     type: 'customNode',
     parentId: 'vpc',
     extent: 'parent',
-    position: { x: 60, y: 80 },
+    position: { x: 30, y: 80 },
     data: {
       label: 'Application Load Balancer',
       icon: <Alb />,
@@ -374,7 +439,7 @@ export const initialEdges: Edge<NonNullable<CustomEdge['data']>>[] = [
     source: 'google-oauth',
     target: 'cognito',
     animated: true,
-    data: { label: 'User info' },
+    data: { label: 'User info', className: '-top-6' },
   },
   {
     id: 'frontend-distribution-frontend-bucket',
@@ -447,6 +512,70 @@ export const initialEdges: Edge<NonNullable<CustomEdge['data']>>[] = [
     animated: true,
   },
   {
+    id: 'transcribe-lambda-analysis-queue',
+    type: 'customEdge',
+    source: 'transcribe-lambda',
+    target: 'analysis-queue',
+    animated: true,
+    data: { label: 'Readiness message' },
+    sourceHandle: 'transcribe-lambda-source-to-analysis-queue',
+  },
+  {
+    id: 'analysis-queue-igw',
+    type: 'customEdge',
+    source: 'analysis-queue',
+    target: 'igw',
+    animated: true,
+    data: { label: 'Polled messages', className: 'left-5' },
+  },
+  {
+    id: 'transcribe-lambda-dynamodb-table',
+    type: 'customEdge',
+    source: 'transcribe-lambda',
+    target: 'dynamodb-table',
+    animated: true,
+    data: { label: 'Stores transcript results' },
+  },
+  {
+    id: 'rekognition-lambda-dynamodb-table',
+    type: 'customEdge',
+    source: 'rekognition-lambda',
+    target: 'dynamodb-table',
+    animated: true,
+    data: {
+      label: 'Stores object detection results',
+      className: '-left-40 top-5',
+    },
+    targetHandle: 'dynamodb-table-target-from-rekognition-lambda',
+  },
+  {
+    id: 'thumbnail-lambda-dynamodb-table',
+    type: 'customEdge',
+    source: 'thumbnail-lambda',
+    target: 'dynamodb-table',
+    animated: true,
+    data: { label: 'Stores thumbnail details' },
+  },
+  {
+    id: 'igw-dynamodb-table-analysis-details',
+    type: 'customEdge',
+    source: 'igw',
+    target: 'dynamodb-table',
+    animated: true,
+    data: { label: 'Stores analysis results' },
+    sourceHandle: 'igw-source-to-dynamodb-table',
+  },
+  {
+    id: 'igw-dynamodb-table-video-details',
+    type: 'customEdge',
+    source: 'igw',
+    target: 'dynamodb-table',
+    animated: true,
+    data: { label: 'Stores video details' },
+    sourceHandle: 'igw-source-to-dynamodb-table',
+    targetHandle: 'dynamodb-table-target-from-igw',
+  },
+  {
     id: 'igw-vpc',
     type: 'customEdge',
     source: 'igw',
@@ -468,7 +597,7 @@ export const initialEdges: Edge<NonNullable<CustomEdge['data']>>[] = [
     target: 'model-cluster',
     animated: true,
     data: {
-      label: 'Sqs polling,\nGet video from S3,\nSave results in DynamoDB',
+      label: 'Polled messages,\nVideo from S3,\nSave results\nto DynamoDB',
       perceiveSourcePosition: Position.Bottom,
     },
   },
