@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ReactFlow,
   Node,
@@ -47,6 +47,12 @@ export default function InfraDiagram() {
   );
 
   const { resolvedTheme } = useTheme();
+
+  // TODO: Remove this useEffect (testing only)
+  useEffect(() => {
+    setNodes(initialNodes);
+    setEdges(initialEdges);
+  }, [initialNodes, initialEdges]);
 
   return (
     <div className="bg-background/50 h-[80dvh] w-[100vw] border-y">

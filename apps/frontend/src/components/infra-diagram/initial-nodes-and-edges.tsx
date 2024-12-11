@@ -32,55 +32,87 @@ export const initialNodes: Node<
   {
     id: 'user',
     type: 'customNode',
-    position: { x: getMiddleOfScreen() - 85, y: 50 },
+    position: { x: getMiddleOfScreen() - 85, y: 20 },
     data: {
       label: 'User Client',
       icon: <UserRound className="stroke-[1.5]" />,
       description: 'Sends requests and uploads files',
-      sources: [{ id: 'default' }],
+      sources: [
+        { id: 'default' },
+        {
+          id: 'to-frontend-distribution',
+          position: Position.Left,
+          className: 'left-[4.25rem] top-5',
+        },
+        {
+          id: 'to-media-distribution',
+          position: Position.Right,
+          className: 'right-[4.25rem] top-5',
+        },
+      ],
       targets: [{ id: 'default', position: Position.Bottom }],
     },
   },
   {
     id: 'frontend-distribution',
     type: 'customNode',
-    position: { x: getMiddleOfScreen() - 400, y: 100 },
+    position: { x: getMiddleOfScreen() - 400, y: 50 },
     data: {
       label: 'Frontend Distribution',
       icon: <CloudFront />,
       description: 'Distributes site globally',
-      sources: [{ id: 'default' }],
-      targets: [{ id: 'default' }],
+      sources: [
+        { id: 'default', position: Position.Left, className: 'top-6 left-10' },
+      ],
+      targets: [
+        {
+          id: 'default',
+          position: Position.Right,
+          className: 'top-6 right-10',
+        },
+      ],
     },
   },
   {
     id: 'frontend-bucket',
     type: 'customNode',
-    position: { x: getMiddleOfScreen() - 550, y: 280 },
+    position: { x: getMiddleOfScreen() - 650, y: 80 },
     data: {
       label: 'Frontend Bucket',
       icon: <S3 />,
       description: 'Stores static site files',
       sources: [{ id: 'default' }],
-      targets: [{ id: 'default' }],
+      targets: [
+        {
+          id: 'default',
+          position: Position.Right,
+          className: 'top-6 right-8',
+        },
+      ],
     },
   },
   {
     id: 'media-distribution',
     type: 'customNode',
-    position: { x: getMiddleOfScreen() + 280, y: 100 },
+    position: { x: getMiddleOfScreen() + 280, y: 50 },
     data: {
       label: 'Media Distribution',
       icon: <CloudFront />,
       description: 'Distributes media globally',
       sources: [{ id: 'default' }],
-      targets: [{ id: 'default' }],
+      targets: [
+        {
+          id: 'default',
+          position: Position.Left,
+          className: 'top-6 left-10',
+        },
+      ],
     },
   },
   {
     id: 'media-bucket',
     type: 'customNode',
-    position: { x: getMiddleOfScreen() + 300, y: 280 },
+    position: { x: getMiddleOfScreen() + 100, y: 250 },
     data: {
       label: 'Media Bucket',
       icon: <S3 />,
@@ -98,7 +130,7 @@ export const initialNodes: Node<
   {
     id: 'google-oauth',
     type: 'customNode',
-    position: { x: getMiddleOfScreen() - 350, y: 280 },
+    position: { x: getMiddleOfScreen() - 650, y: 250 },
     data: {
       label: 'Google OAuth',
       icon: <Google className="h-8 w-8" />,
@@ -110,7 +142,7 @@ export const initialNodes: Node<
   {
     id: 'cognito',
     type: 'customNode',
-    position: { x: getMiddleOfScreen() - 230, y: 400 },
+    position: { x: getMiddleOfScreen() - 670, y: 450 },
     data: {
       label: 'Cognito',
       icon: <Cognito />,
@@ -122,11 +154,11 @@ export const initialNodes: Node<
   {
     id: 'event-bridge-rule',
     type: 'customNode',
-    position: { x: getMiddleOfScreen() + 520, y: 200 },
+    position: { x: getMiddleOfScreen() + 430, y: 250 },
     data: {
       label: 'Event Bridge Rule',
       icon: <EventBridge />,
-      description: 'Rule triggered on video upload',
+      description: 'Invokes video processing lambdas',
       sources: [
         { id: 'to-thumbnail-lambda', position: Position.Top },
         { id: 'to-transcribe-lambda' },
@@ -140,7 +172,7 @@ export const initialNodes: Node<
   {
     id: 'thumbnail-lambda',
     type: 'customNode',
-    position: { x: getMiddleOfScreen() + 520, y: 50 },
+    position: { x: getMiddleOfScreen() + 470, y: 80 },
     data: {
       label: 'Thumbnail Lambda',
       icon: <Lambda />,
@@ -152,7 +184,7 @@ export const initialNodes: Node<
   {
     id: 'transcribe-lambda',
     type: 'customNode',
-    position: { x: getMiddleOfScreen() + 450, y: 370 },
+    position: { x: getMiddleOfScreen() + 350, y: 400 },
     data: {
       label: 'Transcribe Lambda',
       icon: <Lambda />,
@@ -164,7 +196,7 @@ export const initialNodes: Node<
   {
     id: 'amazon-transcribe',
     type: 'customNode',
-    position: { x: getMiddleOfScreen() + 430, y: 500 },
+    position: { x: getMiddleOfScreen() + 430, y: 600 },
     data: {
       label: 'Amazon Transcribe',
       icon: <Transcribe />,
@@ -177,7 +209,7 @@ export const initialNodes: Node<
   {
     id: 'rekognition-lambda',
     type: 'customNode',
-    position: { x: getMiddleOfScreen() + 600, y: 370 },
+    position: { x: getMiddleOfScreen() + 550, y: 400 },
     data: {
       label: 'Rekognition Lambda',
       icon: <Lambda />,
@@ -189,7 +221,7 @@ export const initialNodes: Node<
   {
     id: 'amazon-rekognition',
     type: 'customNode',
-    position: { x: getMiddleOfScreen() + 600, y: 500 },
+    position: { x: getMiddleOfScreen() + 600, y: 600 },
     data: {
       label: 'Amazon Rekognition',
       icon: <Transcribe />,
@@ -201,7 +233,7 @@ export const initialNodes: Node<
   {
     id: 'igw',
     type: 'customNode',
-    position: { x: getMiddleOfScreen() + 20, y: 280 },
+    position: { x: getMiddleOfScreen() - 280, y: 380 },
     data: {
       label: 'Internet Gateway',
       icon: <Igw />,
@@ -213,7 +245,7 @@ export const initialNodes: Node<
   {
     id: 'vpc',
     type: 'customGroupNode',
-    position: { x: getMiddleOfScreen() - 80, y: 400 },
+    position: { x: getMiddleOfScreen() - 500, y: 500 },
     data: {
       label: 'Virtual Private Cloud',
       icon: <Vpc className="h-8 w-8" />,
@@ -285,6 +317,7 @@ export const initialEdges: Edge<NonNullable<CustomEdge['data']>>[] = [
     target: 'frontend-distribution',
     animated: true,
     data: { label: 'Site requests' },
+    sourceHandle: 'user-source-to-frontend-distribution',
   },
   {
     id: 'user-igw',
@@ -301,6 +334,7 @@ export const initialEdges: Edge<NonNullable<CustomEdge['data']>>[] = [
     target: 'media-distribution',
     animated: true,
     data: { label: 'Media requests' },
+    sourceHandle: 'user-source-to-media-distribution',
   },
   {
     id: 'user-media-bucket',
@@ -364,6 +398,7 @@ export const initialEdges: Edge<NonNullable<CustomEdge['data']>>[] = [
     source: 'media-bucket',
     target: 'event-bridge-rule',
     animated: true,
+    data: { label: 'Trigger on video upload' },
   },
   {
     id: 'event-bridge-rule-thumbnail-lambda',
