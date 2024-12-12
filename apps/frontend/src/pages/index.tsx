@@ -3,6 +3,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { ArrowRight, ExternalLink, Github } from 'lucide-react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
+import { ReactFlowProvider } from '@xyflow/react';
 
 import { PageLayout } from '../components/page-layout';
 import { trpc } from '../utils/trpc';
@@ -124,7 +125,9 @@ export default function Home() {
             {/* TODO: Add direction lines */}
             <h3 className="">Explore Infrastructure</h3>
           </div>
-          <InfraDiagram />
+          <ReactFlowProvider>
+            <InfraDiagram />
+          </ReactFlowProvider>
         </div>
       </div>
     </PageLayout>

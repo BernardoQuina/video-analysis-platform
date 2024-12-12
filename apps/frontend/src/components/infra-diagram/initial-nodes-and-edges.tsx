@@ -22,9 +22,9 @@ import { CustomGroupNode, CustomNode } from './custom-nodes';
 import { CustomEdge } from './custom-edge';
 
 function getMiddleOfScreen() {
-  if (typeof window !== 'undefined') {
-    return window.innerWidth / 2;
-  }
+  // if (typeof window !== 'undefined') {
+  //   return window.innerWidth / 2 - 200;
+  // }
 
   return 0;
 }
