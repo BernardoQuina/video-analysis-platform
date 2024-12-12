@@ -25,7 +25,7 @@ import { CustomGroupNode, CustomNode } from './custom-nodes';
 import { CustomEdge } from './custom-edge';
 
 export default function InfraDiagram() {
-  const { setCenter, getViewport } = useReactFlow();
+  const { setCenter } = useReactFlow();
 
   const nodeTypes = useMemo(
     () => ({ customGroupNode: CustomGroupNode, customNode: CustomNode }),
@@ -37,8 +37,6 @@ export default function InfraDiagram() {
   const [edges, setEdges] = useState(initialEdges);
 
   const [maximized, setMaximized] = useState(false);
-  // initial y position (a diff of 60 to 80 is then use below to calculate new y position)
-  const [yFromCenter, setYFromCenter] = useState(0);
 
   const { resolvedTheme } = useTheme();
 
@@ -62,18 +60,21 @@ export default function InfraDiagram() {
   function handleMaximize() {
     setMaximized(!maximized);
     setTimeout(() => {
-      setCenter(0, maximized ? yFromCenter : (yFromCenter * 80) / 60, {
-        zoom: 1,
-        duration: 300,
-      });
+      setCenter(
+        0,
+        maximized ? window.innerHeight * 0.3 : window.innerHeight * 0.4,
+        {
+          zoom: 1,
+          duration: 300,
+        },
+      );
     }, 300);
   }
 
   // TODO: Remove this useEffect (testing only)
   useEffect(() => {
     setTimeout(() => {
-      setYFromCenter(getViewport().y); // For maximizing/minimizing reference
-      setCenter(0, getViewport().y, { zoom: 1 });
+      setCenter(0, window.innerHeight * 0.3, { zoom: 1 });
     }, 0);
 
     setNodes(initialNodes);
