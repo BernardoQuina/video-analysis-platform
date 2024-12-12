@@ -10,6 +10,7 @@ import {
   EventBridge,
   Igw,
   Lambda,
+  Rekognition,
   S3,
   SQS,
   Transcribe,
@@ -78,7 +79,7 @@ export const initialNodes: Node<
   {
     id: 'frontend-bucket',
     type: 'customNode',
-    position: { x: getMiddleOfScreen() - 650, y: 80 },
+    position: { x: getMiddleOfScreen() - 690, y: 80 },
     data: {
       label: 'Frontend Bucket',
       icon: <S3 />,
@@ -125,6 +126,15 @@ export const initialNodes: Node<
           position: Position.Right,
           className: 'right-[3.75rem] top-6',
         },
+        {
+          id: 'to-igw',
+          position: Position.Left,
+          className: 'left-[3.75rem] top-6',
+        },
+        {
+          id: 'to-transcribe-and-rekognition-lambda',
+          position: Position.Bottom,
+        },
       ],
       targets: [{ id: 'default' }],
     },
@@ -132,19 +142,25 @@ export const initialNodes: Node<
   {
     id: 'google-oauth',
     type: 'customNode',
-    position: { x: getMiddleOfScreen() - 650, y: 250 },
+    position: { x: getMiddleOfScreen() - 690, y: 250 },
     data: {
       label: 'Google OAuth',
       icon: <Google className="h-8 w-8" />,
       description: 'Authenticates users',
-      sources: [{ id: 'default' }],
+      sources: [
+        {
+          id: 'default',
+          position: Position.Right,
+          className: 'top-6 right-8',
+        },
+      ],
       targets: [{ id: 'default' }],
     },
   },
   {
     id: 'cognito',
     type: 'customNode',
-    position: { x: getMiddleOfScreen() - 670, y: 450 },
+    position: { x: getMiddleOfScreen() - 500, y: 320 },
     data: {
       label: 'Cognito',
       icon: <Cognito />,
@@ -233,7 +249,7 @@ export const initialNodes: Node<
     position: { x: getMiddleOfScreen() + 600, y: 600 },
     data: {
       label: 'Amazon Rekognition',
-      icon: <Transcribe />,
+      icon: <Rekognition />,
       description: 'Identifies objects, scenes\n and activities within video',
       sources: [{ id: 'default' }],
       targets: [{ id: 'default' }],
@@ -242,7 +258,7 @@ export const initialNodes: Node<
   {
     id: 'analysis-queue',
     type: 'customNode',
-    position: { x: getMiddleOfScreen() - 60, y: 260 },
+    position: { x: getMiddleOfScreen() - 40, y: 255 },
     data: {
       label: 'Analysis SQS Queue',
       icon: <SQS />,
@@ -291,7 +307,7 @@ export const initialNodes: Node<
   {
     id: 'igw',
     type: 'customNode',
-    position: { x: getMiddleOfScreen() - 280, y: 380 },
+    position: { x: getMiddleOfScreen() - 280, y: 350 },
     data: {
       label: 'Internet Gateway',
       icon: <Igw />,
@@ -303,31 +319,46 @@ export const initialNodes: Node<
           position: Position.Right,
           className: 'top-6 right-16',
         },
+        {
+          id: 'to-vpc',
+          position: Position.Bottom,
+        },
       ],
-      targets: [{ id: 'default' }],
+      targets: [
+        { id: 'default' },
+        { id: 'from-vpc', position: Position.Bottom },
+      ],
     },
   },
   {
     id: 'vpc',
     type: 'customGroupNode',
-    position: { x: getMiddleOfScreen() - 500, y: 500 },
+    position: { x: getMiddleOfScreen() - 685, y: 470 },
     data: {
       label: 'Virtual Private Cloud',
       icon: <Vpc className="h-8 w-8" />,
       sources: [
         {
           id: 'default',
-          className: 'left-[75%] translate-x-[-50%]',
+          className: 'left-[65%] translate-x-[-50%]',
+          position: Position.Top,
+        },
+        {
+          id: 'to-igw',
+          className: 'left-[90%] translate-x-[-50%]',
           position: Position.Top,
         },
       ],
-      targets: [{ id: 'default', className: 'left-[75%] translate-x-[-50%]' }],
+      targets: [
+        { id: 'default', className: 'left-[90%] translate-x-[-50%]' },
+        { id: 'from-igw', className: 'left-[65%] translate-x-[-50%]' },
+      ],
     },
     style: {
       zIndex: -1,
       backgroundColor: 'transparent',
       height: 370,
-      width: 400,
+      width: 600,
     },
   },
   {
@@ -340,7 +371,13 @@ export const initialNodes: Node<
       label: 'Api Cluster',
       icon: <Ecs />,
       description: 'Auto-scales t2.micro\n Serving api requests',
-      sources: [{ id: 'default' }],
+      sources: [
+        {
+          id: 'default',
+          position: Position.Right,
+          className: 'top-6 right-8',
+        },
+      ],
       targets: [{ id: 'default' }],
     },
   },
@@ -349,13 +386,21 @@ export const initialNodes: Node<
     type: 'customNode',
     parentId: 'vpc',
     extent: 'parent',
-    position: { x: 230, y: 250 },
+    position: { x: 390, y: 250 },
     data: {
       label: 'Analysis Model Cluster',
       icon: <Ecs />,
       description: 'Auto-scales g4dn.xlarge\n Analyzing video through prompts',
-      sources: [{ id: 'default' }],
-      targets: [{ id: 'default' }],
+      sources: [
+        {
+          id: 'default',
+          position: Position.Right,
+          className: 'top-6 right-16',
+        },
+      ],
+      targets: [
+        { id: 'default', position: Position.Left, className: 'top-6 left-16' },
+      ],
     },
   },
   {
@@ -439,7 +484,7 @@ export const initialEdges: Edge<NonNullable<CustomEdge['data']>>[] = [
     source: 'google-oauth',
     target: 'cognito',
     animated: true,
-    data: { label: 'User info', className: '-top-6' },
+    data: { label: 'User info', className: '-left-10 -top-2' },
   },
   {
     id: 'frontend-distribution-frontend-bucket',
@@ -464,6 +509,40 @@ export const initialEdges: Edge<NonNullable<CustomEdge['data']>>[] = [
     target: 'event-bridge-rule',
     animated: true,
     data: { label: 'Trigger on video upload' },
+  },
+  {
+    id: 'media-bucket-igw',
+    type: 'customEdge',
+    source: 'media-bucket',
+    target: 'igw',
+    animated: true,
+    data: { label: 'Video request', className: 'left-28 -top-7' },
+    sourceHandle: 'media-bucket-source-to-igw',
+  },
+  {
+    id: 'media-bucket-thumbnail-lambda',
+    type: 'customEdge',
+    source: 'media-bucket',
+    target: 'thumbnail-lambda',
+    animated: true,
+    data: { label: 'Video request', className: 'top-1' },
+  },
+  {
+    id: 'media-bucket-transcribe-lambda',
+    type: 'customEdge',
+    source: 'media-bucket',
+    target: 'transcribe-lambda',
+    animated: true,
+    data: { label: 'Video requests', className: '-left-16 -top-5' },
+    sourceHandle: 'media-bucket-source-to-transcribe-and-rekognition-lambda',
+  },
+  {
+    id: 'media-bucket-rekognition-lambda',
+    type: 'customEdge',
+    source: 'media-bucket',
+    target: 'rekognition-lambda',
+    animated: true,
+    sourceHandle: 'media-bucket-source-to-transcribe-and-rekognition-lambda',
   },
   {
     id: 'event-bridge-rule-thumbnail-lambda',
@@ -526,7 +605,7 @@ export const initialEdges: Edge<NonNullable<CustomEdge['data']>>[] = [
     source: 'analysis-queue',
     target: 'igw',
     animated: true,
-    data: { label: 'Polled messages', className: 'left-5' },
+    data: { label: 'Polled messages', className: 'left-10' },
   },
   {
     id: 'transcribe-lambda-dynamodb-table',
@@ -534,7 +613,7 @@ export const initialEdges: Edge<NonNullable<CustomEdge['data']>>[] = [
     source: 'transcribe-lambda',
     target: 'dynamodb-table',
     animated: true,
-    data: { label: 'Stores transcript results' },
+    data: { label: 'Save transcript results' },
   },
   {
     id: 'rekognition-lambda-dynamodb-table',
@@ -543,7 +622,7 @@ export const initialEdges: Edge<NonNullable<CustomEdge['data']>>[] = [
     target: 'dynamodb-table',
     animated: true,
     data: {
-      label: 'Stores object detection results',
+      label: 'Save object detection results',
       className: '-left-40 top-5',
     },
     targetHandle: 'dynamodb-table-target-from-rekognition-lambda',
@@ -554,7 +633,7 @@ export const initialEdges: Edge<NonNullable<CustomEdge['data']>>[] = [
     source: 'thumbnail-lambda',
     target: 'dynamodb-table',
     animated: true,
-    data: { label: 'Stores thumbnail details' },
+    data: { label: 'Save thumbnail details', className: 'left-16 -top-12' },
   },
   {
     id: 'igw-dynamodb-table-analysis-details',
@@ -562,7 +641,7 @@ export const initialEdges: Edge<NonNullable<CustomEdge['data']>>[] = [
     source: 'igw',
     target: 'dynamodb-table',
     animated: true,
-    data: { label: 'Stores analysis results' },
+    data: { label: 'Save analysis results' },
     sourceHandle: 'igw-source-to-dynamodb-table',
   },
   {
@@ -571,7 +650,7 @@ export const initialEdges: Edge<NonNullable<CustomEdge['data']>>[] = [
     source: 'igw',
     target: 'dynamodb-table',
     animated: true,
-    data: { label: 'Stores video details' },
+    data: { label: 'CRUD database items' },
     sourceHandle: 'igw-source-to-dynamodb-table',
     targetHandle: 'dynamodb-table-target-from-igw',
   },
@@ -581,6 +660,17 @@ export const initialEdges: Edge<NonNullable<CustomEdge['data']>>[] = [
     source: 'igw',
     target: 'vpc',
     animated: true,
+    sourceHandle: 'igw-source-to-vpc',
+    targetHandle: 'vpc-target-from-igw',
+  },
+  {
+    id: 'vpc-igw',
+    type: 'customEdge',
+    source: 'vpc',
+    target: 'igw',
+    animated: true,
+    sourceHandle: 'vpc-source-to-igw',
+    targetHandle: 'igw-target-from-vpc',
   },
   {
     id: 'vpc-alb',
@@ -597,8 +687,9 @@ export const initialEdges: Edge<NonNullable<CustomEdge['data']>>[] = [
     target: 'model-cluster',
     animated: true,
     data: {
-      label: 'Polled messages,\nVideo from S3,\nSave results\nto DynamoDB',
+      label: 'Polled messages,\nVideo request',
       perceiveSourcePosition: Position.Bottom,
+      className: '-top-20 -left-2',
     },
   },
   {
@@ -608,5 +699,28 @@ export const initialEdges: Edge<NonNullable<CustomEdge['data']>>[] = [
     target: 'api-cluster',
     animated: true,
     data: { label: 'Api requests,\n Token exchange' },
+  },
+  {
+    id: 'api-cluster-vpc',
+    type: 'customEdge',
+    source: 'api-cluster',
+    target: 'vpc',
+    animated: true,
+    data: {
+      label: 'CRUD database items',
+      perceivedTargetPosition: Position.Bottom,
+      className: '-left-40 top-[4.5rem]',
+    },
+  },
+  {
+    id: 'model-cluster-vpc',
+    type: 'customEdge',
+    source: 'model-cluster',
+    target: 'vpc',
+    animated: true,
+    data: {
+      label: 'Save analysis results',
+      perceivedTargetPosition: Position.Bottom,
+    },
   },
 ];
