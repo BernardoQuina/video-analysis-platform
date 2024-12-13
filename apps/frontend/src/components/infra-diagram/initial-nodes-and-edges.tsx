@@ -3,7 +3,9 @@ import { UserRound } from 'lucide-react';
 
 import {
   Alb,
+  ASG,
   CloudFront,
+  CloudWatch,
   Cognito,
   DynamoDB,
   Ecs,
@@ -29,6 +31,9 @@ function getMiddleOfScreen() {
   return 0;
 }
 
+// #############
+// ### NODES ###
+// #############
 export const initialNodes: Node<
   CustomGroupNode['data'] | CustomNode['data']
 >[] = [
@@ -172,11 +177,11 @@ export const initialNodes: Node<
   {
     id: 'event-bridge-rule',
     type: 'customNode',
-    position: { x: getMiddleOfScreen() + 500, y: 250 },
+    position: { x: getMiddleOfScreen() + 560, y: 250 },
     data: {
       label: 'Event Bridge Rule',
       icon: <EventBridge />,
-      description: 'Invokes video processing lambdas',
+      description: 'Invokes processing lambdas',
       sources: [
         { id: 'to-thumbnail-lambda', position: Position.Top },
         { id: 'to-transcribe-lambda' },
@@ -202,7 +207,7 @@ export const initialNodes: Node<
   {
     id: 'transcribe-lambda',
     type: 'customNode',
-    position: { x: getMiddleOfScreen() + 350, y: 400 },
+    position: { x: getMiddleOfScreen() + 340, y: 400 },
     data: {
       label: 'Transcribe Lambda',
       icon: <Lambda />,
@@ -221,7 +226,7 @@ export const initialNodes: Node<
   {
     id: 'amazon-transcribe',
     type: 'customNode',
-    position: { x: getMiddleOfScreen() + 430, y: 600 },
+    position: { x: getMiddleOfScreen() + 540, y: 600 },
     data: {
       label: 'Amazon Transcribe',
       icon: <Transcribe />,
@@ -246,7 +251,7 @@ export const initialNodes: Node<
   {
     id: 'amazon-rekognition',
     type: 'customNode',
-    position: { x: getMiddleOfScreen() + 600, y: 600 },
+    position: { x: getMiddleOfScreen() + 710, y: 600 },
     data: {
       label: 'Amazon Rekognition',
       icon: <Rekognition />,
@@ -270,14 +275,9 @@ export const initialNodes: Node<
           position: Position.Left,
           className: 'top-6 left-[4.25rem]',
         },
+        { id: 'to-cloudwatch-metrics', position: Position.Bottom },
       ],
-      targets: [
-        {
-          id: 'default',
-          position: Position.Bottom,
-          // className: 'top-6 right-[4.25rem]',
-        },
-      ],
+      targets: [{ id: 'default', position: Position.Bottom }],
     },
   },
   {
@@ -366,19 +366,32 @@ export const initialNodes: Node<
     type: 'customNode',
     parentId: 'vpc',
     extent: 'parent',
-    position: { x: 30, y: 250 },
+    position: { x: 30, y: 255 },
     data: {
       label: 'Api Cluster',
       icon: <Ecs />,
-      description: 'Auto-scales t2.micro\n Serving api requests',
+      description: 'Runs ECS tasks on t2.micro\n Serving api requests',
       sources: [
         {
           id: 'default',
           position: Position.Right,
-          className: 'top-6 right-8',
+          className: 'top-6 right-12',
+        },
+        {
+          id: 'to-cloudwatch',
+          position: Position.Bottom,
+          className: 'left-20',
         },
       ],
-      targets: [{ id: 'default' }],
+      targets: [
+        { id: 'default' },
+        {
+          id: 'from-cloudwatch-alarms',
+          position: Position.Right,
+          className: 'top-6 right-12',
+        },
+        { id: 'from-api-asg', position: Position.Bottom, className: 'left-16' },
+      ],
     },
   },
   {
@@ -390,16 +403,27 @@ export const initialNodes: Node<
     data: {
       label: 'Analysis Model Cluster',
       icon: <Ecs />,
-      description: 'Auto-scales g4dn.xlarge\n Analyzing video through prompts',
+      description:
+        'Runs ECS tasks on g4dn.xlarge\n Analyzing video through prompts',
       sources: [
         {
           id: 'default',
           position: Position.Right,
           className: 'top-6 right-16',
         },
+        {
+          id: 'to-cloudwatch',
+          position: Position.Bottom,
+          className: 'left-[5.90rem]',
+        },
       ],
       targets: [
         { id: 'default', position: Position.Left, className: 'top-6 left-16' },
+        {
+          id: 'from-model-asg',
+          position: Position.Bottom,
+          className: 'left-[4.75rem]',
+        },
       ],
     },
   },
@@ -417,8 +441,97 @@ export const initialNodes: Node<
       targets: [{ id: 'default' }],
     },
   },
+  {
+    id: 'cloudwatch-logs',
+    type: 'customNode',
+    position: { x: getMiddleOfScreen() + 340, y: 750 },
+    data: {
+      label: 'CloudWatch Logs',
+      icon: <CloudWatch />,
+      description: 'Captures application logs',
+      sources: [{ id: 'default' }],
+      targets: [
+        { id: 'default' },
+        {
+          id: 'from-clusters',
+          position: Position.Bottom,
+          // className: 'top-6 left-10',
+        },
+      ],
+    },
+  },
+  {
+    id: 'cloudwatch-metrics',
+    type: 'customNode',
+    position: { x: getMiddleOfScreen() - 70, y: 640 },
+    data: {
+      label: 'CloudWatch Metrics',
+      icon: <CloudWatch />,
+      description: 'Tracks performance and queue data',
+      sources: [
+        { id: 'default' },
+        {
+          id: 'to-cloudwatch-alarms',
+          position: Position.Right,
+          className: 'top-6 right-[4.5rem]',
+        },
+      ],
+      targets: [
+        { id: 'default' },
+        { id: 'from-model-cluster', position: Position.Bottom },
+      ],
+    },
+  },
+  {
+    id: 'cloudwatch-alarms',
+    type: 'customNode',
+    position: { x: getMiddleOfScreen() - 500, y: 1100 },
+    data: {
+      label: 'CloudWatch Alarms',
+      icon: <CloudWatch />,
+      description: 'Triggers actions on metrics thresholds',
+      sources: [{ id: 'default', position: Position.Top }],
+      targets: [
+        { id: 'default' },
+        {
+          id: 'from-cloudwatch-metrics',
+          position: Position.Right,
+          className: 'top-6 right-[4.5rem]',
+        },
+      ],
+    },
+  },
+  {
+    id: 'api-asg',
+    type: 'customNode',
+    position: { x: getMiddleOfScreen() - 685, y: 950 },
+    data: {
+      label: 'Api Auto Scaling Group',
+      icon: <ASG />,
+      description:
+        'Manages scaling of EC2 container \ninstances registered with the cluster',
+      sources: [{ id: 'default', position: Position.Top }],
+      targets: [{ id: 'default', position: Position.Bottom }],
+    },
+  },
+  {
+    id: 'model-asg',
+    type: 'customNode',
+    position: { x: getMiddleOfScreen() - 330, y: 950 },
+    data: {
+      label: 'Analysis Model Auto Scaling Group',
+      icon: <ASG />,
+      description:
+        'Manages scaling of EC2 container \ninstances registered with the cluster',
+      sources: [{ id: 'default', position: Position.Top }],
+      targets: [{ id: 'default', position: Position.Bottom }],
+    },
+  },
 ];
 
+// #############
+// ### EDGES ###
+// #############
 export const initialEdges: Edge<NonNullable<CustomEdge['data']>>[] = [
   {
     id: 'user-frontend-distribution',
@@ -426,7 +539,7 @@ export const initialEdges: Edge<NonNullable<CustomEdge['data']>>[] = [
     source: 'user',
     target: 'frontend-distribution',
     animated: true,
-    data: { label: 'Site requests' },
+    data: { label: 'Site requests', pathType: 'bezier' },
     sourceHandle: 'user-source-to-frontend-distribution',
   },
   {
@@ -435,7 +548,7 @@ export const initialEdges: Edge<NonNullable<CustomEdge['data']>>[] = [
     source: 'user',
     target: 'igw',
     animated: true,
-    data: { label: 'Api requests' },
+    data: { label: 'Api requests', pathType: 'bezier' },
   },
   {
     id: 'user-media-distribution',
@@ -443,7 +556,7 @@ export const initialEdges: Edge<NonNullable<CustomEdge['data']>>[] = [
     source: 'user',
     target: 'media-distribution',
     animated: true,
-    data: { label: 'Media requests' },
+    data: { label: 'Media requests', pathType: 'bezier' },
     sourceHandle: 'user-source-to-media-distribution',
   },
   {
@@ -452,7 +565,7 @@ export const initialEdges: Edge<NonNullable<CustomEdge['data']>>[] = [
     source: 'user',
     target: 'media-bucket',
     animated: true,
-    data: { label: 'Multipart upload (via signed urls)' },
+    data: { label: 'Multipart upload (via signed urls)', pathType: 'bezier' },
   },
   {
     id: 'user-google-oauth',
@@ -460,7 +573,7 @@ export const initialEdges: Edge<NonNullable<CustomEdge['data']>>[] = [
     source: 'user',
     target: 'google-oauth',
     animated: true,
-    data: { label: 'Google Sign in' },
+    data: { label: 'Google Sign in', pathType: 'bezier' },
   },
   {
     id: 'cognito-user',
@@ -468,7 +581,7 @@ export const initialEdges: Edge<NonNullable<CustomEdge['data']>>[] = [
     source: 'cognito',
     target: 'user',
     animated: true,
-    data: { label: 'Code grant' },
+    data: { label: 'Code grant', pathType: 'bezier' },
   },
   {
     id: 'cognito-igw',
@@ -476,7 +589,7 @@ export const initialEdges: Edge<NonNullable<CustomEdge['data']>>[] = [
     source: 'cognito',
     target: 'igw',
     animated: true,
-    data: { label: 'Token exchange' },
+    data: { label: 'Token exchange', pathType: 'bezier' },
   },
   {
     id: 'google-oauth-cognito',
@@ -484,7 +597,11 @@ export const initialEdges: Edge<NonNullable<CustomEdge['data']>>[] = [
     source: 'google-oauth',
     target: 'cognito',
     animated: true,
-    data: { label: 'User info', className: '-left-10 -top-2' },
+    data: {
+      label: 'User info',
+      className: '-left-10 -top-2',
+      pathType: 'bezier',
+    },
   },
   {
     id: 'frontend-distribution-frontend-bucket',
@@ -492,7 +609,7 @@ export const initialEdges: Edge<NonNullable<CustomEdge['data']>>[] = [
     source: 'frontend-distribution',
     target: 'frontend-bucket',
     animated: true,
-    data: { label: 'Site requests' },
+    data: { label: 'Site requests', pathType: 'bezier' },
   },
   {
     id: 'media-distribution-media-bucket',
@@ -500,7 +617,7 @@ export const initialEdges: Edge<NonNullable<CustomEdge['data']>>[] = [
     source: 'media-distribution',
     target: 'media-bucket',
     animated: true,
-    data: { label: 'Media requests' },
+    data: { label: 'Media requests', pathType: 'bezier' },
   },
   {
     id: 'media-bucket-event-bridge-rule',
@@ -508,7 +625,7 @@ export const initialEdges: Edge<NonNullable<CustomEdge['data']>>[] = [
     source: 'media-bucket',
     target: 'event-bridge-rule',
     animated: true,
-    data: { label: 'Trigger on video upload' },
+    data: { label: 'Trigger on video upload', pathType: 'bezier' },
   },
   {
     id: 'media-bucket-igw',
@@ -516,7 +633,11 @@ export const initialEdges: Edge<NonNullable<CustomEdge['data']>>[] = [
     source: 'media-bucket',
     target: 'igw',
     animated: true,
-    data: { label: 'Video request', className: 'left-28 -top-7' },
+    data: {
+      label: 'Video request',
+      className: 'left-28 -top-7',
+      pathType: 'bezier',
+    },
     sourceHandle: 'media-bucket-source-to-igw',
   },
   {
@@ -525,7 +646,7 @@ export const initialEdges: Edge<NonNullable<CustomEdge['data']>>[] = [
     source: 'media-bucket',
     target: 'thumbnail-lambda',
     animated: true,
-    data: { label: 'Video request', className: 'top-1' },
+    data: { label: 'Video request', className: 'top-1', pathType: 'bezier' },
   },
   {
     id: 'media-bucket-transcribe-lambda',
@@ -533,7 +654,11 @@ export const initialEdges: Edge<NonNullable<CustomEdge['data']>>[] = [
     source: 'media-bucket',
     target: 'transcribe-lambda',
     animated: true,
-    data: { label: 'Video requests', className: '-left-16 -top-5' },
+    data: {
+      label: 'Video requests',
+      className: '-left-16 -top-5',
+      pathType: 'bezier',
+    },
     sourceHandle: 'media-bucket-source-to-transcribe-and-rekognition-lambda',
   },
   {
@@ -574,7 +699,7 @@ export const initialEdges: Edge<NonNullable<CustomEdge['data']>>[] = [
     source: 'thumbnail-lambda',
     target: 'media-bucket',
     animated: true,
-    data: { label: 'Thumbnail upload' },
+    data: { label: 'Thumbnail upload', pathType: 'bezier' },
   },
   {
     id: 'transcribe-lambda-amazon-transcribe',
@@ -596,7 +721,7 @@ export const initialEdges: Edge<NonNullable<CustomEdge['data']>>[] = [
     source: 'transcribe-lambda',
     target: 'analysis-queue',
     animated: true,
-    data: { label: 'Readiness message' },
+    data: { label: 'Readiness message', pathType: 'bezier' },
     sourceHandle: 'transcribe-lambda-source-to-analysis-queue',
   },
   {
@@ -605,7 +730,11 @@ export const initialEdges: Edge<NonNullable<CustomEdge['data']>>[] = [
     source: 'analysis-queue',
     target: 'igw',
     animated: true,
-    data: { label: 'Polled messages', className: 'left-10' },
+    data: {
+      label: 'Polled messages',
+      className: 'left-10',
+      pathType: 'bezier',
+    },
   },
   {
     id: 'transcribe-lambda-dynamodb-table',
@@ -613,7 +742,7 @@ export const initialEdges: Edge<NonNullable<CustomEdge['data']>>[] = [
     source: 'transcribe-lambda',
     target: 'dynamodb-table',
     animated: true,
-    data: { label: 'Save transcript results' },
+    data: { label: 'Save transcript results', pathType: 'bezier' },
   },
   {
     id: 'rekognition-lambda-dynamodb-table',
@@ -623,7 +752,8 @@ export const initialEdges: Edge<NonNullable<CustomEdge['data']>>[] = [
     animated: true,
     data: {
       label: 'Save object detection results',
-      className: '-left-40 top-5',
+      className: '-left-[12rem] top-6',
+      pathType: 'bezier',
     },
     targetHandle: 'dynamodb-table-target-from-rekognition-lambda',
   },
@@ -633,7 +763,11 @@ export const initialEdges: Edge<NonNullable<CustomEdge['data']>>[] = [
     source: 'thumbnail-lambda',
     target: 'dynamodb-table',
     animated: true,
-    data: { label: 'Save thumbnail details', className: 'left-16 -top-12' },
+    data: {
+      label: 'Save thumbnail details',
+      className: 'left-20 -top-12',
+      pathType: 'bezier',
+    },
   },
   {
     id: 'igw-dynamodb-table-analysis-details',
@@ -641,7 +775,11 @@ export const initialEdges: Edge<NonNullable<CustomEdge['data']>>[] = [
     source: 'igw',
     target: 'dynamodb-table',
     animated: true,
-    data: { label: 'Save analysis results' },
+    data: {
+      label: 'Save analysis results',
+      pathType: 'bezier',
+      className: 'top-8 left-12',
+    },
     sourceHandle: 'igw-source-to-dynamodb-table',
   },
   {
@@ -650,7 +788,11 @@ export const initialEdges: Edge<NonNullable<CustomEdge['data']>>[] = [
     source: 'igw',
     target: 'dynamodb-table',
     animated: true,
-    data: { label: 'CRUD database items' },
+    data: {
+      label: 'CRUD database items',
+      pathType: 'bezier',
+      className: '-top-5 -left-6',
+    },
     sourceHandle: 'igw-source-to-dynamodb-table',
     targetHandle: 'dynamodb-table-target-from-igw',
   },
@@ -678,7 +820,7 @@ export const initialEdges: Edge<NonNullable<CustomEdge['data']>>[] = [
     source: 'vpc',
     target: 'alb',
     animated: true,
-    data: { perceiveSourcePosition: Position.Bottom },
+    data: { perceiveSourcePosition: Position.Bottom, pathType: 'bezier' },
   },
   {
     id: 'vpc-model-cluster',
@@ -690,6 +832,7 @@ export const initialEdges: Edge<NonNullable<CustomEdge['data']>>[] = [
       label: 'Polled messages,\nVideo request',
       perceiveSourcePosition: Position.Bottom,
       className: '-top-20 -left-2',
+      pathType: 'bezier',
     },
   },
   {
@@ -698,7 +841,7 @@ export const initialEdges: Edge<NonNullable<CustomEdge['data']>>[] = [
     source: 'alb',
     target: 'api-cluster',
     animated: true,
-    data: { label: 'Api requests,\n Token exchange' },
+    data: { label: 'Api requests,\n Token exchange', pathType: 'bezier' },
   },
   {
     id: 'api-cluster-vpc',
@@ -710,6 +853,7 @@ export const initialEdges: Edge<NonNullable<CustomEdge['data']>>[] = [
       label: 'CRUD database items',
       perceivedTargetPosition: Position.Bottom,
       className: '-left-40 top-[4.5rem]',
+      pathType: 'bezier',
     },
   },
   {
@@ -721,6 +865,176 @@ export const initialEdges: Edge<NonNullable<CustomEdge['data']>>[] = [
     data: {
       label: 'Save analysis results',
       perceivedTargetPosition: Position.Bottom,
+      pathType: 'bezier',
     },
+  },
+  {
+    id: 'api-cluster-cloudwatch-logs',
+    type: 'customEdge',
+    source: 'api-cluster',
+    target: 'cloudwatch-logs',
+    animated: true,
+    data: { label: 'Sends logs', pathType: 'smoothStep', offset: 50 },
+    sourceHandle: 'api-cluster-source-to-cloudwatch',
+    targetHandle: 'cloudwatch-logs-target-from-clusters',
+  },
+  {
+    id: 'model-cluster-cloudwatch-logs',
+    type: 'customEdge',
+    source: 'model-cluster',
+    target: 'cloudwatch-logs',
+    animated: true,
+    data: { pathType: 'smoothStep', offset: 50 },
+    sourceHandle: 'model-cluster-source-to-cloudwatch',
+    targetHandle: 'cloudwatch-logs-target-from-clusters',
+  },
+  {
+    id: 'thumbnail-lambda-cloudwatch-logs',
+    type: 'customEdge',
+    source: 'thumbnail-lambda',
+    target: 'cloudwatch-logs',
+    animated: true,
+    data: {
+      label: 'Sends logs',
+      pathType: 'bezier',
+      className: '-top-12 left-6',
+    },
+  },
+  {
+    id: 'transcribe-lambda-cloudwatch-logs',
+    type: 'customEdge',
+    source: 'transcribe-lambda',
+    target: 'cloudwatch-logs',
+    animated: true,
+    data: { label: 'Sends logs', pathType: 'bezier', className: '-top-20 ' },
+  },
+  {
+    id: 'rekognition-lambda-cloudwatch-logs',
+    type: 'customEdge',
+    source: 'rekognition-lambda',
+    target: 'cloudwatch-logs',
+    animated: true,
+    data: { label: 'Sends logs', pathType: 'bezier' },
+  },
+  {
+    id: 'analysis-queue-cloudwatch-metrics',
+    type: 'customEdge',
+    source: 'analysis-queue',
+    target: 'cloudwatch-metrics',
+    animated: true,
+    data: {
+      label: 'Provides queue data',
+      pathType: 'bezier',
+      className: 'top-20 -left-4',
+    },
+    sourceHandle: 'analysis-queue-source-to-cloudwatch-metrics',
+  },
+  {
+    id: 'api-cluster-cloudwatch-metrics',
+    type: 'customEdge',
+    source: 'api-cluster',
+    target: 'cloudwatch-metrics',
+    animated: true,
+    data: { pathType: 'smoothStep', offset: 25 },
+    sourceHandle: 'api-cluster-source-to-cloudwatch',
+    targetHandle: 'cloudwatch-metrics-target-from-model-cluster',
+  },
+  {
+    id: 'model-cluster-cloudwatch-metrics',
+    type: 'customEdge',
+    source: 'model-cluster',
+    target: 'cloudwatch-metrics',
+    animated: true,
+    data: {
+      label: 'Provides instance and task data',
+      pathType: 'smoothStep',
+      offset: 30,
+    },
+    sourceHandle: 'model-cluster-source-to-cloudwatch',
+    targetHandle: 'cloudwatch-metrics-target-from-model-cluster',
+  },
+  {
+    id: 'cloudwatch-metrics-cloudwatch-alarms',
+    type: 'customEdge',
+    source: 'cloudwatch-metrics',
+    target: 'cloudwatch-alarms',
+    animated: true,
+    data: {
+      label: 'Metrics data for alarms thresholds',
+      pathType: 'smoothStep',
+      offset: 100,
+      className: 'top-20',
+    },
+    sourceHandle: 'cloudwatch-metrics-source-to-cloudwatch-alarms',
+    targetHandle: 'cloudwatch-alarms-target-from-cloudwatch-metrics',
+  },
+  {
+    id: 'cloudwatch-alarms-api-asg',
+    type: 'customEdge',
+    source: 'cloudwatch-alarms',
+    target: 'api-asg',
+    animated: true,
+    data: {
+      label: 'Triggers instance scaling',
+      pathType: 'bezier',
+    },
+  },
+  {
+    id: 'cloudwatch-alarms-model-asg',
+    type: 'customEdge',
+    source: 'cloudwatch-alarms',
+    target: 'model-asg',
+    animated: true,
+    data: {
+      label: 'Triggers instance scaling',
+      pathType: 'bezier',
+    },
+  },
+  {
+    id: 'cloudwatch-alarms-api-cluster',
+    type: 'customEdge',
+    source: 'cloudwatch-alarms',
+    target: 'api-cluster',
+    animated: true,
+    data: {
+      label: 'Triggers task scaling',
+      pathType: 'bezier',
+      className: 'top-32 left-12',
+    },
+    targetHandle: 'api-cluster-target-from-cloudwatch-alarms',
+  },
+  {
+    id: 'cloudwatch-alarms-model-cluster',
+    type: 'customEdge',
+    source: 'cloudwatch-alarms',
+    target: 'model-cluster',
+    animated: true,
+    data: { pathType: 'bezier' },
+  },
+  {
+    id: 'api-asg-api-cluster',
+    type: 'customEdge',
+    source: 'api-asg',
+    target: 'api-cluster',
+    animated: true,
+    data: {
+      pathType: 'bezier',
+      label: 'Launches/Terminates instances',
+      className: 'top-8',
+    },
+    targetHandle: 'api-cluster-target-from-api-asg',
+  },
+  {
+    id: 'model-asg-model-cluster',
+    type: 'customEdge',
+    source: 'model-asg',
+    target: 'model-cluster',
+    animated: true,
+    data: {
+      pathType: 'bezier',
+      label: 'Launches/Terminates instances',
+      className: 'top-8',
+    },
+    targetHandle: 'model-cluster-target-from-model-asg',
   },
 ];

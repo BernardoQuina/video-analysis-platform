@@ -109,7 +109,7 @@ export default function Home() {
                 rel="noreferrer"
               >
                 View <span className="xs:block hidden">Source</span>
-                Code <Github />
+                Code <Github className="ml-1.5" />
               </a>
             </Button>
             <Button variant="rainbow" asChild>

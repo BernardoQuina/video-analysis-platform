@@ -5,20 +5,32 @@ import {
   EdgeProps,
   Edge,
   Position,
+  getSmoothStepPath,
 } from '@xyflow/react';
 // import { useTheme } from 'next-themes';
 
 import { cn } from '../../utils/cn';
 
-export type CustomEdge = Edge<
-  {
-    label?: string;
-    perceiveSourcePosition?: Position; // To influence the path starting angle
-    perceivedTargetPosition?: Position; // To influence the path ending angle
-    className?: string;
-  },
-  'customEdge'
->;
+type BaseEdge = {
+  label?: string;
+  perceiveSourcePosition?: Position; // To influence the path starting angle
+  perceivedTargetPosition?: Position; // To influence the path ending angle
+  className?: string;
+  pathType: 'bezier' | 'smoothStep';
+};
+
+type BezierEdge = BaseEdge & {
+  pathType: 'bezier';
+  curvature?: number;
+};
+
+type SmoothStepEdge = BaseEdge & {
+  pathType: 'smoothStep';
+  borderRadius?: number;
+  offset?: number;
+};
+
+export type CustomEdge = Edge<BezierEdge | SmoothStepEdge, 'customEdge'>;
 
 export function CustomEdge({
   id,
@@ -30,14 +42,27 @@ export function CustomEdge({
   targetPosition,
   data,
 }: EdgeProps<CustomEdge>) {
-  const [edgePath, labelX, labelY] = getBezierPath({
-    sourceX,
-    sourceY,
-    sourcePosition: data?.perceiveSourcePosition ?? sourcePosition,
-    targetX,
-    targetY,
-    targetPosition: data?.perceivedTargetPosition ?? targetPosition,
-  });
+  const [edgePath, labelX, labelY] =
+    data?.pathType === 'smoothStep'
+      ? getSmoothStepPath({
+          sourceX,
+          sourceY,
+          sourcePosition: data?.perceiveSourcePosition ?? sourcePosition,
+          targetX,
+          targetY,
+          targetPosition: data?.perceivedTargetPosition ?? targetPosition,
+          borderRadius: data?.borderRadius,
+          offset: data?.offset,
+        })
+      : getBezierPath({
+          sourceX,
+          sourceY,
+          sourcePosition: data?.perceiveSourcePosition ?? sourcePosition,
+          targetX,
+          targetY,
+          targetPosition: data?.perceivedTargetPosition ?? targetPosition,
+          curvature: data?.curvature,
+        });
 
   // const { resolvedTheme } = useTheme();
 
