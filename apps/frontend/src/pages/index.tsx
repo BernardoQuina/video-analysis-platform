@@ -45,8 +45,8 @@ export default function Home() {
       pageDescription="This is a demo project showcasing how you can deploy complex applications on AWS infrastructure, making use of multiple services like S3, CloudFront, ECS, SQS, DynamoDB and more while still being cost efficient and having a simple but well-rounded CI/CD."
       backgroundEffects
     >
-      <div className="gap-32">
-        <div className="items-center gap-8 self-center pt-32">
+      <div className="gap-[14rem] sm:gap-36">
+        <div className="items-center gap-8 self-center pt-52">
           <Button
             className="flex-row items-center rounded-full text-sm"
             variant="outline"
@@ -71,12 +71,12 @@ export default function Home() {
             <div className="linear-gradient-blur-horizontal dark:linear-gradient-blur-horizontal-dark absolute left-[50%] top-[-12px] h-[1px] w-[250%] translate-x-[-50%] blur-[2px]"></div>
 
             {/* Outer left */}
-            <div className="linear-gradient dark:linear-gradient-dark absolute left-[-100px] top-[-30vh] h-[80vh] w-[1px]"></div>
-            <div className="linear-gradient-blur dark:linear-gradient-blur-dark absolute left-[-100px] top-[-30vh] h-[80vh] w-[1px] blur-[2px]"></div>
+            <div className="linear-gradient dark:linear-gradient-dark absolute -top-[14rem] left-[-100px] h-[35rem] w-[1px]"></div>
+            <div className="linear-gradient-blur dark:linear-gradient-blur-dark absolute -top-[14rem] left-[-100px] h-[35rem] w-[1px] blur-[2px]"></div>
 
             {/* Inner left */}
-            <div className="linear-gradient dark:linear-gradient-dark absolute left-[-20px] top-[-30vh] h-[80vh] w-[1px]"></div>
-            <div className="linear-gradient-blur dark:linear-gradient-blur-dark absolute left-[-20px] top-[-30vh] h-[80vh] w-[1px] blur-[2px]"></div>
+            <div className="linear-gradient dark:linear-gradient-dark absolute -top-[14rem] left-[-20px] h-[35rem] w-[1px]"></div>
+            <div className="linear-gradient-blur dark:linear-gradient-blur-dark absolute -top-[14rem] left-[-20px] h-[35rem] w-[1px] blur-[2px]"></div>
 
             {/* Outer right */}
             <div className="linear-gradient dark:linear-gradient-dark absolute right-[-100px] top-[-30vh] h-[80vh] w-[1px]"></div>
@@ -121,9 +121,22 @@ export default function Home() {
           </div>
         </div>
         <div className="items-center gap-10">
-          <div className="relative">
-            {/* TODO: Add direction lines */}
-            <h3 className="">Explore Infrastructure</h3>
+          <div className="items-center gap-2">
+            <div className="flex-row items-center gap-6">
+              <div className="relative h-[1px] w-[calc(50vw-6rem)] max-w-52 bg-gradient-to-l from-black/30 to-transparent">
+                <div className="from-red/30 absolute right-0 top-0 h-[1px] w-full bg-gradient-to-l from-black/30 to-transparent blur-[2px]"></div>
+              </div>
+              <h3 className="min-w-fit text-center text-lg font-medium">
+                Explore Infrastructure
+              </h3>
+              <div className="relative h-[1px] w-[calc(50vw-6rem)] max-w-52 bg-gradient-to-r from-black/30 to-transparent">
+                <div className="from-red/30 absolute left-0 top-0 h-[1px] w-full bg-gradient-to-r from-black/30 to-transparent blur-[2px]"></div>
+              </div>
+            </div>
+            <p className="max-w-[21rem] text-center text-sm">
+              Dive into this AWS-deployed event-driven architecture, its
+              components, and their current statuses.
+            </p>
           </div>
           <ReactFlowProvider>
             <InfraDiagram />
