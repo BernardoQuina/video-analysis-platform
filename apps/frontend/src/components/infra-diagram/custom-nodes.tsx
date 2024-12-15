@@ -59,15 +59,24 @@ export type CustomNode = Node<
 
 export function CustomNode({ data, id }: NodeProps<CustomNode>) {
   return (
-    <div className="group h-full w-full cursor-pointer items-center gap-2 py-1">
-      <div className="group-hover:scale-110">{data.icon}</div>
-      <div className="gap-1 text-center">
+    <div className="h-full w-full items-center py-1">
+      <div
+        className="peer order-2 gap-1 text-center"
+        style={{ pointerEvents: 'all' }}
+      >
         <span className="text-sm font-medium leading-none">{data.label}</span>
         {data.description && (
           <span className="text-muted-foreground whitespace-pre-line text-xs">
             {data.description}
           </span>
         )}
+      </div>
+      <div
+        style={{ pointerEvents: 'all' }}
+        onClick={() => console.log('interaction area')}
+        className="order-1 pb-2 hover:scale-110 peer-hover:scale-110"
+      >
+        {data.icon}
       </div>
       {data.sources.map((source) => (
         <Handle

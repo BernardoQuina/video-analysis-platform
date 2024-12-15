@@ -68,7 +68,12 @@ export function CustomEdge({
 
   return (
     <>
-      <BaseEdge id={id} path={edgePath} className="stroke-muted-foreground" />
+      <BaseEdge
+        // interactionWidth={0}
+        id={id}
+        path={edgePath}
+        className="stroke-muted-foreground"
+      />
       {/* <svg>
         <defs>
           <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">

@@ -223,8 +223,8 @@ const config: Config = {
   ],
   variants: {
     extend: {
-      scale: ['group-hover'],
-      transform: ['group-hover'],
+      scale: ['group-hover', 'peer-hover'],
+      transform: ['group-hover', 'peer-hover'],
     },
   },
 };

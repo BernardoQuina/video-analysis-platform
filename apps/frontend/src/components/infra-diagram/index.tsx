@@ -71,12 +71,12 @@ export default function InfraDiagram() {
     }, 300);
   }
 
-  // TODO: Remove this useEffect (testing only)
   useEffect(() => {
     setTimeout(() => {
       setCenter(0, window.innerHeight * 0.3, { zoom: 1 });
     }, 0);
 
+    // TODO: Remove setNodes and setEdges on useEffect (testing only)
     setNodes(initialNodes);
     setEdges(initialEdges);
   }, [initialNodes, initialEdges]);
@@ -110,6 +110,7 @@ export default function InfraDiagram() {
         nodes={nodes}
         edges={edges}
         onlyRenderVisibleElements
+        nodesDraggable={false}
         // onNodesChange={onNodesChange}
         // onEdgesChange={onEdgesChange}
         // onConnect={onConnect}
