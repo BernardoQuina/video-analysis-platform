@@ -71,20 +71,20 @@ export default function Home() {
             <div className="linear-gradient-blur-horizontal dark:linear-gradient-blur-horizontal-dark absolute left-[50%] top-[-12px] h-[1px] w-[250%] translate-x-[-50%] blur-[2px]"></div>
 
             {/* Outer left */}
-            <div className="linear-gradient dark:linear-gradient-dark absolute -top-[14rem] left-[-100px] h-[35rem] w-[1px]"></div>
-            <div className="linear-gradient-blur dark:linear-gradient-blur-dark absolute -top-[14rem] left-[-100px] h-[35rem] w-[1px] blur-[2px]"></div>
+            <div className="linear-gradient dark:linear-gradient-dark absolute left-[-100px] top-[50%] h-[600%] w-[1px] translate-y-[-50%]"></div>
+            <div className="linear-gradient-blur dark:linear-gradient-blur-dark absolute left-[-100px] top-[50%] h-[600%] w-[1px] translate-y-[-50%] blur-[2px]"></div>
 
             {/* Inner left */}
-            <div className="linear-gradient dark:linear-gradient-dark absolute -top-[14rem] left-[-20px] h-[35rem] w-[1px]"></div>
-            <div className="linear-gradient-blur dark:linear-gradient-blur-dark absolute -top-[14rem] left-[-20px] h-[35rem] w-[1px] blur-[2px]"></div>
+            <div className="linear-gradient dark:linear-gradient-dark absolute left-[-20px] top-[50%] h-[600%] w-[1px] translate-y-[-50%]"></div>
+            <div className="linear-gradient-blur dark:linear-gradient-blur-dark absolute left-[-20px] top-[50%] h-[600%] w-[1px] translate-y-[-50%] blur-[2px]"></div>
 
             {/* Outer right */}
-            <div className="linear-gradient dark:linear-gradient-dark absolute right-[-100px] top-[-30vh] h-[80vh] w-[1px]"></div>
-            <div className="linear-gradient-blur dark:linear-gradient-blur-dark absolute right-[-100px] top-[-30vh] h-[80vh] w-[1px] blur-[2px]"></div>
+            <div className="linear-gradient dark:linear-gradient-dark absolute right-[-100px] top-[50%] h-[600%] w-[1px] translate-y-[-50%]"></div>
+            <div className="linear-gradient-blur dark:linear-gradient-blur-dark absolute right-[-100px] top-[50%] h-[600%] w-[1px] translate-y-[-50%] blur-[2px]"></div>
 
             {/* Inner right */}
-            <div className="linear-gradient dark:linear-gradient-dark absolute right-[-20px] top-[-30vh] h-[80vh] w-[1px]"></div>
-            <div className="linear-gradient-blur dark:linear-gradient-blur-dark absolute right-[-20px] top-[-30vh] h-[80vh] w-[1px] blur-[2px]"></div>
+            <div className="linear-gradient dark:linear-gradient-dark absolute right-[-20px] top-[50%] h-[600%] w-[1px] translate-y-[-50%]"></div>
+            <div className="linear-gradient-blur dark:linear-gradient-blur-dark absolute right-[-20px] top-[50%] h-[600%] w-[1px] translate-y-[-50%] blur-[2px]"></div>
 
             {/* Inner bottom */}
             <div className="linear-gradient-horizontal dark:linear-gradient-horizontal-dark absolute bottom-[-20px] left-[50%] h-[1px] w-[250%] translate-x-[-50%]"></div>
@@ -101,7 +101,7 @@ export default function Home() {
             Try out this video analysis generation demo and explore how the
             infra is deployed in AWS.
           </p>
-          <div className="flex-row gap-4 pt-4">
+          <div className="flex-row gap-4 pt-2">
             <Button asChild className="gap-1">
               <a
                 href="https://www.github.com/BernardoQuina/video-analysis-platform"
@@ -123,14 +123,14 @@ export default function Home() {
         <div className="items-center gap-10">
           <div className="items-center gap-2">
             <div className="flex-row items-center gap-6">
-              <div className="relative h-[1px] w-[calc(50vw-6rem)] max-w-52 bg-gradient-to-l from-black/30 to-transparent">
-                <div className="from-red/30 absolute right-0 top-0 h-[1px] w-full bg-gradient-to-l from-black/30 to-transparent blur-[2px]"></div>
+              <div className="relative h-[1px] w-[calc(50vw-6rem)] max-w-52 bg-gradient-to-l from-black/30 to-transparent dark:from-white/30">
+                <div className="from-red/30 absolute right-0 top-0 h-[1px] w-full bg-gradient-to-l from-black/30 to-transparent blur-[2px] dark:from-white/60"></div>
               </div>
               <h3 className="min-w-fit text-center text-lg font-medium">
                 Explore Infrastructure
               </h3>
-              <div className="relative h-[1px] w-[calc(50vw-6rem)] max-w-52 bg-gradient-to-r from-black/30 to-transparent">
-                <div className="from-red/30 absolute left-0 top-0 h-[1px] w-full bg-gradient-to-r from-black/30 to-transparent blur-[2px]"></div>
+              <div className="relative h-[1px] w-[calc(50vw-6rem)] max-w-52 bg-gradient-to-r from-black/30 to-transparent dark:from-white/30">
+                <div className="from-red/30 absolute left-0 top-0 h-[1px] w-full bg-gradient-to-r from-black/30 to-transparent blur-[2px] dark:from-white/60"></div>
               </div>
             </div>
             <p className="max-w-[21rem] text-center text-sm">
