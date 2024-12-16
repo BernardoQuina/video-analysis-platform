@@ -46,7 +46,7 @@ export default function Home() {
       backgroundEffects
     >
       <div className="gap-[14rem] sm:gap-36">
-        <div className="items-center gap-8 self-center pt-52">
+        <div className="items-center gap-8 self-center pt-36 md:pt-52">
           <Button
             className="flex-row items-center rounded-full text-sm"
             variant="outline"
