@@ -42,12 +42,12 @@ export default function Videos() {
     >
       <div className="gap-6">
         <div className="gap-4">
-          <div className="gap-1">
+          <div>
             <div className="flex-row items-end justify-between">
-              <h2 className="text-2xl font-medium">Your Videos</h2>
+              <h2 className="text-lg font-medium">Your Videos</h2>
               {(myVideos?.length ?? 0) > 0 && <UploadDialog />}
             </div>
-            <p className="text-muted-foreground text-base">
+            <p className="text-muted-foreground text-sm">
               Your video uploads and respective AI analyses.
             </p>
           </div>
@@ -61,11 +61,11 @@ export default function Videos() {
             <div className="items-center pt-2">
               <Card>
                 <CardContent className="flex-row items-center gap-4">
-                  <div className="gap-1">
-                    <h2 className="w-fit text-xl font-medium">
+                  <div>
+                    <h2 className="w-fit text-lg font-medium">
                       You haven&apos;t uploaded yet!
                     </h2>
-                    <p className="text-muted-foreground w-fit text-base">
+                    <p className="text-muted-foreground w-fit text-sm">
                       Upload any mp4 video and see what insights you can get!
                     </p>
                   </div>
@@ -83,9 +83,9 @@ export default function Videos() {
         </div>
         <Separator />
         <div className="gap-4">
-          <div className="gap-1">
-            <h2 className="text-2xl font-medium">Public Videos</h2>
-            <p className="text-muted-foreground text-base">
+          <div>
+            <h2 className="text-lg font-medium">Public Videos</h2>
+            <p className="text-muted-foreground text-sm">
               Discover and explore video analysis made public from other users.
             </p>
           </div>
@@ -99,11 +99,11 @@ export default function Videos() {
             <div className="items-center pt-2">
               <Card>
                 <CardContent className="flex-row items-center gap-4">
-                  <div className="gap-1">
-                    <h2 className="w-fit text-xl font-medium">
+                  <div>
+                    <h2 className="w-fit text-lg font-medium">
                       No public videos yet
                     </h2>
-                    <p className="text-muted-foreground w-fit text-base">
+                    <p className="text-muted-foreground w-fit text-sm">
                       You can upload some videos of your own and make them
                       public!
                     </p>
