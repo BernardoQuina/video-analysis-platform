@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ReactFlow,
   // Node,
@@ -40,6 +40,8 @@ export default function InfraDiagram() {
 
   const { resolvedTheme } = useTheme();
 
+  const positionalDivRef = useRef<HTMLDivElement>(null);
+
   // const onNodesChange = useCallback(
   //   (
   //     changes: NodeChange<Node<CustomGroupNode['data'] | CustomNode['data']>>[],
@@ -58,6 +60,10 @@ export default function InfraDiagram() {
   // );
 
   function handleMaximize() {
+    if (!maximized && positionalDivRef.current) {
+      positionalDivRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+
     setMaximized(!maximized);
     setTimeout(() => {
       setCenter(
@@ -82,45 +88,48 @@ export default function InfraDiagram() {
   }, [initialNodes, initialEdges]);
 
   return (
-    <div
-      className={cn(
-        'bg-background/50 relative h-[80dvh] w-[100vw] border-y transition-all duration-300',
-        {
-          'h-[calc(100vh-3.5rem)] w-[100vw]': maximized,
-          'h-[60vh] w-full rounded-md border-x': !maximized,
-        },
-      )}
-    >
-      <Button
-        className="bg-background absolute right-5 top-5 z-10"
-        variant="outline"
-        size="icon"
-        onClick={handleMaximize}
+    <>
+      <div ref={positionalDivRef} className="h-[2.45rem]"></div>
+      <div
+        className={cn(
+          'bg-background/50 relative h-[80dvh] w-[100vw] border-y transition-all duration-300',
+          {
+            'h-[calc(100vh-3.5rem)] w-[100vw]': maximized,
+            'h-[60vh] w-full rounded-md border-x': !maximized,
+          },
+        )}
       >
-        {maximized ? <Minimize /> : <Maximize />}
-      </Button>
-      <ReactFlow
-        colorMode={resolvedTheme as ColorMode}
-        style={{ background: 'transparent' }}
-        className="div-with-opacity-gradient"
-        proOptions={{ hideAttribution: true }}
-        preventScrolling={false}
-        nodeTypes={nodeTypes}
-        edgeTypes={edgeTypes}
-        nodes={nodes}
-        edges={edges}
-        onlyRenderVisibleElements
-        nodesDraggable={false}
-        // onNodesChange={onNodesChange}
-        // onEdgesChange={onEdgesChange}
-        // onConnect={onConnect}
-      >
-        <Background
-          variant={BackgroundVariant.Dots}
-          bgColor="transparent"
-          color="#61616b"
-        />
-      </ReactFlow>
-    </div>
+        <Button
+          className="bg-background absolute right-5 top-5 z-10"
+          variant="outline"
+          size="icon"
+          onClick={handleMaximize}
+        >
+          {maximized ? <Minimize /> : <Maximize />}
+        </Button>
+        <ReactFlow
+          colorMode={resolvedTheme as ColorMode}
+          style={{ background: 'transparent' }}
+          className="div-with-opacity-gradient"
+          proOptions={{ hideAttribution: true }}
+          preventScrolling={maximized}
+          nodeTypes={nodeTypes}
+          edgeTypes={edgeTypes}
+          nodes={nodes}
+          edges={edges}
+          onlyRenderVisibleElements
+          nodesDraggable={false}
+          // onNodesChange={onNodesChange}
+          // onEdgesChange={onEdgesChange}
+          // onConnect={onConnect}
+        >
+          <Background
+            variant={BackgroundVariant.Dots}
+            bgColor="transparent"
+            color="#61616b"
+          />
+        </ReactFlow>
+      </div>
+    </>
   );
 }
