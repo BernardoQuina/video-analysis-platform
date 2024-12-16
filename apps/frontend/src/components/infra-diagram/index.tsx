@@ -62,7 +62,7 @@ export default function InfraDiagram() {
     setTimeout(() => {
       setCenter(
         0,
-        maximized ? window.innerHeight * 0.3 : window.innerHeight * 0.4,
+        maximized ? window.innerHeight * 0.3 : window.innerHeight * 0.47,
         {
           zoom: 1,
           duration: 300,
@@ -86,8 +86,8 @@ export default function InfraDiagram() {
       className={cn(
         'bg-background/50 relative h-[80dvh] w-[100vw] border-y transition-all duration-300',
         {
-          'h-[80dvh] w-[100vw]': maximized,
-          'h-[60dvh] w-full rounded-md border-x': !maximized,
+          'h-[calc(100vh-3.5rem)] w-[100vw]': maximized,
+          'h-[60vh] w-full rounded-md border-x': !maximized,
         },
       )}
     >
