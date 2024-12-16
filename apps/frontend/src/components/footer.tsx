@@ -29,7 +29,7 @@ export function Footer() {
               </p>
             </div>
           </div>
-          <div className="-mt-1 items-center gap-4">
+          <div className="items-center gap-4 self-start">
             <span className="text-muted-foreground text-sm font-medium">
               Find me at
             </span>
@@ -73,7 +73,7 @@ export function Footer() {
             </div>
           </div>
         </div>
-        <div className="items-center sm:items-end">
+        <div className="items-center sm:items-end sm:pl-6">
           <div className="flex-row gap-4 sm:contents sm:gap-0">
             <Button variant="link" asChild className="w-fit px-0">
               <Link href="/privacy">

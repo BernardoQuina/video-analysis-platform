@@ -89,7 +89,7 @@ export default function InfraDiagram() {
 
   return (
     <>
-      <div ref={positionalDivRef} className="h-[2.45rem]"></div>
+      <div ref={positionalDivRef} className="-mt-8 h-[2.45rem]"></div>
       <div
         className={cn(
           'bg-background/50 relative h-[80dvh] w-[100vw] border-y transition-all duration-300',
