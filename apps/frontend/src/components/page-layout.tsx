@@ -2,6 +2,7 @@ import { ReactNode } from 'react';
 import Head from 'next/head';
 
 import { Header } from './header';
+import { Footer } from './footer';
 
 export function PageLayout({
   children,
@@ -22,6 +23,7 @@ export function PageLayout({
       </Head>
       <Header />
       <main className="w-full max-w-[70rem] px-4 py-4 lg:px-8">{children}</main>
+      <Footer />
       {backgroundEffects && (
         <>
           <div className="bg-background/95 supports-[backdrop-filter]:bg-background/50 dark:supports-[backdrop-filter]:bg-background/70 fixed -z-10 h-full w-full backdrop-blur-3xl"></div>
