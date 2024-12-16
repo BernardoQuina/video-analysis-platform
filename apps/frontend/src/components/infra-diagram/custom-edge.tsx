@@ -72,7 +72,7 @@ export function CustomEdge({
         // interactionWidth={0}
         id={id}
         path={edgePath}
-        className="stroke-muted-foreground"
+        className="stroke-muted-foreground dark:stroke-muted-foreground/50"
       />
       {/* <svg>
         <defs>

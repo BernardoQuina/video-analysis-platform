@@ -15,7 +15,7 @@ export type CustomGroupNode = Node<
 
 export function CustomGroupNode({ data, id }: NodeProps<CustomGroupNode>) {
   return (
-    <div className="bg-background h-full w-full flex-row gap-2 rounded-xl border px-4 py-3 shadow-sm">
+    <div className="bg-background/60 h-full w-full flex-row gap-2 rounded-xl border px-4 py-3 shadow-sm">
       <div>
         <div className="flex-row items-center gap-2">
           {data.icon}

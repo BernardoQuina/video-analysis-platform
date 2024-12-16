@@ -115,7 +115,11 @@ export default function InfraDiagram() {
         // onEdgesChange={onEdgesChange}
         // onConnect={onConnect}
       >
-        <Background variant={BackgroundVariant.Dots} bgColor="transparent" />
+        <Background
+          variant={BackgroundVariant.Dots}
+          bgColor="transparent"
+          color="#61616b"
+        />
       </ReactFlow>
     </div>
   );

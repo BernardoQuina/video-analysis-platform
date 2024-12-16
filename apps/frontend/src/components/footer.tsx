@@ -29,7 +29,7 @@ export function Footer() {
               </p>
             </div>
           </div>
-          <div className="items-center gap-4">
+          <div className="-mt-1 items-center gap-4">
             <span className="text-muted-foreground text-sm font-medium">
               Find me at
             </span>
