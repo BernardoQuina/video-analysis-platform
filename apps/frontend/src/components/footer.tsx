@@ -86,7 +86,7 @@ export function Footer() {
               </Link>
             </Button>
           </div>
-          <span className="text-muted-foreground text-sm">
+          <span className="text-muted-foreground pt-2 text-sm">
             © {new Date().getFullYear()} Bernardo Quina
           </span>
         </div>
