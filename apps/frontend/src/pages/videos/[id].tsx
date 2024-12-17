@@ -180,7 +180,7 @@ export default function Videos() {
 
   return (
     <PageLayout
-      pageTitle="Video Analysis Library"
+      pageTitle="Video Analysis Demo | Library"
       pageDescription="Discover and explore video analyses in the Video Analysis Library. Access your own videos insights and browse public analyses from other users"
     >
       {isLoading ? (

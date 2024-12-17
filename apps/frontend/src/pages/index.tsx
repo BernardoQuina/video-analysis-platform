@@ -45,7 +45,7 @@ export default function Home() {
       pageDescription="This is a demo project showcasing how you can deploy complex applications on AWS infrastructure, making use of multiple services like S3, CloudFront, ECS, SQS, DynamoDB and more while still being cost efficient and having a simple but well-rounded CI/CD."
       backgroundEffects
     >
-      <div className="gap-[14rem] sm:gap-36">
+      <div className="gap-36">
         <div className="items-center gap-8 self-center pt-36 md:pt-52">
           <Button
             className="flex-row items-center rounded-full text-sm"
