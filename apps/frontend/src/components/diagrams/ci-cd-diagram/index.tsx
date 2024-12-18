@@ -79,7 +79,7 @@ export default function CICDDiagram() {
 
   useEffect(() => {
     setTimeout(() => {
-      setCenter(0, window.innerHeight * 0.3, { zoom: 1 });
+      // setCenter(0, window.innerHeight * 0.3, { zoom: 1 });
     }, 0);
 
     // TODO: Remove setNodes and setEdges on useEffect (testing only)
