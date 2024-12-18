@@ -4,7 +4,7 @@ import { UserRound } from 'lucide-react';
 import { CustomGroupNode, CustomNode } from '../custom-nodes';
 import { CustomEdge } from '../custom-edge';
 import { Github, GithubActions } from '../../icons/github';
-import { CloudFormation, CloudFront, S3 } from '../../icons/aws';
+import { CloudFormation, CloudFront, Ecr, Ecs, S3 } from '../../icons/aws';
 
 // #############
 // ### NODES ###
@@ -176,6 +176,30 @@ export const initialNodes: Node<
     selectable: false,
   },
   {
+    id: 'elastic-container-registry',
+    type: 'customNode',
+    position: { x: -420, y: 500 },
+    data: {
+      label: 'Elastic Container Registry',
+      icon: <Ecr />,
+      description: 'Stores Docker images for\napi and analysis model apps',
+      sources: [{ id: 'default' }],
+      targets: [
+        {
+          id: 'from-api-deployment-workflow',
+          position: Position.Left,
+          className: 'top-6 left-14',
+        },
+        {
+          id: 'from-analysis-model-deployment-workflow',
+          position: Position.Right,
+          className: 'top-6 right-14',
+        },
+      ],
+    },
+    selectable: false,
+  },
+  {
     id: 'api-deployment-workflow',
     type: 'customNode',
     position: { x: -600, y: 350 },
@@ -184,14 +208,29 @@ export const initialNodes: Node<
       icon: <GithubActions />,
       description:
         'Builds docker image, pushes it\nto ECR, updates ECS service',
-      sources: [
+      sources: [{ id: 'default' }],
+      targets: [{ id: 'default' }],
+    },
+    selectable: false,
+  },
+  {
+    id: 'api-service',
+    type: 'customNode',
+    position: { x: -604, y: 650 },
+    data: {
+      label: 'Api Service',
+      icon: <Ecs />,
+      description:
+        'Runs docker containers as tasks\nusing updated images from ECR',
+      sources: [{ id: 'default' }],
+      targets: [
+        { id: 'from-api-deployment-workflow' },
         {
-          id: 'default',
+          id: 'from-elastic-container-registry',
           position: Position.Right,
           className: 'top-6 right-14',
         },
       ],
-      targets: [{ id: 'default' }],
     },
     selectable: false,
   },
@@ -204,14 +243,29 @@ export const initialNodes: Node<
       icon: <GithubActions />,
       description:
         'Builds docker image, pushes it\nto ECR, updates ECS service',
-      sources: [
+      sources: [{ id: 'default' }],
+      targets: [{ id: 'default' }],
+    },
+    selectable: false,
+  },
+  {
+    id: 'analysis-model-service',
+    type: 'customNode',
+    position: { x: -247, y: 650 },
+    data: {
+      label: 'Analysis Model Service',
+      icon: <Ecs />,
+      description:
+        'Runs docker containers as tasks\nusing updated images from ECR',
+      sources: [{ id: 'default' }],
+      targets: [
+        { id: 'from-analysis-model-deployment-workflow' },
         {
-          id: 'default',
-          position: Position.Right,
-          className: 'top-6 right-14',
+          id: 'from-elastic-container-registry',
+          position: Position.Left,
+          className: 'top-6 left-16',
         },
       ],
-      targets: [{ id: 'default' }],
     },
     selectable: false,
   },
@@ -348,6 +402,46 @@ export const initialEdges: Edge<NonNullable<CustomEdge['data']>>[] = [
     ...commonProperties,
   },
   {
+    id: 'api-deployment-workflow-elastic-container-registry',
+    type: 'customEdge',
+    source: 'api-deployment-workflow',
+    target: 'elastic-container-registry',
+    data: {
+      label: 'Pushes api image',
+      pathType: 'bezier',
+      className: 'top-2 left-6',
+    },
+    targetHandle:
+      'elastic-container-registry-target-from-api-deployment-workflow',
+    ...commonProperties,
+  },
+  {
+    id: 'api-deployment-workflow-api-service',
+    type: 'customEdge',
+    source: 'api-deployment-workflow',
+    target: 'api-service',
+    data: {
+      label: 'Api service rolling update',
+      pathType: 'bezier',
+      className: 'top-5',
+    },
+    targetHandle: 'api-service-target-from-api-deployment-workflow',
+    ...commonProperties,
+  },
+  {
+    id: 'elastic-container-registry-api-service',
+    type: 'customEdge',
+    source: 'elastic-container-registry',
+    target: 'api-service',
+    data: {
+      label: 'Pulls api image',
+      pathType: 'bezier',
+      className: 'top-2 -left-6',
+    },
+    targetHandle: 'api-service-target-from-elastic-container-registry',
+    ...commonProperties,
+  },
+  {
     id: 'github-repository-analysis-model-deployment-workflow',
     type: 'customEdge',
     source: 'github-repository',
@@ -357,6 +451,48 @@ export const initialEdges: Edge<NonNullable<CustomEdge['data']>>[] = [
       pathType: 'bezier',
       className: 'top-4 left-4',
     },
+    ...commonProperties,
+  },
+  {
+    id: 'analysis-model-deployment-workflow-elastic-container-registry',
+    type: 'customEdge',
+    source: 'analysis-model-deployment-workflow',
+    target: 'elastic-container-registry',
+    data: {
+      label: 'Pushes model image',
+      pathType: 'bezier',
+      className: 'top-2 -left-6',
+    },
+    targetHandle:
+      'elastic-container-registry-target-from-analysis-model-deployment-workflow',
+    ...commonProperties,
+  },
+  {
+    id: 'analysis-model-deployment-workflow-api-service',
+    type: 'customEdge',
+    source: 'analysis-model-deployment-workflow',
+    target: 'analysis-model-service',
+    data: {
+      label: 'Model service rolling update',
+      pathType: 'bezier',
+      className: 'top-5',
+    },
+    targetHandle:
+      'analysis-model-service-target-from-analysis-model-deployment-workflow',
+    ...commonProperties,
+  },
+  {
+    id: 'elastic-container-registry-analysis-model-service',
+    type: 'customEdge',
+    source: 'elastic-container-registry',
+    target: 'analysis-model-service',
+    data: {
+      label: 'Pulls model image',
+      pathType: 'bezier',
+      className: 'top-2 left-6',
+    },
+    targetHandle:
+      'analysis-model-service-target-from-elastic-container-registry',
     ...commonProperties,
   },
   {
