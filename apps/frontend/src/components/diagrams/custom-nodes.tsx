@@ -62,7 +62,7 @@ export function CustomNode({ data, id }: NodeProps<CustomNode>) {
     <div className="h-full w-full items-center py-1">
       <div
         className="peer order-2 gap-1 text-center"
-        style={{ pointerEvents: 'all' }}
+        // style={{ pointerEvents: 'all' }}
       >
         <span className="text-sm font-medium leading-none">{data.label}</span>
         {data.description && (
@@ -72,9 +72,10 @@ export function CustomNode({ data, id }: NodeProps<CustomNode>) {
         )}
       </div>
       <div
-        style={{ pointerEvents: 'all' }}
-        onClick={() => console.log('interaction area')}
-        className="order-1 pb-2 hover:scale-110 peer-hover:scale-110"
+        // style={{ pointerEvents: 'all' }}
+        // onClick={() => console.log('code needed for interaction is commented out')}
+        className="order-1 pb-2"
+        // className="order-1 pb-2 hover:scale-110 peer-hover:scale-110"
       >
         {data.icon}
       </div>

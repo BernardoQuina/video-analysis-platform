@@ -33,8 +33,8 @@ export default function InfraDiagram() {
   );
   const edgeTypes = useMemo(() => ({ customEdge: CustomEdge }), []);
 
-  const [nodes, setNodes] = useState(initialNodes);
-  const [edges, setEdges] = useState(initialEdges);
+  const [nodes, _setNodes] = useState(initialNodes);
+  const [edges, _setEdges] = useState(initialEdges);
 
   const [maximized, setMaximized] = useState(false);
 
@@ -81,11 +81,7 @@ export default function InfraDiagram() {
     setTimeout(() => {
       setCenter(0, window.innerHeight * 0.3, { zoom: 1 });
     }, 0);
-
-    // TODO: Remove setNodes and setEdges on useEffect (testing only)
-    setNodes(initialNodes);
-    setEdges(initialEdges);
-  }, [initialNodes, initialEdges]);
+  }, []);
 
   return (
     <>

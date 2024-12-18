@@ -1,18 +1,18 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ReactFlow,
-  Node,
-  Edge,
+  // Node,
+  // Edge,
   Background,
   BackgroundVariant,
   ColorMode,
   useReactFlow,
-  applyNodeChanges,
-  applyEdgeChanges,
-  NodeChange,
-  EdgeChange,
-  addEdge,
-  Connection,
+  // applyNodeChanges,
+  // applyEdgeChanges,
+  // NodeChange,
+  // EdgeChange,
+  // addEdge,
+  // Connection,
 } from '@xyflow/react';
 import { useTheme } from 'next-themes';
 import { Maximize, Minimize } from 'lucide-react';
@@ -33,8 +33,8 @@ export default function CICDDiagram() {
   );
   const edgeTypes = useMemo(() => ({ customEdge: CustomEdge }), []);
 
-  const [nodes, setNodes] = useState(initialNodes);
-  const [edges, setEdges] = useState(initialEdges);
+  const [nodes, _setNodes] = useState(initialNodes);
+  const [edges, _setEdges] = useState(initialEdges);
 
   const [maximized, setMaximized] = useState(false);
 
@@ -42,22 +42,22 @@ export default function CICDDiagram() {
 
   const positionalDivRef = useRef<HTMLDivElement>(null);
 
-  const onNodesChange = useCallback(
-    (
-      changes: NodeChange<Node<CustomGroupNode['data'] | CustomNode['data']>>[],
-    ) => setNodes((nds) => applyNodeChanges(changes, nds)),
-    [setNodes],
-  );
-  const onEdgesChange = useCallback(
-    (changes: EdgeChange<Edge<NonNullable<CustomEdge['data']>>>[]) =>
-      setEdges((eds) => applyEdgeChanges(changes, eds)),
-    [setEdges],
-  );
+  // const onNodesChange = useCallback(
+  //   (
+  //     changes: NodeChange<Node<CustomGroupNode['data'] | CustomNode['data']>>[],
+  //   ) => setNodes((nds) => applyNodeChanges(changes, nds)),
+  //   [setNodes],
+  // );
+  // const onEdgesChange = useCallback(
+  //   (changes: EdgeChange<Edge<NonNullable<CustomEdge['data']>>>[]) =>
+  //     setEdges((eds) => applyEdgeChanges(changes, eds)),
+  //   [setEdges],
+  // );
 
-  const onConnect = useCallback(
-    (connection: Connection) => setEdges((eds) => addEdge(connection, eds)),
-    [setEdges],
-  );
+  // const onConnect = useCallback(
+  //   (connection: Connection) => setEdges((eds) => addEdge(connection, eds)),
+  //   [setEdges],
+  // );
 
   function handleMaximize() {
     if (!maximized && positionalDivRef.current) {
@@ -81,11 +81,7 @@ export default function CICDDiagram() {
     setTimeout(() => {
       setCenter(0, window.innerHeight * 0.3, { zoom: 1 });
     }, 0);
-
-    // TODO: Remove setNodes and setEdges on useEffect (testing only)
-    setNodes(initialNodes);
-    setEdges(initialEdges);
-  }, [initialNodes, initialEdges]);
+  }, []);
 
   return (
     <>
@@ -118,10 +114,10 @@ export default function CICDDiagram() {
           nodes={nodes}
           edges={edges}
           onlyRenderVisibleElements
-          // nodesDraggable={false}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          onConnect={onConnect}
+          nodesDraggable={false}
+          // onNodesChange={onNodesChange}
+          // onEdgesChange={onEdgesChange}
+          // onConnect={onConnect}
         >
           <Background
             variant={BackgroundVariant.Dots}
