@@ -5,13 +5,22 @@ import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { ReactFlowProvider } from '@xyflow/react';
 
-import { PageLayout } from '../components/page-layout';
 import { trpc } from '../utils/trpc';
+import { PageLayout } from '../components/page-layout';
 import { Button } from '../components/ui/button';
 
-const InfraDiagram = dynamic(() => import('../components/infra-diagram'), {
-  ssr: false,
-});
+const InfraDiagram = dynamic(
+  () => import('../components/diagrams/infra-diagram'),
+  {
+    ssr: false,
+  },
+);
+const CICDDiagram = dynamic(
+  () => import('../components/diagrams/ci-cd-diagram'),
+  {
+    ssr: false,
+  },
+);
 
 export default function Home() {
   const searchParams = useSearchParams();
@@ -140,6 +149,28 @@ export default function Home() {
           </div>
           <ReactFlowProvider>
             <InfraDiagram />
+          </ReactFlowProvider>
+        </div>
+        <div className="items-center gap-4">
+          <div className="items-center gap-2">
+            <div className="flex-row items-center gap-6">
+              <div className="relative h-[1px] w-[calc(50vw-6rem)] max-w-52 bg-gradient-to-l from-black/30 to-transparent dark:from-white/30">
+                <div className="from-red/30 absolute right-0 top-0 h-[1px] w-full bg-gradient-to-l from-black/30 to-transparent blur-[2px] dark:from-white/60"></div>
+              </div>
+              <h3 className="min-w-fit text-center text-lg font-medium">
+                CI/CD Workflow Overview
+              </h3>
+              <div className="relative h-[1px] w-[calc(50vw-6rem)] max-w-52 bg-gradient-to-r from-black/30 to-transparent dark:from-white/30">
+                <div className="from-red/30 absolute left-0 top-0 h-[1px] w-full bg-gradient-to-r from-black/30 to-transparent blur-[2px] dark:from-white/60"></div>
+              </div>
+            </div>
+            <p className="max-w-[21rem] text-center text-sm">
+              See how GitHub Actions deploy code changes and how CloudFormation
+              updates the infrastructure
+            </p>
+          </div>
+          <ReactFlowProvider>
+            <CICDDiagram />
           </ReactFlowProvider>
         </div>
       </div>

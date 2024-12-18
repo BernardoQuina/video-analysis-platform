@@ -1,30 +1,30 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ReactFlow,
-  // Node,
-  // Edge,
+  Node,
+  Edge,
   Background,
   BackgroundVariant,
   ColorMode,
   useReactFlow,
-  // applyNodeChanges,
-  // applyEdgeChanges,
-  // NodeChange,
-  // EdgeChange,
-  // addEdge,
-  // Connection,
+  applyNodeChanges,
+  applyEdgeChanges,
+  NodeChange,
+  EdgeChange,
+  addEdge,
+  Connection,
 } from '@xyflow/react';
 import { useTheme } from 'next-themes';
 import { Maximize, Minimize } from 'lucide-react';
 
-import { cn } from '../../utils/cn';
-import { Button } from '../ui/button';
+import { cn } from '../../../utils/cn';
+import { Button } from '../../ui/button';
+import { CustomGroupNode, CustomNode } from '../custom-nodes';
+import { CustomEdge } from '../custom-edge';
 
 import { initialEdges, initialNodes } from './initial-nodes-and-edges';
-import { CustomGroupNode, CustomNode } from './custom-nodes';
-import { CustomEdge } from './custom-edge';
 
-export default function InfraDiagram() {
+export default function CICDDiagram() {
   const { setCenter } = useReactFlow();
 
   const nodeTypes = useMemo(
@@ -42,22 +42,22 @@ export default function InfraDiagram() {
 
   const positionalDivRef = useRef<HTMLDivElement>(null);
 
-  // const onNodesChange = useCallback(
-  //   (
-  //     changes: NodeChange<Node<CustomGroupNode['data'] | CustomNode['data']>>[],
-  //   ) => setNodes((nds) => applyNodeChanges(changes, nds)),
-  //   [setNodes],
-  // );
-  // const onEdgesChange = useCallback(
-  //   (changes: EdgeChange<Edge<NonNullable<CustomEdge['data']>>>[]) =>
-  //     setEdges((eds) => applyEdgeChanges(changes, eds)),
-  //   [setEdges],
-  // );
+  const onNodesChange = useCallback(
+    (
+      changes: NodeChange<Node<CustomGroupNode['data'] | CustomNode['data']>>[],
+    ) => setNodes((nds) => applyNodeChanges(changes, nds)),
+    [setNodes],
+  );
+  const onEdgesChange = useCallback(
+    (changes: EdgeChange<Edge<NonNullable<CustomEdge['data']>>>[]) =>
+      setEdges((eds) => applyEdgeChanges(changes, eds)),
+    [setEdges],
+  );
 
-  // const onConnect = useCallback(
-  //   (connection: Connection) => setEdges((eds) => addEdge(connection, eds)),
-  //   [setEdges],
-  // );
+  const onConnect = useCallback(
+    (connection: Connection) => setEdges((eds) => addEdge(connection, eds)),
+    [setEdges],
+  );
 
   function handleMaximize() {
     if (!maximized && positionalDivRef.current) {
@@ -118,10 +118,10 @@ export default function InfraDiagram() {
           nodes={nodes}
           edges={edges}
           onlyRenderVisibleElements
-          nodesDraggable={false}
-          // onNodesChange={onNodesChange}
-          // onEdgesChange={onEdgesChange}
-          // onConnect={onConnect}
+          // nodesDraggable={false}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onConnect={onConnect}
         >
           <Background
             variant={BackgroundVariant.Dots}

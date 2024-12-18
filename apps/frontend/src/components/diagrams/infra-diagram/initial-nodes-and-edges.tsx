@@ -17,19 +17,10 @@ import {
   SQS,
   Transcribe,
   Vpc,
-} from '../icons/aws';
-import { Google } from '../icons/google';
-
-import { CustomGroupNode, CustomNode } from './custom-nodes';
-import { CustomEdge } from './custom-edge';
-
-function getMiddleOfScreen() {
-  // if (typeof window !== 'undefined') {
-  //   return window.innerWidth / 2 - 200;
-  // }
-
-  return 0;
-}
+} from '../../icons/aws';
+import { Google } from '../../icons/google';
+import { CustomGroupNode, CustomNode } from '../custom-nodes';
+import { CustomEdge } from '../custom-edge';
 
 // #############
 // ### NODES ###
@@ -40,7 +31,7 @@ export const initialNodes: Node<
   {
     id: 'user',
     type: 'customNode',
-    position: { x: getMiddleOfScreen() - 85, y: 20 },
+    position: { x: -85, y: 20 },
     data: {
       label: 'User Client',
       icon: <UserRound className="stroke-[1.5]" />,
@@ -65,7 +56,7 @@ export const initialNodes: Node<
   {
     id: 'frontend-distribution',
     type: 'customNode',
-    position: { x: getMiddleOfScreen() - 400, y: 50 },
+    position: { x: -400, y: 50 },
     data: {
       label: 'Frontend Distribution',
       icon: <CloudFront />,
@@ -86,7 +77,7 @@ export const initialNodes: Node<
   {
     id: 'frontend-bucket',
     type: 'customNode',
-    position: { x: getMiddleOfScreen() - 690, y: 80 },
+    position: { x: -690, y: 80 },
     data: {
       label: 'Frontend Bucket',
       icon: <S3 />,
@@ -105,7 +96,7 @@ export const initialNodes: Node<
   {
     id: 'media-distribution',
     type: 'customNode',
-    position: { x: getMiddleOfScreen() + 280, y: 50 },
+    position: { x: +280, y: 50 },
     data: {
       label: 'Media Distribution',
       icon: <CloudFront />,
@@ -124,7 +115,7 @@ export const initialNodes: Node<
   {
     id: 'media-bucket',
     type: 'customNode',
-    position: { x: getMiddleOfScreen() + 120, y: 200 },
+    position: { x: +120, y: 200 },
     data: {
       label: 'Media Bucket',
       icon: <S3 />,
@@ -152,7 +143,7 @@ export const initialNodes: Node<
   {
     id: 'google-oauth',
     type: 'customNode',
-    position: { x: getMiddleOfScreen() - 690, y: 250 },
+    position: { x: -690, y: 250 },
     data: {
       label: 'Google OAuth',
       icon: <Google className="h-8 w-8" />,
@@ -171,7 +162,7 @@ export const initialNodes: Node<
   {
     id: 'cognito',
     type: 'customNode',
-    position: { x: getMiddleOfScreen() - 500, y: 320 },
+    position: { x: -500, y: 320 },
     data: {
       label: 'Cognito',
       icon: <Cognito />,
@@ -184,7 +175,7 @@ export const initialNodes: Node<
   {
     id: 'event-bridge-rule',
     type: 'customNode',
-    position: { x: getMiddleOfScreen() + 560, y: 250 },
+    position: { x: +560, y: 250 },
     data: {
       label: 'Event Bridge Rule',
       icon: <EventBridge />,
@@ -203,7 +194,7 @@ export const initialNodes: Node<
   {
     id: 'thumbnail-lambda',
     type: 'customNode',
-    position: { x: getMiddleOfScreen() + 470, y: 80 },
+    position: { x: +470, y: 80 },
     data: {
       label: 'Thumbnail Lambda',
       icon: <Lambda />,
@@ -216,7 +207,7 @@ export const initialNodes: Node<
   {
     id: 'transcribe-lambda',
     type: 'customNode',
-    position: { x: getMiddleOfScreen() + 340, y: 400 },
+    position: { x: +340, y: 400 },
     data: {
       label: 'Transcribe Lambda',
       icon: <Lambda />,
@@ -236,7 +227,7 @@ export const initialNodes: Node<
   {
     id: 'amazon-transcribe',
     type: 'customNode',
-    position: { x: getMiddleOfScreen() + 540, y: 600 },
+    position: { x: +540, y: 600 },
     data: {
       label: 'Amazon Transcribe',
       icon: <Transcribe />,
@@ -250,7 +241,7 @@ export const initialNodes: Node<
   {
     id: 'rekognition-lambda',
     type: 'customNode',
-    position: { x: getMiddleOfScreen() + 550, y: 400 },
+    position: { x: +550, y: 400 },
     data: {
       label: 'Rekognition Lambda',
       icon: <Lambda />,
@@ -263,7 +254,7 @@ export const initialNodes: Node<
   {
     id: 'amazon-rekognition',
     type: 'customNode',
-    position: { x: getMiddleOfScreen() + 710, y: 600 },
+    position: { x: +710, y: 600 },
     data: {
       label: 'Amazon Rekognition',
       icon: <Rekognition />,
@@ -276,7 +267,7 @@ export const initialNodes: Node<
   {
     id: 'analysis-queue',
     type: 'customNode',
-    position: { x: getMiddleOfScreen() - 40, y: 255 },
+    position: { x: -40, y: 255 },
     data: {
       label: 'Analysis SQS Queue',
       icon: <SQS />,
@@ -297,7 +288,7 @@ export const initialNodes: Node<
   {
     id: 'dynamodb-table',
     type: 'customNode',
-    position: { x: getMiddleOfScreen() + 80, y: 550 },
+    position: { x: +80, y: 550 },
     data: {
       label: 'DynamoDB Table',
       icon: <DynamoDB />,
@@ -322,7 +313,7 @@ export const initialNodes: Node<
   {
     id: 'igw',
     type: 'customNode',
-    position: { x: getMiddleOfScreen() - 280, y: 350 },
+    position: { x: -280, y: 350 },
     data: {
       label: 'Internet Gateway',
       icon: <Igw />,
@@ -349,7 +340,7 @@ export const initialNodes: Node<
   {
     id: 'vpc',
     type: 'customGroupNode',
-    position: { x: getMiddleOfScreen() - 685, y: 470 },
+    position: { x: -685, y: 470 },
     data: {
       label: 'Virtual Private Cloud',
       icon: <Vpc className="h-8 w-8" />,
@@ -464,7 +455,7 @@ export const initialNodes: Node<
   {
     id: 'cloudwatch-logs',
     type: 'customNode',
-    position: { x: getMiddleOfScreen() + 340, y: 750 },
+    position: { x: +340, y: 750 },
     data: {
       label: 'CloudWatch Logs',
       icon: <CloudWatch />,
@@ -484,7 +475,7 @@ export const initialNodes: Node<
   {
     id: 'cloudwatch-metrics',
     type: 'customNode',
-    position: { x: getMiddleOfScreen() - 70, y: 640 },
+    position: { x: -70, y: 640 },
     data: {
       label: 'CloudWatch Metrics',
       icon: <CloudWatch />,
@@ -507,7 +498,7 @@ export const initialNodes: Node<
   {
     id: 'cloudwatch-alarms',
     type: 'customNode',
-    position: { x: getMiddleOfScreen() - 500, y: 1100 },
+    position: { x: -500, y: 1100 },
     data: {
       label: 'CloudWatch Alarms',
       icon: <CloudWatch />,
@@ -527,7 +518,7 @@ export const initialNodes: Node<
   {
     id: 'api-asg',
     type: 'customNode',
-    position: { x: getMiddleOfScreen() - 685, y: 950 },
+    position: { x: -685, y: 950 },
     data: {
       label: 'Api Auto Scaling Group',
       icon: <ASG />,
@@ -541,7 +532,7 @@ export const initialNodes: Node<
   {
     id: 'model-asg',
     type: 'customNode',
-    position: { x: getMiddleOfScreen() - 330, y: 950 },
+    position: { x: -330, y: 950 },
     data: {
       label: 'Analysis Model Auto Scaling Group',
       icon: <ASG />,

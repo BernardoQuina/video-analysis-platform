@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Focus, Github, Globe } from 'lucide-react';
+import { Focus, Globe, Github } from 'lucide-react';
 
 import { Aws } from './icons/aws';
 import { Linkedin } from './icons/linkedin';
