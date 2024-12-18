@@ -4,7 +4,14 @@ import { UserRound } from 'lucide-react';
 import { CustomGroupNode, CustomNode } from '../custom-nodes';
 import { CustomEdge } from '../custom-edge';
 import { Github, GithubActions } from '../../icons/github';
-import { CloudFormation, CloudFront, Ecr, Ecs, S3 } from '../../icons/aws';
+import {
+  CloudFormation,
+  CloudFront,
+  Ecr,
+  Ecs,
+  Lambda,
+  S3,
+} from '../../icons/aws';
 
 // #############
 // ### NODES ###
@@ -277,15 +284,90 @@ export const initialNodes: Node<
       label: 'Lambdas Deployment Workflow',
       icon: <GithubActions />,
       description:
-        'Builds and packages lambda functions\nuploads to S3, updates functions code',
+        'Builds and packages lambda functions,\nuploads to S3, updates functions code',
+      sources: [{ id: 'default' }],
+      targets: [{ id: 'default' }],
+    },
+    selectable: false,
+  },
+  {
+    id: 'lambda-artifacts-bucket',
+    type: 'customNode',
+    position: { x: 290, y: 630 },
+    data: {
+      label: 'Lambda Artifacts Bucket',
+      icon: <S3 />,
+      description: 'Stores deployment zip\nfiles for Lambda functions',
       sources: [
+        { id: 'default' },
         {
-          id: 'default',
+          id: 'to-thumbnail-lambda',
+          position: Position.Left,
+          className: 'top-6 left-14',
+        },
+        {
+          id: 'to-rekognition-lambda',
           position: Position.Right,
-          className: 'top-6 right-14',
+          className: 'top-6 right-[3.5rem]',
         },
       ],
       targets: [{ id: 'default' }],
+    },
+    selectable: false,
+  },
+  {
+    id: 'thumbnail-lambda',
+    type: 'customNode',
+    position: { x: -60, y: 550 },
+    data: {
+      label: 'Thumbnail Lambda',
+      icon: <Lambda />,
+      description: 'Generates thumbnail with ffmpeg',
+      sources: [{ id: 'default' }],
+      targets: [
+        { id: 'default' },
+        {
+          id: 'from-lambda-artifacts-bucket',
+          position: Position.Right,
+          className: 'top-6 right-16',
+        },
+      ],
+    },
+    selectable: false,
+  },
+  {
+    id: 'transcribe-lambda',
+    type: 'customNode',
+    position: { x: 93, y: 740 },
+    data: {
+      label: 'Transcribe Lambda',
+      icon: <Lambda />,
+      description: 'Handles Transcribe job',
+      sources: [{ id: 'default' }],
+      targets: [
+        { id: 'default' },
+        {
+          id: 'from-lambda-artifacts-bucket',
+          position: Position.Right,
+          className: 'top-6 right-10',
+        },
+      ],
+    },
+    selectable: false,
+  },
+  {
+    id: 'rekognition-lambda',
+    type: 'customNode',
+    position: { x: 400, y: 510 },
+    data: {
+      label: 'Rekognition Lambda',
+      icon: <Lambda />,
+      description: 'Handles Rekognition job',
+      sources: [{ id: 'default' }],
+      targets: [
+        { id: 'default' },
+        { id: 'from-lambda-artifacts-bucket', position: Position.Bottom },
+      ],
     },
     selectable: false,
   },
@@ -505,6 +587,82 @@ export const initialEdges: Edge<NonNullable<CustomEdge['data']>>[] = [
       pathType: 'bezier',
       className: 'top-4 left-24',
     },
+    ...commonProperties,
+  },
+  {
+    id: 'lambdas-deployment-workflow-lambda-artifacts-bucket',
+    type: 'customEdge',
+    source: 'lambdas-deployment-workflow',
+    target: 'lambda-artifacts-bucket',
+    data: { label: 'Uploads zip files', pathType: 'bezier' },
+    ...commonProperties,
+  },
+  {
+    id: 'lambdas-deployment-workflow-thumbnail-lambda',
+    type: 'customEdge',
+    source: 'lambdas-deployment-workflow',
+    target: 'thumbnail-lambda',
+    data: { label: 'Triggers deployment', pathType: 'bezier' },
+    ...commonProperties,
+  },
+  {
+    id: 'lambdas-deployment-workflow-transcribe-lambda',
+    type: 'customEdge',
+    source: 'lambdas-deployment-workflow',
+    target: 'transcribe-lambda',
+    data: {
+      label: 'Triggers deployment',
+      pathType: 'bezier',
+      className: 'top-24',
+    },
+    ...commonProperties,
+  },
+  {
+    id: 'lambdas-deployment-workflow-rekognition-lambda',
+    type: 'customEdge',
+    source: 'lambdas-deployment-workflow',
+    target: 'rekognition-lambda',
+    data: {
+      label: 'Triggers deployment',
+      pathType: 'bezier',
+    },
+    ...commonProperties,
+  },
+  {
+    id: 'lambda-artifacts-bucket-thumbnail-lambda',
+    type: 'customEdge',
+    source: 'lambda-artifacts-bucket',
+    target: 'thumbnail-lambda',
+    data: {
+      label: 'Zip file request',
+      pathType: 'bezier',
+      className: 'top-7 left-16',
+    },
+    sourceHandle: 'lambda-artifacts-bucket-source-to-thumbnail-lambda',
+    targetHandle: 'thumbnail-lambda-target-from-lambda-artifacts-bucket',
+    ...commonProperties,
+  },
+  {
+    id: 'lambda-artifacts-bucket-transcribe-lambda',
+    type: 'customEdge',
+    source: 'lambda-artifacts-bucket',
+    target: 'transcribe-lambda',
+    data: {
+      label: 'Zip file request',
+      pathType: 'bezier',
+      className: 'top-1.5 -left-12',
+    },
+    targetHandle: 'transcribe-lambda-target-from-lambda-artifacts-bucket',
+    ...commonProperties,
+  },
+  {
+    id: 'lambda-artifacts-bucket-rekognition-lambda',
+    type: 'customEdge',
+    source: 'lambda-artifacts-bucket',
+    target: 'rekognition-lambda',
+    data: { label: 'Zip file request', pathType: 'bezier' },
+    sourceHandle: 'lambda-artifacts-bucket-source-to-rekognition-lambda',
+    targetHandle: 'rekognition-lambda-target-from-lambda-artifacts-bucket',
     ...commonProperties,
   },
 ];
