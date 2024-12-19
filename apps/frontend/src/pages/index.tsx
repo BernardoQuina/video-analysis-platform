@@ -144,7 +144,7 @@ export default function Home() {
             </div>
             <p className="max-w-[21rem] text-center text-sm">
               Dive into this AWS-deployed event-driven architecture, its
-              components, and their current statuses.
+              components, and how they interact.
             </p>
           </div>
           <ReactFlowProvider>
@@ -166,7 +166,7 @@ export default function Home() {
             </div>
             <p className="max-w-[21rem] text-center text-sm">
               See how GitHub Actions deploy code changes and how CloudFormation
-              updates the infrastructure
+              updates the infrastructure.
             </p>
           </div>
           <ReactFlowProvider>
@@ -188,7 +188,7 @@ export default function Home() {
             </div>
             <p className="max-w-[21rem] text-center text-sm">
               Reflecting on challenges, learnings and decisions behind building
-              a scalable AI video analysis platform
+              a scalable AI video analysis platform.
             </p>
           </div>
           <div className="bg-background/50 w-full gap-4 rounded-xl border p-4 shadow-sm sm:p-6 md:p-8">
