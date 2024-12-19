@@ -92,7 +92,7 @@ export const handler = async (
           console.error('FFmpeg error:', err);
           reject(err);
         })
-        .seekInput(1)
+        .seekInput(5)
         .frames(1)
         .videoFilters([
           {
