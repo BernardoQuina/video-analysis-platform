@@ -8,7 +8,6 @@ import {
   GetObjectCommand,
   PutObjectCommand,
   HeadObjectCommand,
-  GetObjectCommandInput,
 } from '@aws-sdk/client-s3';
 import type {
   APIGatewayProxyResult,
@@ -38,21 +37,14 @@ export const handler = async (
   >,
 ): Promise<APIGatewayProxyResult> => {
   const { bucket, object } = event.detail;
-  // const tempVideoPath = path.join('/tmp', 'temp-video.mp4');
+  const tempVideoPath = path.join('/tmp', 'temp-video.mp4');
   const tempThumbnailPath = path.join('/tmp', 'thumbnail.jpg');
 
-  const objectParams: GetObjectCommandInput = {
-    Bucket: bucket.name,
-    Key: object.key,
-  };
+  const objectParams = { Bucket: bucket.name, Key: object.key };
 
-  const headResponse = await s3Client.send(new HeadObjectCommand(objectParams));
-  const { userid, videoid } = headResponse.Metadata as Metadata;
-
-  // Only stream the first 10MB of the video for thumbnail generation
-  objectParams.Range = `bytes=0-${Math.min(10 * 1024 * 1024, headResponse.ContentLength || 0)}`;
-
-  console.log({ objectParams });
+  const { userid, videoid } = (
+    await s3Client.send(new HeadObjectCommand(objectParams))
+  ).Metadata as Metadata;
 
   try {
     // Get info from db
@@ -70,25 +62,25 @@ export const handler = async (
     }
 
     // Write the S3 object to a temporary file
-    // const writeStream = fs.createWriteStream(tempVideoPath);
-    // await new Promise((resolve, reject) => {
-    //   (response.Body as Readable)
-    //     .pipe(writeStream)
-    //     .on('error', reject)
-    //     .on('finish', resolve);
-    // });
+    const writeStream = fs.createWriteStream(tempVideoPath);
+    await new Promise((resolve, reject) => {
+      (response.Body as Readable)
+        .pipe(writeStream)
+        .on('error', reject)
+        .on('finish', resolve);
+    });
 
     // Verify the file exists and has content
-    // if (
-    //   !fs.existsSync(tempVideoPath) ||
-    //   fs.statSync(tempVideoPath).size === 0
-    // ) {
-    //   throw new Error('Video file not written correctly.');
-    // }
+    if (
+      !fs.existsSync(tempVideoPath) ||
+      fs.statSync(tempVideoPath).size === 0
+    ) {
+      throw new Error('Video file not written correctly.');
+    }
 
     // Step 2: Extract the first frame using ffmpeg
     await new Promise((resolve, reject) => {
-      ffmpeg(response.Body as Readable)
+      ffmpeg(tempVideoPath) // Direct path input instead of chaining input()
         .on('start', (commandLine) => {
           console.log('FFmpeg process started:', commandLine);
         })
@@ -152,8 +144,7 @@ export const handler = async (
     };
   } finally {
     // Clean up the temporary files
-    // for (const tempFile of [tempThumbnailPath, tempVideoPath]) {
-    for (const tempFile of [tempThumbnailPath]) {
+    for (const tempFile of [tempThumbnailPath, tempVideoPath]) {
       if (fs.existsSync(tempFile)) {
         try {
           fs.unlinkSync(tempFile);

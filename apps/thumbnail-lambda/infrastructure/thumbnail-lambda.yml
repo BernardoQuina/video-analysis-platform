@@ -82,6 +82,7 @@ Resources:
       FunctionName: ThumbnailVideoLambda
       Handler: index.handler
       Timeout: 900
+      MemorySize: 512
       Role: !GetAtt ThumbnailLambdaRole.Arn
       Code:
         S3Bucket: !Ref LambdasCodeS3BucketName
