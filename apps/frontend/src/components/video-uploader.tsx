@@ -75,7 +75,7 @@ export function VideoUploader(props: VideoUploaderProps) {
 
         // Wait for video metadata to load to capture a frame
         videoElement.onloadedmetadata = () => {
-          videoElement.currentTime = 1; // Capture a frame at 1 second (you can adjust this)
+          videoElement.currentTime = 5; // Capture a frame at 1 second (you can adjust this)
           form.setValue(
             'duration',
             parseFloat(videoElement.duration.toFixed(3)),
