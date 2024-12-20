@@ -49,8 +49,8 @@ export const handler = async (
   const headResponse = await s3Client.send(new HeadObjectCommand(objectParams));
   const { userid, videoid } = headResponse.Metadata as Metadata;
 
-  // Only stream the first 5MB of the video for thumbnail generation
-  objectParams.Range = `bytes=0-${Math.min(5 * 1024 * 1024, headResponse.ContentLength || 0)}`;
+  // Only stream the first 10MB of the video for thumbnail generation
+  objectParams.Range = `bytes=0-${Math.min(10 * 1024 * 1024, headResponse.ContentLength || 0)}`;
 
   console.log({ objectParams });
 
