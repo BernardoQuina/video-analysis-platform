@@ -42,6 +42,9 @@ export const handler = async (
     S3ObjectCreatedNotificationEventDetail
   >,
 ): Promise<APIGatewayProxyResult> => {
+  // TODO: Remove after testing
+  return { statusCode: 200, body: JSON.stringify({ message: 'Disabled' }) };
+
   const { bucket, object } = event.detail;
 
   const objectParams = { Bucket: bucket.name, Key: object.key };

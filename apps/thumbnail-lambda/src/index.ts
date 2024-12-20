@@ -8,6 +8,7 @@ import {
   GetObjectCommand,
   PutObjectCommand,
   HeadObjectCommand,
+  GetObjectCommandInput,
 } from '@aws-sdk/client-s3';
 import type {
   APIGatewayProxyResult,
@@ -40,11 +41,18 @@ export const handler = async (
   const tempVideoPath = path.join('/tmp', 'temp-video.mp4');
   const tempThumbnailPath = path.join('/tmp', 'thumbnail.jpg');
 
-  const objectParams = { Bucket: bucket.name, Key: object.key };
+  const objectParams: GetObjectCommandInput = {
+    Bucket: bucket.name,
+    Key: object.key,
+  };
 
-  const { userid, videoid } = (
-    await s3Client.send(new HeadObjectCommand(objectParams))
-  ).Metadata as Metadata;
+  const headResponse = await s3Client.send(new HeadObjectCommand(objectParams));
+  const { userid, videoid } = headResponse.Metadata as Metadata;
+
+  // Only download the first 10MB of the video for thumbnail generation
+  objectParams.Range = `bytes=0-${Math.min(10 * 1024 * 1024, headResponse.ContentLength || 0)}`;
+
+  console.log({ objectParams });
 
   try {
     // Get info from db
