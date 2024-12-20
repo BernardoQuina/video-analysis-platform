@@ -98,7 +98,7 @@ export const handler = async (
     // Save error in db video item
     await db.entities.videos
       .update({ id: videoid, userId: userid })
-      .set({ transcriptError: error.message })
+      .set({ rekognitionObjectsError: error.message })
       .go();
 
     return {
