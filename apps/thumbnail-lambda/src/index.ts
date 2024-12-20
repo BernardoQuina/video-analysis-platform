@@ -50,7 +50,7 @@ export const handler = async (
   const { userid, videoid } = headResponse.Metadata as Metadata;
 
   // Only download the first 10MB of the video for thumbnail generation
-  objectParams.Range = `bytes=0-${Math.min(10 * 1024 * 1024, headResponse.ContentLength || 0)}`;
+  objectParams.Range = `bytes=0-${Math.min(5 * 1024 * 1024, headResponse.ContentLength || 0)}`;
 
   console.log({ objectParams });
 
