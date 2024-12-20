@@ -215,7 +215,7 @@ export function UploadDialog() {
                   <FormControl>
                     <Input
                       type="text"
-                      placeholder="(e.g) Explain what is happening in this video"
+                      placeholder="(e.g) How do the people in this video look like?"
                       {...field}
                     />
                   </FormControl>
