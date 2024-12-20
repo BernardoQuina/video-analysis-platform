@@ -43,7 +43,7 @@ export const handler = async (
   >,
 ): Promise<APIGatewayProxyResult> => {
   // TODO: Remove after testing
-  return { statusCode: 200, body: JSON.stringify({ message: 'Disabled' }) };
+  // return { statusCode: 200, body: JSON.stringify({ message: 'Disabled' }) };
 
   const { bucket, object } = event.detail;
 
