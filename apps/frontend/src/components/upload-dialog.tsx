@@ -168,7 +168,7 @@ export function UploadDialog() {
     }
   }
 
-  // Effect to clear form on close (couldn't find another way for shadcn ui form)
+  // Effect to clear form on close (couldn't find another way for shadcn dialog)
   useEffect(() => {
     if (!open) {
       const clearFormTimeOut = setTimeout(() => {

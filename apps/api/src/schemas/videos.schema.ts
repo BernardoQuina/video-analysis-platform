@@ -11,9 +11,9 @@ export const initiateUploadSchema = z
     fileName: z
       .string({ message: 'File name must be provided.' })
       .min(1, { message: 'Filename cannot be empty.' })
-      .regex(/^[a-zA-Z0-9._\- |]+$/, {
+      .regex(/^[a-zA-Z0-9._\- |'""]+$/, {
         message:
-          'Filename contains invalid characters. Allowed characters are letters, numbers, spaces, dashes (-), underscores (_), periods (.), and pipes (|).',
+          'Filename contains invalid characters. Allowed characters are letters, numbers, spaces, dashes (-), underscores (_), periods (.), pipes (|), single quotes (\'), and double quotes (").',
       })
       .refine((fileName) => !fileName.includes('/'), {
         message: 'Filename cannot contain forward slashes (/).',
