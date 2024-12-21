@@ -44,9 +44,6 @@ export const handler = async (
     S3ObjectCreatedNotificationEventDetail
   >,
 ): Promise<APIGatewayProxyResult> => {
-  // TODO: Remove after testing
-  return { statusCode: 200, body: JSON.stringify({ message: 'Disabled' }) };
-
   const { bucket, object } = event.detail;
 
   const objectParams = { Bucket: bucket.name, Key: object.key };
@@ -154,7 +151,7 @@ export const handler = async (
     // Prompt message
     const sqsPromptMessage = {
       video_s3_uri,
-      prompt: `${hasTranscript ? `\n${transcript}Answer the following prompt in a detailed and extensive manner (use at least 2 paragraphs), double breaking line between paragraphs and taking the transcript into account:\n` : 'Answer the following prompt in a detailed and extensive manner (use at least 2 paragraphs), double breaking line between paragraphs:\n'}${videoItem!.prompt}`,
+      prompt: `${hasTranscript ? `\n${transcript}Answer the following prompt in a detailed and extensive manner (use at least 2 paragraphs), double breaking line between paragraphs and taking the transcript into account:\n` : 'Answer the following prompt in a detailed and extensive manner (use at least 2 paragraphs), double breaking line between paragraphs:\n'}${videoItem.prompt}`,
       field_name: 'promptResult', // for dynamodb field storage
     };
 
