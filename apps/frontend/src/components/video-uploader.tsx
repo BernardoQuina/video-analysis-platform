@@ -31,7 +31,7 @@ interface VideoUploaderProps extends React.HTMLAttributes<HTMLDivElement> {
   uploading: boolean;
   progress: number;
   accept?: DropzoneProps['accept'];
-  maxSize?: DropzoneProps['maxSize']; // 200MB default
+  maxSize?: DropzoneProps['maxSize']; // 50MB default
   disabled?: boolean;
   form: Form;
 }
@@ -43,7 +43,7 @@ export function VideoUploader(props: VideoUploaderProps) {
     uploading,
     progress,
     accept = { 'video/mp4': [] },
-    maxSize = 1024 * 1024 * 200, // 200MB
+    maxSize = 1024 * 1024 * 50, // 50MB
     disabled = false,
     form,
     className,
