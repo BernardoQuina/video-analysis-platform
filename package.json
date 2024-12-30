@@ -13,7 +13,6 @@
     "lint:fix": "turbo run lint:fix",
     "format": "turbo run format",
     "prepare": "husky install",
-    "deploy-frontend": "turbo run deploy-frontend",
     "deploy-main": "./infrastructure/stack-deploy.sh",
     "build-images": "turbo run build-image",
     "package-lambda": "turbo run package-lambda"

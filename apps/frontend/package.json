@@ -8,8 +8,7 @@
     "start": "next start",
     "lint": "tsc --noEmit && eslint .",
     "lint:fix": "tsc --noEmit && eslint . --fix",
-    "format": "prettier --check .",
-    "deploy-frontend": "./infrastructure/frontend-stack-deploy.sh"
+    "format": "prettier --check ."
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",

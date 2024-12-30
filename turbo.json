@@ -24,10 +24,6 @@
       "outputs": [],
       "cache": false
     },
-    "deploy-frontend": {
-      "outputs": [],
-      "cache": false
-    },
     "deploy-main": {
       "outputs": [],
       "cache": false
