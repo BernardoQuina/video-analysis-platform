@@ -11,15 +11,11 @@ import { Button } from '../components/ui/button';
 
 const InfraDiagram = dynamic(
   () => import('../components/diagrams/infra-diagram'),
-  {
-    ssr: false,
-  },
+  { ssr: false },
 );
 const CICDDiagram = dynamic(
   () => import('../components/diagrams/ci-cd-diagram'),
-  {
-    ssr: false,
-  },
+  { ssr: false },
 );
 
 export default function Home() {
