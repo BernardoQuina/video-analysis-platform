@@ -16,10 +16,23 @@ Parameters:
     Type: String
     Description: EC2 key pair name for the instances
 
-  # Cognito (Google sign-in) Parameters
+  # DNS Parameters
+  HostedZoneId:
+    Type: String
+    Description: The ID of the hosted zone in Route 53 (for custom top level domain)
+  CertificateArn:
+    Type: String
+    Description: ARN of the manually created ACM certificate (must be in us-east-1 for CloudFront)
+
+  # Frontend Parameters
+  FrontendS3BucketName:
+    Type: String
+    Description: Name of the S3 bucket that will store frontend static site files (NOT pre-created)
   FrontendDomainName:
     Type: String
-    Description: Domain Name for frontend site (CloudFront)
+    Description: Domain name for the Frontend CloudFront distribution
+
+  # Cognito (Google sign-in) Parameters
   GoogleClientId:
     Type: String
     Description: Google OAuth 2.0 Client ID
@@ -49,13 +62,10 @@ Parameters:
   # Video storage S3
   MediaDomainName:
     Type: String
-    Description: Domain name for the CloudFront distribution
-  CertificateArn:
-    Type: String
-    Description: ARN of the manually created ACM certificate (must be in us-east-1 for CloudFront)
+    Description: Domain name for the Media CloudFront distribution
   VideoStorageS3BucketName:
     Type: String
-    Description: Name of the S3 bucket that will store uploaded videos (needs to be pre-created)
+    Description: Name of the S3 bucket that will store uploaded videos (NOT pre-created)
 
   # API parameters
   APIECSAMI:
@@ -123,11 +133,21 @@ Parameters:
   APIDomainName:
     Type: String
     Description: Domain name for the API ALB
-  HostedZoneId:
-    Type: String
-    Description: The ID of the hosted zone in Route 53
 
 Resources:
+  # Frontend Stack
+  FrontendStack:
+    Type: AWS::CloudFormation::Stack
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
+    Properties:
+      TemplateURL: !Sub https://${StackTemplatesS3BucketName}.s3.amazonaws.com/frontend/frontend-s3-bucket.yml
+      Parameters:
+        BucketName: !Ref FrontendS3BucketName
+        DomainName: !Ref FrontendDomainName
+        HostedZoneId: !Ref HostedZoneId
+        CertificateArn: !Ref CertificateArn
+
   # Cognito User Pool Stack
   CognitoUserPool:
     Type: AWS::CloudFormation::Stack

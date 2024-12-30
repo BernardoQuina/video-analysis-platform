@@ -26,14 +26,15 @@ if stack_exists; then
     --parameters ParameterKey=AccountId,ParameterValue="$ACCOUNT_ID" \
     ParameterKey=StackTemplatesS3BucketName,ParameterValue="$STACK_TEMPLATES_S3_BUCKET_NAME" \
     ParameterKey=LambdasCodeS3BucketName,ParameterValue="$LAMBDAS_CODE_S3_BUCKET_NAME" \
+    ParameterKey=FrontendS3BucketName,ParameterValue="$FRONTEND_S3_BUCKET_NAME" \
+    ParameterKey=FrontendDomainName,ParameterValue="$FRONTEND_DOMAIN_NAME" \
     ParameterKey=VideoStorageS3BucketName,ParameterValue="$VIDEO_STORAGE_S3_BUCKET_NAME" \
+    ParameterKey=MediaDomainName,ParameterValue="$MEDIA_DOMAIN_NAME" \
     ParameterKey=EC2KeyPairName,ParameterValue="$EC2_KEY_PAIR_NAME" \
     ParameterKey=APIECRRepositoryName,ParameterValue="$API_ECR_REPOSITORY_NAME" \
     ParameterKey=AnalysisModelECRRepositoryName,ParameterValue="$ANALYSIS_MODEL_ECR_REPOSITORY_NAME" \
     ParameterKey=AnalysisModelECSAMI,ParameterValue="$ANALYSIS_MODEL_ECS_AMI" \
-    ParameterKey=FrontendDomainName,ParameterValue="$FRONTEND_DOMAIN_NAME" \
     ParameterKey=APIDomainName,ParameterValue="$API_DOMAIN_NAME" \
-    ParameterKey=MediaDomainName,ParameterValue="$MEDIA_DOMAIN_NAME" \
     ParameterKey=HostedZoneId,ParameterValue="$HOSTED_ZONE_ID" \
     ParameterKey=CertificateArn,ParameterValue="$CERTIFICATE_ARN" \
     ParameterKey=GoogleClientId,ParameterValue="$GOOGLE_CLIENT_ID" \
@@ -57,14 +58,15 @@ else
     --parameters ParameterKey=AccountId,ParameterValue="$ACCOUNT_ID" \
     ParameterKey=StackTemplatesS3BucketName,ParameterValue="$STACK_TEMPLATES_S3_BUCKET_NAME" \
     ParameterKey=LambdasCodeS3BucketName,ParameterValue="$LAMBDAS_CODE_S3_BUCKET_NAME" \
+    ParameterKey=FrontendS3BucketName,ParameterValue="$FRONTEND_S3_BUCKET_NAME" \
+    ParameterKey=FrontendDomainName,ParameterValue="$FRONTEND_DOMAIN_NAME" \
     ParameterKey=VideoStorageS3BucketName,ParameterValue="$VIDEO_STORAGE_S3_BUCKET_NAME" \
+    ParameterKey=MediaDomainName,ParameterValue="$MEDIA_DOMAIN_NAME" \
     ParameterKey=EC2KeyPairName,ParameterValue="$EC2_KEY_PAIR_NAME" \
     ParameterKey=APIECRRepositoryName,ParameterValue="$API_ECR_REPOSITORY_NAME" \
     ParameterKey=AnalysisModelECRRepositoryName,ParameterValue="$ANALYSIS_MODEL_ECR_REPOSITORY_NAME" \
     ParameterKey=AnalysisModelECSAMI,ParameterValue="$ANALYSIS_MODEL_ECS_AMI" \
-    ParameterKey=FrontendDomainName,ParameterValue="$FRONTEND_DOMAIN_NAME" \
     ParameterKey=APIDomainName,ParameterValue="$API_DOMAIN_NAME" \
-    ParameterKey=MediaDomainName,ParameterValue="$MEDIA_DOMAIN_NAME" \
     ParameterKey=HostedZoneId,ParameterValue="$HOSTED_ZONE_ID" \
     ParameterKey=CertificateArn,ParameterValue="$CERTIFICATE_ARN" \
     ParameterKey=GoogleClientId,ParameterValue="$GOOGLE_CLIENT_ID" \
