@@ -10,11 +10,15 @@ import { UploadDialog } from '../../components/upload-dialog';
 import { VideoCard, VideoCardSkeleton } from '../../components/video-card';
 
 export default function Videos() {
+  const { data: me } = trpc.auth.me.useQuery(undefined, {
+    trpc: { context: { skipBatch: true } },
+  });
+
   const {
     data: myVideos,
     isLoading: loadingMyVideos,
     error: myVideosError,
-  } = trpc.videos.myVideos.useQuery();
+  } = trpc.videos.myVideos.useQuery(undefined, { enabled: !!me });
 
   const {
     data: publicVideos,
