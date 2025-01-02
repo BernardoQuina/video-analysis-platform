@@ -125,7 +125,10 @@ export default function Home() {
             </Button>
           </div>
         </section>
-        <section className="items-center gap-4">
+        <section
+          className="scroll-m-[72px] items-center gap-4"
+          id="infrastructure"
+        >
           <div className="items-center gap-2">
             <div className="flex-row items-center gap-6">
               <div className="relative h-[1px] w-[calc(50vw-6rem)] max-w-52 bg-gradient-to-l from-black/30 to-transparent dark:from-white/30">
@@ -147,7 +150,7 @@ export default function Home() {
             <InfraDiagram />
           </ReactFlowProvider>
         </section>
-        <section className="items-center gap-4">
+        <section className="scroll-m-[72px] items-center gap-4" id="ci-cd">
           <div className="items-center gap-2">
             <div className="flex-row items-center gap-6">
               <div className="relative h-[1px] w-[calc(50vw-6rem)] max-w-52 bg-gradient-to-l from-black/30 to-transparent dark:from-white/30">

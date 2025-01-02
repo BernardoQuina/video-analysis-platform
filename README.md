@@ -27,7 +27,7 @@ The system is built as a modern web application with event-driven microservices 
 
 ### Architecture Diagram
 
-You can checkout the interactive architecture diagram in the [main page of the project](https://video-analysis.bernardoquina.com). Here is a screenshot:
+You can checkout the interactive architecture diagram in the [main page of the project](https://video-analysis.bernardoquina.com/#infrastructure). Here is a screenshot:
 
 ![Architecture Diagram](./docs/images/architecture-diagram.png)
 
@@ -430,7 +430,7 @@ APP_DOMAIN_PREFIX=
 
 ### GitHub Actions Workflows
 
-You can checkout the interactive CI/CD workflow diagram in the [main page of the project](https://video-analysis.bernardoquina.com). Here is a screenshot:
+You can checkout the interactive CI/CD workflow diagram in the [main page of the project](https://video-analysis.bernardoquina.com/#ci-cd). Here is a screenshot:
 
 ![CI/CD Diagram](./docs/images/ci-cd-diagram.png)
 
