@@ -192,7 +192,13 @@ export async function authenticate({ req, res }: Context) {
   }
 }
 
-export async function exchangeCodeForTokens(code: string) {
+export async function exchangeCodeForTokens({
+  code,
+  path,
+}: {
+  code: string;
+  path: string;
+}) {
   try {
     const encodedAuth = Buffer.from(`${clientId}:${clientSecret}`).toString(
       'base64',
@@ -210,7 +216,7 @@ export async function exchangeCodeForTokens(code: string) {
         grant_type: 'authorization_code',
         client_id: clientId!,
         code,
-        redirect_uri: frontendUrl!,
+        redirect_uri: `${frontendUrl!}${path}`,
       }),
     };
 

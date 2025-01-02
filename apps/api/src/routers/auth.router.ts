@@ -17,9 +17,12 @@ import { getTimestampDaysFromNow } from '../utils/miscellaneous';
 
 export const auth = router({
   exchangeCodeForToken: publicProcedure
-    .input(z.object({ code: z.string() }))
+    .input(z.object({ code: z.string(), path: z.string() }))
     .mutation(async ({ input, ctx }) => {
-      const tokens = await exchangeCodeForTokens(input.code);
+      const tokens = await exchangeCodeForTokens({
+        code: input.code,
+        path: input.path,
+      });
 
       const user = (await validateToken(tokens.id_token)) as CognitoUser;
 

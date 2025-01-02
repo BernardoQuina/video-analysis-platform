@@ -49,12 +49,12 @@ export default function Videos() {
     if (!code) return;
 
     const signIn = async () => {
-      const { message } = await mutateAsync({ code });
+      const { message } = await mutateAsync({ code, path: '/videos' });
 
       if (message === 'Authenticated') {
         utils.auth.me.invalidate();
 
-        router.push('/');
+        router.push('/videos');
       }
     };
 
