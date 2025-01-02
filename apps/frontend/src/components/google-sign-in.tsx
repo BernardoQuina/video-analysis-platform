@@ -33,7 +33,11 @@ export function GoogleSignIn() {
     // Generate the Google authorization URL dynamically
     const domain = process.env.NEXT_PUBLIC_COGNITO_DOMAIN;
     const clientId = process.env.NEXT_PUBLIC_COGNITO_CLIENT_ID;
-    const redirectUri = encodeURIComponent(window.location.origin);
+    const redirectUri = encodeURIComponent(
+      window.location.pathname === '/videos'
+        ? window.location.href
+        : window.location.origin,
+    );
 
     const googleAuthUrl =
       `${domain}/oauth2/authorize?` +
