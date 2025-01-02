@@ -22,6 +22,10 @@ export default function Home() {
   const searchParams = useSearchParams();
   const code = searchParams.get('code');
 
+  // Pre-fetch videos
+  trpc.videos.myVideos.useQuery();
+  trpc.videos.publicVideos.useQuery();
+
   const { mutateAsync } = trpc.auth.exchangeCodeForToken.useMutation();
 
   const utils = trpc.useUtils();

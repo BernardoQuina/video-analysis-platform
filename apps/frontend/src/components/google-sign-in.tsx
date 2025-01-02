@@ -93,7 +93,7 @@ function SignedInDropdown({ me }: { me: Me }) {
   const handleSignOut = async () => {
     const { message } = await mutateAsync();
 
-    if (message === 'Token revoked') utils.auth.me.invalidate();
+    if (message === 'Token revoked') utils.invalidate();
   };
 
   return (
