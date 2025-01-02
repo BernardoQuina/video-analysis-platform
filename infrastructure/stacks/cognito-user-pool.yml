@@ -64,7 +64,9 @@ Resources:
         - Google
       CallbackURLs:
         - !Sub https://${FrontendDomainName}
+        - !Sub https://${FrontendDomainName}/videos
         - http://localhost:3000 # For local development
+        - http://localhost:3000/videos # For local development
       LogoutURLs:
         - !Sub https://${FrontendDomainName}
         - http://localhost:3000

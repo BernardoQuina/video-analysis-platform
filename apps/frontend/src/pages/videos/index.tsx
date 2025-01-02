@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 
 import { PageLayout } from '../../components/page-layout';
@@ -34,6 +35,31 @@ export default function Videos() {
       });
     }
   }, [myVideosError, publicVideosError]);
+
+  const searchParams = useSearchParams();
+  const code = searchParams.get('code');
+
+  const { mutateAsync } = trpc.auth.exchangeCodeForToken.useMutation();
+
+  const utils = trpc.useUtils();
+
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!code) return;
+
+    const signIn = async () => {
+      const { message } = await mutateAsync({ code });
+
+      if (message === 'Authenticated') {
+        utils.auth.me.invalidate();
+
+        router.push('/');
+      }
+    };
+
+    signIn();
+  }, [code, mutateAsync, router, utils.auth.me]);
 
   return (
     <PageLayout
