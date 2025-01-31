@@ -64,6 +64,7 @@ export default function Home() {
             <a
               href="https://bernardoquina.com"
               target="_blank"
+              aria-label="Checkout my personal website"
               rel="noreferrer"
             >
               Made by Bernardo Quina
@@ -116,6 +117,7 @@ export default function Home() {
                 href="https://www.github.com/BernardoQuina/video-analysis-platform"
                 target="_blank"
                 rel="noreferrer"
+                aria-label="View this project source code on github"
               >
                 View <span className="xs:block hidden">Source</span>
                 Code <Github className="ml-1.5" />
