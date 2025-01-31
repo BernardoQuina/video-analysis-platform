@@ -62,7 +62,7 @@ export default function Home() {
             asChild
           >
             <a
-              href="https://bernardo-quina.com"
+              href="https://bernardoquina.com"
               target="_blank"
               rel="noreferrer"
             >
