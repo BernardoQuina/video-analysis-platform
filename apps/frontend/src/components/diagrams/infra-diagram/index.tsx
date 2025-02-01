@@ -100,6 +100,7 @@ export default function InfraDiagram() {
           variant="outline"
           size="icon"
           onClick={handleMaximize}
+          aria-label="Maximize infrastructure diagram"
         >
           {maximized ? <Minimize /> : <Maximize />}
         </Button>

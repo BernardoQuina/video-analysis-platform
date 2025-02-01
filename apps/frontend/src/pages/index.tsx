@@ -140,9 +140,9 @@ export default function Home() {
               <div className="relative h-[1px] w-[calc(50vw-6rem)] max-w-52 bg-gradient-to-l from-black/30 to-transparent dark:from-white/30">
                 <div className="from-red/30 absolute right-0 top-0 h-[1px] w-full bg-gradient-to-l from-black/30 to-transparent blur-[2px] dark:from-white/60"></div>
               </div>
-              <h3 className="min-w-fit text-center text-lg font-medium">
+              <h2 className="min-w-fit text-center text-lg font-medium">
                 Explore Infrastructure
-              </h3>
+              </h2>
               <div className="relative h-[1px] w-[calc(50vw-6rem)] max-w-52 bg-gradient-to-r from-black/30 to-transparent dark:from-white/30">
                 <div className="from-red/30 absolute left-0 top-0 h-[1px] w-full bg-gradient-to-r from-black/30 to-transparent blur-[2px] dark:from-white/60"></div>
               </div>
@@ -162,9 +162,9 @@ export default function Home() {
               <div className="relative h-[1px] w-[calc(50vw-6rem)] max-w-52 bg-gradient-to-l from-black/30 to-transparent dark:from-white/30">
                 <div className="from-red/30 absolute right-0 top-0 h-[1px] w-full bg-gradient-to-l from-black/30 to-transparent blur-[2px] dark:from-white/60"></div>
               </div>
-              <h3 className="min-w-fit text-center text-lg font-medium">
+              <h2 className="min-w-fit text-center text-lg font-medium">
                 CI/CD Workflow Overview
-              </h3>
+              </h2>
               <div className="relative h-[1px] w-[calc(50vw-6rem)] max-w-52 bg-gradient-to-r from-black/30 to-transparent dark:from-white/30">
                 <div className="from-red/30 absolute left-0 top-0 h-[1px] w-full bg-gradient-to-r from-black/30 to-transparent blur-[2px] dark:from-white/60"></div>
               </div>
@@ -184,9 +184,9 @@ export default function Home() {
               <div className="relative h-[1px] w-[calc(50vw-6rem)] max-w-52 bg-gradient-to-l from-black/30 to-transparent dark:from-white/30">
                 <div className="from-red/30 absolute right-0 top-0 h-[1px] w-full bg-gradient-to-l from-black/30 to-transparent blur-[2px] dark:from-white/60"></div>
               </div>
-              <h3 className="min-w-fit text-center text-lg font-medium">
+              <h2 className="min-w-fit text-center text-lg font-medium">
                 Project Insights
-              </h3>
+              </h2>
               <div className="relative h-[1px] w-[calc(50vw-6rem)] max-w-52 bg-gradient-to-r from-black/30 to-transparent dark:from-white/30">
                 <div className="from-red/30 absolute left-0 top-0 h-[1px] w-full bg-gradient-to-r from-black/30 to-transparent blur-[2px] dark:from-white/60"></div>
               </div>

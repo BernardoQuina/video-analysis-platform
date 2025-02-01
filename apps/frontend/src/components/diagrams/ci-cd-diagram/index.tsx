@@ -100,6 +100,7 @@ export default function CICDDiagram() {
           variant="outline"
           size="icon"
           onClick={handleMaximize}
+          aria-label="Maximize CI/CD diagram"
         >
           {maximized ? <Minimize /> : <Maximize />}
         </Button>
