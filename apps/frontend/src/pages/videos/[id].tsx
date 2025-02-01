@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
+import { useParams } from 'next/navigation';
 import { MediaPlayerInstance, useMediaRemote } from '@vidstack/react';
 import { toast } from 'sonner';
 import moment from 'moment';
@@ -46,9 +47,8 @@ export default function Videos() {
     objectDetection: 'unknown',
   });
 
-  const router = useRouter();
-
-  const { id } = router.query;
+  const params = useParams();
+  const id = params?.id;
 
   const {
     data: video,
@@ -183,7 +183,7 @@ export default function Videos() {
       pageTitle="Video Analysis Demo | Library"
       pageDescription="Discover and explore video analyses in the Video Analysis Library. Access your own videos insights and browse public analyses from other users"
     >
-      {isLoading ? (
+      {!id || isLoading ? (
         <LoadingSkeleton />
       ) : error ? (
         <div className="items-center">
