@@ -205,7 +205,7 @@ export default function Home() {
               learned about cloud architecture, infrastructure automation, and
               the intricacies of deploying AI-powered applications at scale.
             </p>
-            <h4 className="pt-2 text-xl font-medium">Challenges Faced</h4>
+            <h3 className="pt-2 text-xl font-medium">Challenges Faced</h3>
             <p>
               The journey of building this platform revealed several significant
               challenges that tested both technical skills and project
@@ -246,7 +246,7 @@ export default function Home() {
               public subnets. Despite using more than 20 services/components the
               base monthly cost of the project is below 20 dollars.
             </p>
-            <h4 className="pt-2 text-xl font-medium">Key Takeaways</h4>
+            <h3 className="pt-2 text-xl font-medium">Key Takeaways</h3>
             <p>
               The implementation of an event-driven microservices architecture
               proved to be a double-edged sword. While it provided exceptional
@@ -278,7 +278,7 @@ export default function Home() {
               dividends throughout the development process and would continue to
               do so throughout the project lifecycle if it were to continue.
             </p>
-            <h4 className="pt-2 text-xl font-medium">Areas for Improvement</h4>
+            <h3 className="pt-2 text-xl font-medium">Areas for Improvement</h3>
             <p>
               Several areas of the platform could be enhanced with additional
               development time. The integration of API Gateway could provide
