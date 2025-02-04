@@ -57,7 +57,7 @@ export function Footer() {
               <div className="flex-row gap-4">
                 <a
                   className="h-fit w-fit"
-                  href="https://www.linkedin.com/in/bernardo-quina/"
+                  href="https://www.linkedin.com/in/BernardoQuina/"
                   target="_blank"
                   rel="noreferrer"
                   aria-label="Go to my LinkedIn profile"
