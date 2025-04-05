@@ -343,11 +343,6 @@ function InfoAndOptions({ video }: InfoAndOptionsProps) {
         </div>
       </div>
       <div className="flex-row items-center gap-3 sm:hidden">{badges}</div>
-      <p className="text-muted-foreground text-sm">
-        Showcase of AI-driven analysis with AWS-powered services, offering
-        transcriptions, object detection, and intelligent Q&A through cloud
-        technology.
-      </p>
     </div>
   );
 }
