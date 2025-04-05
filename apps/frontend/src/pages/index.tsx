@@ -22,13 +22,13 @@ export default function Home() {
   const searchParams = useSearchParams();
   const code = searchParams.get('code');
 
+  const trpcUtils = trpc.useUtils();
+
   // Pre-fetch videos
-  trpc.videos.myVideos.useQuery();
-  trpc.videos.publicVideos.useQuery();
+  trpcUtils.videos.myVideos.prefetch();
+  trpcUtils.videos.publicVideos.prefetch();
 
   const { mutateAsync } = trpc.auth.exchangeCodeForToken.useMutation();
-
-  const utils = trpc.useUtils();
 
   const router = useRouter();
 
@@ -39,14 +39,14 @@ export default function Home() {
       const { message } = await mutateAsync({ code, path: '/' });
 
       if (message === 'Authenticated') {
-        utils.auth.me.invalidate();
+        trpcUtils.auth.me.invalidate();
 
         router.push('/');
       }
     };
 
     signIn();
-  }, [code, mutateAsync, router, utils.auth.me]);
+  }, [code, mutateAsync, router, trpcUtils.auth.me]);
 
   return (
     <PageLayout
