@@ -7,6 +7,7 @@ import { CheckCircle2, Cpu, Eye, XCircle, Lock } from 'lucide-react';
 
 import { AppRouter } from '../../../api/src/routers/index.router';
 import { cn } from '../utils/cn';
+import { trpc } from '../utils/trpc';
 
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Skeleton } from './ui/skeleton';
@@ -27,6 +28,8 @@ const shapeClass =
   'w-full sm:w-[calc(50%-0.5rem)] lg:w-[calc(33.33%-0.69rem)] gap-2';
 
 export function VideoCard({ video, isMyVideos }: VideoCardProps) {
+  const trpcUtils = trpc.useUtils();
+
   const formattedTime = useMemo(
     () => moment(video.createdAt).fromNow(),
     [video],
@@ -56,8 +59,16 @@ export function VideoCard({ video, isMyVideos }: VideoCardProps) {
     return count;
   }, [video]);
 
+  function preFetch() {
+    trpcUtils.videos.singleVideo.prefetch({ videoId: video.id });
+  }
+
   return (
-    <Link href={`/videos/${video.id}`} className={cn(shapeClass, 'group')}>
+    <Link
+      href={`/videos/${video.id}`}
+      className={cn(shapeClass, 'group')}
+      onMouseEnter={preFetch}
+    >
       <div className="relative aspect-video w-full overflow-hidden rounded-lg shadow-md">
         <Image
           className="h-full w-full object-cover transition duration-300 ease-in-out group-hover:scale-105"
